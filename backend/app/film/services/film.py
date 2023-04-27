@@ -7,6 +7,7 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def get_films_assortment(self, dto: ...) -> ...:
+        """ Метод для получения ассортимента """
         ...
 
     @abstractmethod
