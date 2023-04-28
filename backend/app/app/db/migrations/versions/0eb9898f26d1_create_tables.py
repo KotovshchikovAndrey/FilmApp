@@ -21,7 +21,7 @@ def create_user_table() -> None:
         sa.Column("avatar", sa.String(255), nullable=True),
         sa.Column(
             "reset_token",
-            sa.UUID(as_uuid=True),
+            sa.String(255),
             nullable=False,
             default=uuid.uuid4(),
         ),
