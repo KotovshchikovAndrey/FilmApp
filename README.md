@@ -2,4 +2,4 @@
 
 1) Перейти в директорию backend/app
 2) установить зависимости (pip intsall -r requirements.txt)
-3) запустить сервер (python main.py) # Пока не работает :)
+3) запустить сервер (python main.py) # Теперь работает :)
