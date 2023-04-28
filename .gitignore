@@ -2,3 +2,4 @@ backend/venv
 backend/app/.env
 backend/app/alembic.ini
 **/__pycache__/**
+.idea/
