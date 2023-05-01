@@ -44,9 +44,16 @@ class PostgresConnection(IDbConnection):
         if self.__connection.is_connected:
             await self.__connection.disconnect()
 
-    async def execute_query(self, query: str):
-        result = await self.__connection.execute(query)
+    async def fetch_one(self, query: str, **params: tp.Any):
+        result = await self.__connection.fetch_one(query, values=params)
         return result
+
+    async def fetch_all(self, query: str, **params: tp.Any):
+        result = await self.__connection.fetch_all(query, values=params)
+        return result
+
+    async def execute_query(self, query: str, **params: tp.Any):
+        await self.__connection.execute(query, values=params)
 
     def get_url(self):
         db_url = f"postgresql+psycopg2://{self.__db_user}:{self.__db_password}@{self.__db_host}:{self.__db_port}/{self.__db_name}"

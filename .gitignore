@@ -1,5 +1,5 @@
 backend/venv
-backend/app/db/migrations
+backend/app/app/db/migrations
 backend/app/.env
 backend/app/alembic.ini
 **/__pycache__/**

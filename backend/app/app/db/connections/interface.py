@@ -12,7 +12,15 @@ class IDbConnection(ABC):
         ...
 
     @abstractmethod
-    async def execute_query(self, query: str) -> ...:
+    async def fetch_one(self, query: str, **params: tp.Any) -> tp.Any:
+        ...
+
+    @abstractmethod
+    async def fetch_all(self, query: str, **params: tp.Any) -> tp.Iterable[tp.Any]:
+        ...
+
+    @abstractmethod
+    async def execute_query(self, query: str, **params: tp.Any) -> None:
         ...
 
     @abstractmethod

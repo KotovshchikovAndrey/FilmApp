@@ -1,13 +1,15 @@
 import typing as tp
 from abc import ABC, abstractmethod
 
+from film.crud.reporitories import IFilmReporitory
+from film.dto import GetFilmsDTO, FilmsDTO
+
 
 class IFilmService(ABC):
-    __repository: ...
+    __repository: IFilmReporitory
 
     @abstractmethod
-    async def get_films_assortment(self, dto: ...) -> ...:
-        """ Метод для получения ассортимента """
+    async def get_films_assortment(self, dto: GetFilmsDTO) -> FilmsDTO:
         ...
 
     @abstractmethod
@@ -28,11 +30,12 @@ class IFilmService(ABC):
 
 
 class FilmService(IFilmService):
-    def __init__(self, repository: ...):
-        ...
+    def __init__(self, repository: IFilmReporitory):
+        self.__repository = repository
 
-    async def get_films_assortment(self, dto: ...):
-        ...
+    async def get_films_assortment(self, dto: GetFilmsDTO):
+        films = await self.__repository.get_many(limit=dto.limit, offset=dto.offset)
+        return FilmsDTO(films=films)
 
     async def get_film_info(self, dto: ...):
         ...

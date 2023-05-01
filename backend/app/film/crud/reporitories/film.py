@@ -1,10 +1,13 @@
 import typing as tp
 from abc import ABC, abstractmethod
 
+from app.db import db_connection
+from film.crud import queries
+
 
 class IFilmReporitory(ABC):
     @abstractmethod
-    async def get_many(self, limit: int, offset: int) -> ...:
+    async def get_many(self, limit: int, offset: int) -> tp.Iterable[tp.Mapping]:
         ...
 
     @abstractmethod
@@ -26,7 +29,13 @@ class IFilmReporitory(ABC):
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(self, limit: int, offset: int):
-        ...
+        films = await db_connection.fetch_all(
+            queries.GET_MANY_FILMS,
+            limit=limit,
+            offset=offset,
+        )
+
+        return films
 
     async def create(self, **kwargs: ...):
         ...
