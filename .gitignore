@@ -10,3 +10,4 @@ frontend/app/package-lock.json
 frontend/app/tsconfig.json
 
 .idea/
+venv/
