@@ -1,18 +1,20 @@
-export interface Genre {
+export interface IGenre {
   id: number
   name: string
 }
 
-export interface Film {
+export interface IFilm {
   id: number
-  name: string
-  genre: Genre[]
+  title: string
+  description?: string
+  isAdult: boolean
+  genres: IGenre[] | null
   budget: number
-  runtime: number
+  time: number
   posterUrl?: string
   backdropUrl?: string
 }
 
-export interface User {}
+export interface IUser {}
 
-export interface Token {}
+export interface IToken {}

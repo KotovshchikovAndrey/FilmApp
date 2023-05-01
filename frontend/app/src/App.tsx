@@ -1,14 +1,15 @@
 import * as React from "react"
 import { POSTRE_URL } from "./core/config"
+import FilmCardList from "./components/shared/film/FilmCardList"
 import TestComponent from "./components/TestComponent"
 
 function App() {
   console.log(POSTRE_URL)
   return (
-      <>
-          <div className="App">123</div>
-          <TestComponent />
-      </>
+    <React.Fragment>
+      <FilmCardList />
+      {/* <TestComponent /> */}
+    </React.Fragment>
   )
 }
 

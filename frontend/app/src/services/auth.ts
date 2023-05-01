@@ -1,9 +1,9 @@
 import ky from "ky"
-import { User } from "../core/entities"
+import { IUser } from "../core/entities"
 
 interface IAuthService {
-  register: () => User
-  login: () => User
+  register: () => IUser
+  login: () => IUser
   logout: () => void
   resetPassword: () => void
 }
