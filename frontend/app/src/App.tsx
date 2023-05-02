@@ -1,14 +1,12 @@
 import * as React from "react"
 import { POSTER_URL } from "./core/config"
-import FilmCardList from "./components/shared/film/FilmCardList"
-import TestComponent from "./components/TestComponent"
+import Home from "./pages/Home"
 
 function App() {
   console.log(POSTER_URL)
   return (
     <React.Fragment>
-      <FilmCardList />
-      {/* <TestComponent /> */}
+      <Home />
     </React.Fragment>
   )
 }
