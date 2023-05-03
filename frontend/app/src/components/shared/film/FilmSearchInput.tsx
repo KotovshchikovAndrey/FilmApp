@@ -6,10 +6,9 @@ import SearchIcon from "@mui/icons-material/Search"
 
 export default function FilmSearchInput() {
   const [inputValue, setInputValue] = React.useState<string>("")
-  const { transcript, listening, browserSupportsSpeechRecognition, finalTranscript } =
-    useSpeechRecognition({
-      clearTranscriptOnListen: true,
-    })
+  const { listening, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition({
+    clearTranscriptOnListen: true,
+  })
 
   React.useEffect(() => setInputValue(finalTranscript), [finalTranscript])
 
@@ -33,7 +32,13 @@ export default function FilmSearchInput() {
                 }}
               />
               {browserSupportsSpeechRecognition && (
-                <Box onClick={() => SpeechRecognition.startListening()}>
+                <Box
+                  onClick={() =>
+                    !listening
+                      ? SpeechRecognition.startListening()
+                      : SpeechRecognition.stopListening()
+                  }
+                >
                   <MicIcon
                     sx={{
                       color: listening ? "red" : "black",

@@ -1,5 +1,5 @@
 import React from "react"
-import { Stack, Container, Box } from "@mui/material"
+import { Stack, Box } from "@mui/material"
 import { IFilm } from "../../../core/entities"
 import FilmCardItem from "./FilmCardItem"
 
@@ -65,19 +65,17 @@ export default function FilmCardList() {
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg">
-        <Stack direction="row" justifyContent="center" flexWrap="wrap">
-          {films.map((film: filmCardItem) => (
-            <Box m={3}>
-              <FilmCardItem
-                title={film.title}
-                description={film.description}
-                isAdult={film.isAdult}
-              />
-            </Box>
-          ))}
-        </Stack>
-      </Container>
+      <Stack direction="row" flexWrap="wrap">
+        {films.map((film: filmCardItem) => (
+          <Box m={3}>
+            <FilmCardItem
+              title={film.title}
+              description={film.description}
+              isAdult={film.isAdult}
+            />
+          </Box>
+        ))}
+      </Stack>
     </React.Fragment>
   )
 }
