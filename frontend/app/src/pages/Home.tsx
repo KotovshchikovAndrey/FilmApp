@@ -2,6 +2,7 @@ import React from "react"
 import { Stack, Typography, Box, Autocomplete, TextField } from "@mui/material"
 import FilmSearchInput from "../components/shared/film/FilmSearchInput"
 import FilmCardList from "../components/shared/film/FilmCardList"
+import FilmFilters from "../components/shared/film/FilmFilters"
 
 export default function Home() {
   return (
@@ -12,7 +13,6 @@ export default function Home() {
         alignItems="center"
         justifyContent="center"
         sx={{
-          // display: "flex",
           margin: "0 auto",
         }}
       >
@@ -26,25 +26,7 @@ export default function Home() {
           <Typography variant="h4" component="h1" mb={2} mt={5} maxWidth={500} pl={3}>
             Коллекция
           </Typography>
-          <Box sx={{ display: "flex" }} pl={3} mb={3}>
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={["драма", "комедия", "супергероика"]} // потом поместим массив из жанров, который возьмем с бэка
-              sx={{ width: 300 }}
-              onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
-                console.log(event.target.value)
-              }
-              renderInput={(params) => <TextField {...params} label="Жанр" />}
-            />
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={[]} // потом поместим массив из стран, который возьмем с бэка
-              sx={{ width: 300 }}
-              renderInput={(params) => <TextField {...params} label="Страна" />}
-            />
-          </Box>
+          <FilmFilters />
           <FilmCardList />
         </Box>
       </Stack>

@@ -35,7 +35,7 @@ export default function FilmSearchInput() {
                 <Box
                   onClick={() =>
                     !listening
-                      ? SpeechRecognition.startListening()
+                      ? SpeechRecognition.startListening({ language: "ru" })
                       : SpeechRecognition.stopListening()
                   }
                 >

@@ -5,11 +5,13 @@ import CardContent from "@mui/material/CardContent"
 import CardMedia from "@mui/material/CardMedia"
 import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
+import { Link } from "react-router-dom"
 
 interface FilmCardItemProps {
   title: string
   description?: string
   isAdult: boolean
+  posterUrl?: string
 }
 
 export default function FilmCardItem(props: FilmCardItemProps) {
@@ -30,7 +32,12 @@ export default function FilmCardItem(props: FilmCardItemProps) {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button size="small">Подробнее</Button>
+          <Link
+            to={`/${Math.ceil(Math.random() * 100)}`} // Потом добавим id с бэка (динамику)
+            style={{ textDecoration: "none" }}
+          >
+            <Button size="small">Подробнее</Button>
+          </Link>
         </CardActions>
       </Card>
     </React.Fragment>
