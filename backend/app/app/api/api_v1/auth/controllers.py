@@ -15,7 +15,7 @@ class Login(HTTPEndpoint):
         ...
 
 
-class RefreshToken(HTTPEndpoint):
+class TokenRefresh(HTTPEndpoint):
     async def update(self, request: Request):
         ...
 

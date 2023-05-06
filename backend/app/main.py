@@ -8,8 +8,8 @@ middlewares = []
 
 routes = [
     Mount("/auth", routes=auth_routes),
-    Mount("/user", routes=user_routes),
-    Mount("/film", routes=film_routes),
+    Mount("/users", routes=user_routes),
+    Mount("/films", routes=film_routes),
 ]
 
 

@@ -11,11 +11,11 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def create(self, **kwargs: ...) -> ...:
+    async def find_by_id(self, film_id: int) -> tp.Mapping:
         ...
 
     @abstractmethod
-    async def find_by_id(self, email: str) -> ...:
+    async def create(self, **kwargs: ...) -> ...:
         ...
 
     @abstractmethod
@@ -23,7 +23,7 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def delete(self, user_id: int) -> None:
+    async def delete(self, film_id: int) -> None:
         ...
 
 
@@ -37,14 +37,15 @@ class FilmPostgresRepository(IFilmReporitory):
 
         return films
 
-    async def create(self, **kwargs: ...):
-        ...
+    async def find_by_id(self, film_id: int):
+        film = await db_connection.fetch_one(queries.GET_FILM_BY_ID, id=film_id)
+        return film
 
-    async def find_by_id(self, email: str):
+    async def create(self, **kwargs: ...):
         ...
 
     async def update(self, **kwargs: ...):
         ...
 
-    async def delete(self, user_id: int):
+    async def delete(self, film_id: int):
         ...

@@ -1,10 +1,17 @@
 from __future__ import annotations
 
 import typing as tp
+
+import pydantic
+
+from starlette import status
+from starlette.requests import Request
 from starlette.applications import Starlette
 from starlette.routing import Mount
 from starlette.middleware import Middleware
+from starlette.responses import JSONResponse
 
+from app.exceptions.api import ApiError
 from app.db import IDbConnection, db_connection
 
 
@@ -37,14 +44,29 @@ class StarletteServer:
 
         self.__db_connection = db_connection
 
-    async def __handle_error(self, exc: Exception):
-        ...
+    def get_app_instance(self):
+        return self.__app
+
+    async def __handle_error(self, request: Request, exc: Exception):
+        if isinstance(exc, ApiError):
+            return JSONResponse(
+                status_code=exc.status,
+                content={"message": exc.message, "details": exc.details},
+            )
+
+        if isinstance(exc, pydantic.ValidationError):
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"message": "Невалидные данные!", "details": exc.errors()},
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Произошла непредвиденная ошибка!", "details": []},
+        )
 
     async def __handle_startup(self):
         await self.__db_connection.connect()
 
     async def __handle_shutdown(self):
         await self.__db_connection.disconnect()
-
-    def get_app_instance(self):
-        return self.__app
