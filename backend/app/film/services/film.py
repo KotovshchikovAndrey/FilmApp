@@ -2,7 +2,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from film.crud.reporitories import IFilmReporitory
-from film.dto import GetFilmsDTO, FilmsDTO
+from film.dto import GetFilmsDTO, FilmsDTO, GetFilmDTO, FilmDTO
 
 
 class IFilmService(ABC):
@@ -13,7 +13,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_film_info(self, dto: ...) -> ...:
+    async def get_film_info(self, dto: GetFilmDTO) -> FilmDTO:
         ...
 
     @abstractmethod
@@ -37,8 +37,9 @@ class FilmService(IFilmService):
         films = await self.__repository.get_many(limit=dto.limit, offset=dto.offset)
         return FilmsDTO(films=films)
 
-    async def get_film_info(self, dto: ...):
-        ...
+    async def get_film_info(self, dto: GetFilmDTO):
+        film = await self.__repository.find_by_id(film_id=dto.film_id)
+        return FilmDTO(**film)
 
     async def create_new_film(self, dto: ...):
         ...

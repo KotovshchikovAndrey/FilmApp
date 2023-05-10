@@ -1,8 +1,6 @@
 from alembic import op
 import sqlalchemy as sa
 
-import uuid
-
 from app.core import config
 
 revision = "0eb9898f26d1"
@@ -52,30 +50,20 @@ def create_token_table() -> None:
 def create_film_table() -> None:
     op.create_table(
         "film",
-        sa.Column("is_adult", sa.Boolean(), nullable=False),
-        sa.Column("nax1", sa.TEXT(), nullable=True),
-        sa.Column("budget", sa.Integer(), nullable=False),
-        sa.Column("genres", sa.TEXT(), nullable=False),
-        sa.Column("nax2", sa.TEXT(), nullable=True),
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("imdb_id", sa.String(255), nullable=True),
-        sa.Column("language", sa.String(255), nullable=True),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column("nax3", sa.TEXT(), nullable=True),
+        sa.Column("budget", sa.Integer(), nullable=False),
+        sa.Column("is_adult", sa.Boolean(), nullable=False),
+        sa.Column("language", sa.String(255), nullable=True),
+        sa.Column("imdb_id", sa.String(255), nullable=True),
         sa.Column("poster_path", sa.String(255), nullable=True),
+        sa.Column("release_date", sa.DATE(), nullable=True),
+        sa.Column("time", sa.Float(), nullable=True),
+        sa.Column("tagline", sa.TEXT(), nullable=True),
+        sa.Column("genres", sa.TEXT(), nullable=False),
         sa.Column("production_companies", sa.TEXT(), nullable=True),
         sa.Column("production_countries", sa.TEXT(), nullable=True),
-        sa.Column("release_date", sa.String(15), nullable=True),
-        sa.Column("nax4", sa.TEXT(), nullable=True),
-        sa.Column("time", sa.Float(), nullable=True),
-        sa.Column("nax5", sa.TEXT(), nullable=True),
-        sa.Column("nax6", sa.TEXT(), nullable=True),
-        sa.Column("tagline", sa.TEXT(), nullable=True),
-        sa.Column("nax7", sa.String(255), nullable=True),
-        sa.Column("nax8", sa.TEXT(), nullable=True),
-        sa.Column("nax9", sa.TEXT(), nullable=True),
-        sa.Column("nax10", sa.TEXT(), nullable=True),
     )
 
 
@@ -128,33 +116,19 @@ def upgrade() -> None:
     op.execute(
         """
         COPY film
-(is_adult,
-nax1,
-budget,
-genres,
-nax2,
-id,
-imdb_id,
-language,
-title,
-description,
-nax3,
-poster_path,
-production_companies,
-production_countries,
-release_date,
-nax4,
-time,
-nax5,
-nax6,
-tagline,
-nax7,
-nax8,
-nax9,
-nax10) FROM '%s' DELIMITERS ',' CSV HEADER;
-
-UPDATE "film"
-SET genres = replace(replace(genres, '"', ''), '''', '"')::json;
+("title",
+"description",
+"budget",
+"is_adult",
+"language",
+"imdb_id",
+"poster_path",
+"release_date",
+"time",
+"tagline",
+"genres",
+"production_companies",
+"production_countries") FROM '%s' DELIMITERS ',' CSV HEADER;
 
 ALTER TABLE "film" ALTER COLUMN genres TYPE jsonb USING genres::jsonb;
 
@@ -173,8 +147,6 @@ $$
 language plpgsql
 immutable;
 
-UPDATE "film"
-SET production_companies = replace(replace(production_companies, '"', ''), '''', '"');
 
 UPDATE "film"
 SET production_companies = NULL
@@ -184,25 +156,10 @@ ALTER TABLE "film" ALTER COLUMN production_companies TYPE jsonb USING production
 
 
 UPDATE "film"
-SET production_countries = replace(replace(production_countries, '"', ''), '''', '"');
-
-UPDATE "film"
 SET production_countries = NULL
 WHERE is_valid_json(production_countries) = FALSE;
 
 ALTER TABLE "film" ALTER COLUMN production_countries TYPE jsonb USING production_countries::jsonb;
-
-ALTER TABLE "film" 
-DROP COLUMN nax1, 
-DROP COLUMN nax2, 
-DROP COLUMN nax3, 
-DROP COLUMN nax4, 
-DROP COLUMN nax5, 
-DROP COLUMN nax6, 
-DROP COLUMN nax7, 
-DROP COLUMN nax8, 
-DROP COLUMN nax9, 
-DROP COLUMN nax10;
 """
         % config.CSV_DATASET_PATH
     )

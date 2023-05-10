@@ -3,11 +3,13 @@ GET_MANY_FILMS = (
 )
 
 GET_FILM_BY_ID = """SELECT
+id,
 title, 
-overview as description, 
+description, 
 release_date,  
 genres,
 time,
+budget,
 is_adult,
 imdb_id,
 language,
