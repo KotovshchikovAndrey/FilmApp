@@ -2,7 +2,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 
-class IUserReporitory(ABC):
+class IUserRepository(ABC):
     @abstractmethod
     async def create(self, **kwargs: ...) -> ...:
         ...
@@ -24,7 +24,7 @@ class IUserReporitory(ABC):
         ...
 
 
-class UserPostgresRepository(IUserReporitory):
+class UserPostgresRepository(IUserRepository):
     async def create(self, **kwargs: ...):
         ...
 
