@@ -2,7 +2,9 @@ import typing as tp
 import punq
 
 from film.crud import reporitories as film_repositories
+from user.crud import reporitories as user_repositories
 from film import services as film_services
+from user import services as user_services
 
 container = punq.Container()
 
@@ -14,10 +16,22 @@ container.register(
     scope=punq.Scope.singleton,
 )
 
+container.register(
+    user_repositories.IUserRepository,
+    user_repositories.UserPostgresRepository,
+    scope=punq.Scope.singleton,
+)
+
 
 # Services
 container.register(
     film_services.IFilmService,
     film_services.FilmService,
+    scope=punq.Scope.singleton,
+)
+
+container.register(
+    user_services.IUserService,
+    user_services.UserService,
     scope=punq.Scope.singleton,
 )
