@@ -1,21 +1,19 @@
 import typing as tp
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 
 
+# Токены и коды восстановления не должны быть здесь - небезопасно
 class UserBase(BaseModel):
     id: int
     name: str
     surname: str
     email: str
-    password: str
     avatar: tp.Optional[str] = None
-    user_role: str
-    user_status: str
+    status: str
+    role: str
 
 
-class GetUsersDTO(BaseModel):
-    email: str
-
-
-class UsersDTO(BaseModel):
-    user: tp.List[UserBase]
+class UserFullDTO(UserBase):
+    password: str
+    refresh_tokens: tp.List[str] = []
+    reset_codes: Json[tp.Any]
