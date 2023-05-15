@@ -30,5 +30,9 @@ class ApiError(Exception):
         return cls(status=404, message=message, details=details)
 
     @classmethod
+    def conflict(cls, message: str, details: tp.List[str] = []) -> ApiError:
+        return cls(status=409, message=message, details=details)
+
+    @classmethod
     def internal(cls, message: str, details: tp.List[str] = []) -> ApiError:
         return cls(status=500, message=message, details=details)

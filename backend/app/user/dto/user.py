@@ -1,3 +1,4 @@
+import datetime
 import typing as tp
 from pydantic import BaseModel, Json
 
@@ -17,3 +18,17 @@ class UserFullDTO(UserBase):
     password: str
     refresh_tokens: tp.List[str] = []
     reset_codes: Json[tp.Any]
+
+
+class UserRegisterDTO(BaseModel):
+    name: str
+    surname: str
+    email: str
+    password: str
+
+
+class UserVerificationData(BaseModel):
+    ip: str
+    code: str
+    email: str
+    timestamp: datetime.datetime = datetime.datetime.now()
