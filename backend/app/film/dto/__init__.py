@@ -1,1 +1,1 @@
-from .film import FilmBase, GetFilmsDTO, FilmsDTO, GetFilmDTO, FilmDTO
+from .film import *

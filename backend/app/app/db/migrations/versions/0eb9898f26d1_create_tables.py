@@ -1,6 +1,7 @@
 from alembic import op
 import sqlalchemy as sa
 
+from enum import Enum
 from app.core import config
 
 revision = "0eb9898f26d1"
@@ -16,33 +17,21 @@ def create_user_table() -> None:
         sa.Column("name", sa.String(30), nullable=False),
         sa.Column("surname", sa.String(30), nullable=False),
         sa.Column("email", sa.String(30), nullable=False, unique=True),
-        sa.Column("password", sa.String(255), nullable=False),
+        sa.Column("password", sa.TEXT(), nullable=False),
         sa.Column("avatar", sa.String(255), nullable=True),
+        sa.Column("status", sa.String(15), nullable=False),
+        sa.Column("role", sa.String(5), nullable=False),
         sa.Column(
-            "roles",
-            sa.ARRAY(sa.TEXT),
+            "refresh_tokens",
+            sa.ARRAY(sa.TEXT()),
             nullable=False,
             server_default="{}",
         ),
         sa.Column(
-            "reset_code",
-            sa.String(255),
+            "reset_codes",
+            sa.JSON(none_as_null=True),
             nullable=False,
-            server_default=sa.func.gen_random_uuid(),
-        ),
-    )
-
-
-def create_token_table() -> None:
-    op.create_table(
-        "token",
-        sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("value", sa.String(255), nullable=False),
-        sa.Column(
-            "user_id",
-            sa.Integer(),
-            sa.ForeignKey("user.id", ondelete="CASCADE"),
-            nullable=False,
+            server_default="[]",
         ),
     )
 
@@ -108,7 +97,6 @@ def create_favorite_user_film_table() -> None:
 
 def upgrade() -> None:
     create_user_table()
-    create_token_table()
     create_film_table()
     create_favorite_user_film_table()
     create_raiting_table()
@@ -160,6 +148,15 @@ SET production_countries = NULL
 WHERE is_valid_json(production_countries) = FALSE;
 
 ALTER TABLE "film" ALTER COLUMN production_countries TYPE jsonb USING production_countries::jsonb;
+
+ALTER TABLE "user" ALTER COLUMN reset_codes TYPE jsonb USING reset_codes::jsonb;
+
+
+CREATE TYPE user_role AS ENUM('user', 'admin', 'owner');
+CREATE TYPE user_status AS ENUM('active', 'not_verified', 'banned', 'muted');
+
+ALTER TABLE "user" ALTER COLUMN role TYPE user_role USING role::user_role;
+ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;
 """
         % config.CSV_DATASET_PATH
     )
@@ -168,6 +165,7 @@ ALTER TABLE "film" ALTER COLUMN production_countries TYPE jsonb USING production
 def downgrade() -> None:
     op.drop_table("raiting")
     op.drop_table("favorite_user_film")
-    op.drop_table("token")
     op.drop_table("user")
     op.drop_table("film")
+
+    op.execute("""DROP TYPE "user_role"; DROP TYPE user_status;""")
