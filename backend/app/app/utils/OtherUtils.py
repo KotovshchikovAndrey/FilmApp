@@ -1,7 +1,6 @@
 import datetime
 import random
 import re
-from datetime import datetime
 
 
 def email_validate(email: str):
