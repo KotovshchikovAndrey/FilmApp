@@ -30,10 +30,11 @@ class Registration(HTTPEndpoint):
         )
 
 
+#TODO: добавить тип запроса (с какой целью нужен код). При вводе кода, проверять этот тип
 class RequestCode(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    async def update(self, request: Request):
+    async def put(self, request: Request):
         body = dict(await request.json())
         await self.__service.request_code(body.get('email'), request.client.host)
         return PlainTextResponse()
@@ -42,7 +43,7 @@ class RequestCode(HTTPEndpoint):
 class RegistrationComplete(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    async def update(self, request: Request):
+    async def put(self, request: Request):
         user = await self.__service.complete_register(
             UserVerificationData(ip=request.client.host, **dict(await request.json())))
         return JSONResponse(
@@ -57,7 +58,7 @@ class Login(HTTPEndpoint):
 
 
 class TokenRefresh(HTTPEndpoint):
-    async def update(self, request: Request):
+    async def put(self, request: Request):
         ...
 
 
