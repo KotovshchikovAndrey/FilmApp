@@ -2,8 +2,16 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from app.db import db_connection
-from film.dto import FilmsDTO, FilmDTO, GenresDTO, ProductionCountriesDTO
 from film.crud import queries
+from film.dto import (
+    FilmPrimaryKeyDTO,
+    FilmsDTO,
+    FilmDTO,
+    GenresDTO,
+    ProductionCountriesDTO,
+    CreateFilmDTO,
+    UpdateFilmDTO,
+)
 
 
 class IFilmReporitory(ABC):
@@ -34,19 +42,17 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def create(self, **kwargs: ...) -> ...:
+    async def create(self, film_create: CreateFilmDTO) -> FilmPrimaryKeyDTO:
         ...
 
     @abstractmethod
-    async def update(self, **kwargs: ...) -> ...:
+    async def update(
+        self, film_id: str, film_update: UpdateFilmDTO
+    ) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
     @abstractmethod
-    async def delete(self, film_id: int) -> None:
-        ...
-
-    @abstractmethod
-    async def update_poster_url(self, film_id: int, poster_url: str) -> None:
+    async def delete(self, film_id: int) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
 
@@ -97,16 +103,25 @@ class FilmPostgresRepository(IFilmReporitory):
 
         return ProductionCountriesDTO(production_countries=production_countries)
 
-    async def update_poster_url(self, film_id: int, poster_url: str):
-        await db_connection.execute_query(
-            queries.UPDATE_POSTER_URL, film_id=film_id, poster_url=poster_url
+    async def create(self, film_create: CreateFilmDTO):
+        created_film = await db_connection.fetch_one(
+            queries.CREATE_NEW_FILM, **film_create.dict()
         )
 
-    async def create(self, **kwargs: ...):
-        ...
+        return FilmPrimaryKeyDTO(**created_film)
 
-    async def update(self, **kwargs: ...):
-        ...
+    async def update(self, film_id: int, film_update: UpdateFilmDTO):
+        updated_film = await db_connection.fetch_one(
+            queries.UPDATE_FILM, film_id=film_id, **film_update.dict()
+        )
+
+        if updated_film is not None:
+            return FilmPrimaryKeyDTO(**updated_film)
 
     async def delete(self, film_id: int):
-        ...
+        deleted_film = await db_connection.fetch_one(
+            queries.DELETE_FILM_BY_ID, film_id=film_id
+        )
+
+        if deleted_film is not None:
+            return FilmPrimaryKeyDTO(**deleted_film)

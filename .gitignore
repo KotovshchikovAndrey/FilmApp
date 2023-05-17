@@ -1,6 +1,7 @@
 backend/venv
 backend/app/.env
 backend/app/alembic.ini
+backend/app/app/media
 **/__pycache__/**
 
 frontend/app/.env
