@@ -10,3 +10,5 @@ frontend/app/tsconfig.json
 
 .idea/
 venv/
+venvpc/
+venvlaptop/
