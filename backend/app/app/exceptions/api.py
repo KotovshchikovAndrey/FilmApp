@@ -36,3 +36,7 @@ class ApiError(Exception):
     @classmethod
     def internal(cls, message: str, details: tp.List[str] = []) -> ApiError:
         return cls(status=500, message=message, details=details)
+
+    @classmethod
+    def bad_gateway(cls, message: str, details: tp.List[str] = []) -> ApiError:
+        return cls(status=502, message=message, details=details)
