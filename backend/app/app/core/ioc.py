@@ -35,3 +35,15 @@ container.register(
     user_services.UserService,
     scope=punq.Scope.singleton,
 )
+
+container.register(
+    user_services.IAuthService,
+    user_services.JwtAuthService,
+    scope=punq.Scope.singleton
+)
+
+container.register(
+    user_services.ITokenService,
+    user_services.TokenService,
+    scope=punq.Scope.singleton
+)

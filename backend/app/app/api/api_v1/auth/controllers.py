@@ -9,43 +9,54 @@ from app.core.ioc import container, user_services
 from app.utils.OtherUtils import generate_code, generate_expired_in
 
 IUserService = user_services.IUserService
+IAuthService = user_services.IAuthService
 
 
 class Registration(HTTPEndpoint):
-    __service: IUserService = container.resolve(IUserService)
+    __user_service: IUserService = container.resolve(IUserService)
+    __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def post(self, request: Request):
         reg_data = UserRegisterDTO(**dict(await request.json()))
-        result = await self.__service.create_user(reg_data)
-        await self.__service.send_verification_code(UserVerificationData(
+        access_token, refresh_token = await self.__auth_service.register(reg_data)
+        output = {"access_token": access_token, "refresh_token": refresh_token}
+        await self.__auth_service.send_verification_code(UserVerificationData(
             ip=request.client.host,
-            id=result.id,
             code=generate_code(),
-            email=result.email,
-            timestamp=generate_expired_in()
+            email=reg_data.email,
+            timestamp=generate_expired_in(),
+            reason="complete-register"
         ))
-        return JSONResponse(
+        response = JSONResponse(
             status_code=201,
-            content=result.dict()
+            content=output
         )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            max_age=3600 * 24 * 90,  # 90 дней
+        )
+        return response
 
 
-#TODO: добавить тип запроса (с какой целью нужен код). При вводе кода, проверять этот тип
 class RequestCode(HTTPEndpoint):
-    __service: IUserService = container.resolve(IUserService)
+    __user_service: IUserService = container.resolve(IUserService)
+    __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def put(self, request: Request):
         body = dict(await request.json())
-        await self.__service.request_code(body.get('email'), request.client.host)
+        await self.__auth_service.request_code(body.get('email'), request.client.host, body.get('reason'))
         return PlainTextResponse()
 
 
 class RegistrationComplete(HTTPEndpoint):
-    __service: IUserService = container.resolve(IUserService)
+    __user_service: IUserService = container.resolve(IUserService)
+    __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def put(self, request: Request):
-        user = await self.__service.complete_register(
-            UserVerificationData(ip=request.client.host, **dict(await request.json())))
+        user = await self.__auth_service.complete_register(
+            UserVerificationData(ip=request.client.host, reason="complete-register", **dict(await request.json())))
         return JSONResponse(
             status_code=200,
             content=user.dict()

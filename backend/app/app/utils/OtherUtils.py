@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import random
 import re
 
@@ -12,6 +13,9 @@ def generate_code(length: int = 5):
     return ''.join(random.choice('0123456789') for _ in range(length))
 
 
-#TODO: вместо datetime хранить и обрабатывать timestamp
 def generate_expired_in(live_ex: int = 10):
-    return datetime.datetime.now() + datetime.timedelta(minutes=live_ex)
+    return datetime.datetime.now().timestamp() + 60 * live_ex
+
+
+def get_password_hash(password: str):
+    return hashlib.sha256(password.encode()).hexdigest()

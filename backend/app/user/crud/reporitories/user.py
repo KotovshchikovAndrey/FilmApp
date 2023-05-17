@@ -1,6 +1,8 @@
 import typing as tp
 from abc import ABC, abstractmethod
-from user.dto import UserBase, UserRegisterDTO, UserVerificationData
+
+from app.utils.OtherUtils import get_password_hash
+from user.dto import UserRegisterDTO, UserVerificationData
 from app.db import db_connection
 from user.crud import queries
 
@@ -19,7 +21,7 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def verify_user(self, id: int) -> None:
+    async def verify_user(self, id: int) -> tp.Mapping:
         ...
 
     @abstractmethod
@@ -39,7 +41,11 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def add_to_favorite(self, user_id: int, car_id: int):
+    async def add_to_favorite(self, user_id: int, film_id: int):
+        ...
+
+    @abstractmethod
+    async def add_refresh_token(self, user_id: int, refresh_token: str):
         ...
 
 
@@ -50,7 +56,7 @@ class UserPostgresRepository(IUserRepository):
             name=dto.name,
             surname=dto.surname,
             email=dto.email,
-            password=dto.password
+            password=get_password_hash(dto.password),
         )
         user = await db_connection.fetch_one(
             queries.FIND_USER_BY_EMAIL,
@@ -85,14 +91,16 @@ class UserPostgresRepository(IUserRepository):
             queries.VERIFY_USER,
             id=id,
         )
+        user = await self.find_by_id(id)
+        return user
 
     # Этот костыль здесь не просто так. По-другому запрос отказывался выполняться.
     # Если есть непреодолимое желание исправить это, удачи. Мне лень.
     async def add_verification_code(self, dto: UserVerificationData):
         await db_connection.execute_query(
             queries.ADD_NEW_VERIFICATION_CODE.replace('PASTE_JSON_HERE',
-                                                      "'{\"ip\": \"" + dto.ip + "\", \"code\": \"" + dto.code + "\", \"timestamp\": \"" + str(
-                                                          dto.timestamp) + "\"}'"),
+                                                      "'{\"ip\": \"" + dto.ip + "\", \"code\": \"" + dto.code + "\", \"timestamp\": " + str(
+                                                          int(dto.timestamp)) + ", \"reason\": \"" + dto.reason + "\"}'"),
             email=dto.email
         )
 
@@ -102,5 +110,19 @@ class UserPostgresRepository(IUserRepository):
     async def delete(self, user_id: int):
         ...
 
-    async def add_to_favorite(self, user_id: int, car_id: int):
+    async def add_to_favorite(self, user_id: int, film_id: int):
         ...
+
+    async def add_refresh_token(self, user_id: int, refresh_token: str):
+        await db_connection.execute_query(
+            queries.ADD_REFRESH_TOKEN,
+            refresh_token=refresh_token,
+            id=user_id,
+        )
+
+
+user_repository = UserPostgresRepository()
+
+
+def get_user_repository() -> IUserRepository:
+    return user_repository

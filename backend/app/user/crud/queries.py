@@ -29,3 +29,10 @@ SET status = 'active', reset_codes = '[]'::jsonb
 WHERE id = :id;
 """
 )
+ADD_REFRESH_TOKEN = (
+    """UPDATE "user"
+SET refresh_tokens = array_append(refresh_tokens, :refresh_token)
+WHERE id = :id;
+
+"""
+)
