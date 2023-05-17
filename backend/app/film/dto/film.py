@@ -9,6 +9,8 @@ class FilmBase(BaseModel):
     id: int
     title: str
     is_adult: bool
+    imdb_id: tp.Optional[str] = None
+    poster_url: tp.Optional[str] = None
     tagline: tp.Optional[str] = None
 
 
@@ -48,7 +50,6 @@ class FilmFiltersDTO(BaseModel):
 
 class FilmDTO(FilmBase):
     description: tp.Optional[str] = None
-    poster_path: tp.Optional[str] = None
     imdb_id: tp.Optional[str] = None
     language: tp.Optional[str] = None
     budget: int

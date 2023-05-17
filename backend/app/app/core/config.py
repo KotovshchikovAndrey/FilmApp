@@ -1,3 +1,4 @@
+import pathlib
 from starlette.config import Config
 from starlette.datastructures import Secret
 
@@ -11,5 +12,9 @@ DB_HOST = env_config("DB_HOST", cast=str)
 DB_PORT = env_config("DB_PORT", cast=str)
 DB_NAME = env_config("DB_NAME", cast=str)
 CSV_DATASET_PATH = env_config("CSV_DATASET_PATH", cast=str)
+
+UPLOAD_URL = "/media"
+UPLOAD_DIR = str((pathlib.Path("app") / "media").absolute())
+
 # MAIL_LOGIN = env_config("MAIL_LOGIN", cast=str)
 # MAIL_PASSWORD = env_config("MAIL_PASSWORD", cast=str)

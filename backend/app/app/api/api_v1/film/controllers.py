@@ -5,10 +5,18 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.endpoints import HTTPEndpoint
 
+from film.services.imdb import fetch_poster_url_by_imdb_id
 from app.core.ioc import container, film_services
 from film.dto import GetFilmsDTO, GetFilmDTO, SearchFilmDTO
 
 IFilmService = film_services.IFilmService
+
+
+class Test(HTTPEndpoint):
+    async def get(self, request: Request):
+        poster_url = await fetch_poster_url_by_imdb_id(imdb_id="tt0022151")
+        # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "OK"})
+        return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": poster_url})
 
 
 class Film(HTTPEndpoint):

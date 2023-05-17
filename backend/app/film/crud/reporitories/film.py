@@ -45,6 +45,10 @@ class IFilmReporitory(ABC):
     async def delete(self, film_id: int) -> None:
         ...
 
+    @abstractmethod
+    async def update_poster_url(self, film_id: int, poster_url: str) -> None:
+        ...
+
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
@@ -92,6 +96,11 @@ class FilmPostgresRepository(IFilmReporitory):
         )
 
         return ProductionCountriesDTO(production_countries=production_countries)
+
+    async def update_poster_url(self, film_id: int, poster_url: str):
+        await db_connection.execute_query(
+            queries.UPDATE_POSTER_URL, film_id=film_id, poster_url=poster_url
+        )
 
     async def create(self, **kwargs: ...):
         ...

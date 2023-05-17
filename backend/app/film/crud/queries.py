@@ -1,6 +1,4 @@
-GET_MANY_FILMS = (
-    """SELECT id, title, is_adult, tagline FROM "film" OFFSET :offset LIMIT :limit;"""
-)
+GET_MANY_FILMS = """SELECT id, title, imdb_id, is_adult, tagline, poster_url FROM "film" OFFSET :offset LIMIT :limit;"""
 
 FILTER_FILMS_BY_CONDITIONS = """SELECT id, title, is_adult, tagline FROM 
 (SELECT 
@@ -23,7 +21,7 @@ budget,
 is_adult,
 imdb_id,
 language,
-poster_path,
+poster_url,
 production_companies,
 production_countries
 FROM "film" WHERE id = :id;"""
@@ -39,6 +37,10 @@ GET_ALL_GENRES = (
 
 SEARCH_FILMS_BY_TITLE = (
     """SELECT id, title, is_adult, tagline FROM "film" WHERE LOWER(title) LIKE :title"""
+)
+
+UPDATE_POSTER_URL = (
+    """UPDATE "film" SET poster_url = :poster_url WHERE id = :film_id;"""
 )
 
 
