@@ -17,17 +17,16 @@ export default function FilmSearchInput() {
       <TextField
         helperText="Введите ваше описание. Например: криминальная драма с Домеником Торрето"
         multiline
-        rows={4}
+        fullWidth
         value={inputValue}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setInputValue(event.target.value)
         }}
         InputProps={{
           endAdornment: (
-            <InputAdornment position="start">
+            <InputAdornment position="end">
               <SearchIcon
                 sx={{
-                  marginRight: 1.2,
                   cursor: "pointer",
                 }}
               />
@@ -49,9 +48,6 @@ export default function FilmSearchInput() {
               )}
             </InputAdornment>
           ),
-        }}
-        sx={{
-          width: 900,
         }}
       />
     </React.Fragment>
