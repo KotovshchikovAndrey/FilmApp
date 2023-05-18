@@ -33,7 +33,18 @@ ADD_REFRESH_TOKEN = (
     """UPDATE "user"
 SET refresh_tokens = array_append(refresh_tokens, :refresh_token)
 WHERE id = :id;
-
+"""
+)
+DELETE_REFRESH_TOKEN = (
+    """UPDATE "user"
+SET refresh_tokens = array_remove(refresh_tokens, :refresh_token)
+WHERE id = :id;
+"""
+)
+DELETE_ALL_REFRESH_TOKENS = (
+    """UPDATE "user"
+SET refresh_tokens = '{}'::text[]
+WHERE id = :id;
 """
 )
 AUTHORISE_USER = (
