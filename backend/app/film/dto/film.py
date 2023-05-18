@@ -28,7 +28,7 @@ class GenreDTO(BaseModel):
 class GenresDTO(BaseModel):
     genres: tp.List[GenreDTO]
 
-    @validator("genres", pre=True)
+    @validator("genres")
     def validate_genres(cls, values_list: tp.List[tp.Mapping[str, str]]):
         return list(
             map(lambda value: GenreDTO(**json.loads(value["genre"])), values_list)
@@ -63,12 +63,7 @@ class FilmDTO(FilmBase):
     class Config:
         fields = {"tagline": {"exclude": True}}
 
-    @validator(
-        "genres",
-        "production_companies",
-        "production_countries",
-        pre=True,
-    )
+    @validator("genres", "production_companies", "production_countries", pre=True)
     def validate_json(cls, value: tp.List[tp.Mapping[str, str]] | None):
         if value is not None:
             return json.loads(value)
@@ -93,6 +88,21 @@ class GetFilmDTO(BaseModel):
     film_id: int
 
 
+class GetPosterDTO(BaseModel):
+    film_id: int
+    size: tp.Optional[int] = None
+
+    @validator("size")
+    def validate_size(cls, value: int | None):
+        poster_sizes = {200, 300, 500}
+        if value not in poster_sizes:
+            raise ValueError(
+                f"Недопустимый размер постера! Допустимые размеры {poster_sizes}"
+            )
+
+        return value
+
+
 class SearchFilmDTO(BaseModel):
     title: str
 
@@ -111,12 +121,7 @@ class CreateFilmDTO(BaseModel):
     production_companies: tp.Optional[str] = None
     production_countries: tp.Optional[str] = None
 
-    @validator(
-        "genres",
-        "production_companies",
-        "production_countries",
-        pre=True,
-    )
+    @validator("genres", "production_companies", "production_countries", pre=True)
     def validate_json(cls, value: tp.List[tp.Mapping[str, str]]):
         try:
             value = json.dumps(value)
