@@ -7,6 +7,7 @@ routes = [
     Route("/", controllers.Film),
     Route("/{film_id:int}", controllers.FilmDetail),
     Route("/{film_id:int}/poster", controllers.Poster),
+    Route("/{film_id:int}/trailer", controllers.Trailer),
     Route("/filters", controllers.FilmFilter),
     Route("/search", controllers.FilmSearch),
 ]

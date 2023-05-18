@@ -107,6 +107,11 @@ class SearchFilmDTO(BaseModel):
     title: str
 
 
+class FilmTrailerDTO(BaseModel):
+    key: str
+    site: str
+
+
 class CreateFilmDTO(BaseModel):
     title: str
     is_adult: bool

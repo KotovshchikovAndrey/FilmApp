@@ -22,7 +22,6 @@ from app.db import db_connection
 
 target_metadata = None
 
-# config.set_main_option("sqlalchemy.url", get_connection().url)
 config.set_main_option("sqlalchemy.url", db_connection.get_url())
 
 

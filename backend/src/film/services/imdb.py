@@ -2,6 +2,7 @@ import typing as tp
 import httpx
 
 from app.core import config
+from film.dto import FilmTrailerDTO
 from app.exceptions.api import ApiError
 
 
@@ -37,5 +38,15 @@ async def fetch_poster_binary_file(
             return None
 
 
-async def fetch_trailer_by_imdb_id(imdb_id: str):
-    ...
+async def fetch_trailer_url_by_imdb_id(imdb_id: str) -> tp.Optional[FilmTrailerDTO]:
+    url = f"http://api.themoviedb.org/3/movie/{imdb_id}/videos?api_key={config.TMDB_API_KEY}"
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url)
+            if response.status_code == 200:
+                trailers = response.json()["results"]
+                if trailers:
+                    trailer = trailers[0]
+                    return FilmTrailerDTO(**trailer)
+        except httpx.TimeoutException:
+            return None

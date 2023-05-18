@@ -45,8 +45,8 @@ class Registration(HTTPEndpoint):
 class RequestCode(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
 
-    @requires(scopes="authenticated", status_code=401)
-    async def post(self, request: Request):
+    @requires("authenticated")
+    async def put(self, request: Request):
         body = dict(await request.json())
         await self.__auth_service.request_code(body.get('email'), request.client.host, body.get('reason'))
         return PlainTextResponse()
@@ -55,7 +55,7 @@ class RequestCode(HTTPEndpoint):
 class RegistrationComplete(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
 
-    @requires(scopes="authenticated", status_code=401)
+    @requires("authenticated")
     async def put(self, request: Request):
         user = await self.__auth_service.complete_register(
             UserVerificationData(ip=request.client.host, reason="complete-register", **dict(await request.json())))
@@ -112,7 +112,7 @@ class TokenRefresh(HTTPEndpoint):
 class Logout(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
 
-    @requires(scopes="authenticated", status_code=401)
+    @requires("authenticated")
     async def delete(self, request: Request):
         await self.__auth_service.logout(UserLogoutDTO(
             user=request.user.instance,
@@ -126,7 +126,7 @@ class Logout(HTTPEndpoint):
 class LogoutEverywhere(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
 
-    @requires(scopes="authenticated", status_code=401)
+    @requires("authenticated")
     async def delete(self, request: Request):
         await self.__auth_service.logout_everywhere(request.user.instance)
         response = Response(status_code=204)
