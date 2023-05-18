@@ -3,9 +3,10 @@ import typing as tp
 from starlette.requests import Request
 from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
-from starlette.responses import PlainTextResponse, JSONResponse
+from starlette.responses import PlainTextResponse, JSONResponse, Response
 
-from user.dto import UserRefreshTokenDTO
+from app.exceptions.api import ApiError
+from user.dto import UserRefreshTokenDTO, UserLogoutDTO
 from user.dto.user import UserRegisterDTO, UserVerificationData, UserLoginDTO
 from app.core.ioc import container, user_services
 from app.utils.OtherUtils import generate_code, generate_expired_in
@@ -91,7 +92,8 @@ class TokenRefresh(HTTPEndpoint):
         access_token, refresh_token = await self.__auth_service.refresh_token(
             UserRefreshTokenDTO(
                 user=request.user.instance,
-                **dict(await request.json()),
+                access_token=request.user.token,
+                refresh_token=get_refresh_token_from_cookie(request)
             ),
         )
         output = {"access_token": access_token, "refresh_token": refresh_token}
@@ -109,12 +111,31 @@ class TokenRefresh(HTTPEndpoint):
 
 
 class Logout(HTTPEndpoint):
+    __auth_service: IAuthService = container.resolve(IAuthService)
+
     @requires("authenticated")
     async def delete(self, request: Request):
-        ...
+        await self.__auth_service.logout(UserLogoutDTO(
+            user=request.user.instance,
+            refresh_token=get_refresh_token_from_cookie(request)
+        ))
+        response = Response(status_code=204)
+        response.delete_cookie("refresh_token")
+        return response
 
 
 class LogoutEverywhere(HTTPEndpoint):
+    __auth_service: IAuthService = container.resolve(IAuthService)
     @requires("authenticated")
     async def delete(self, request: Request):
-        ...
+        await self.__auth_service.logout_everywhere(request.user.instance)
+        response = Response(status_code=204)
+        response.delete_cookie("refresh_token")
+        return response
+
+
+def get_refresh_token_from_cookie(request: Request):
+    token = request.cookies.get("refresh_token", None)
+    if token is None:
+        raise ApiError.forbidden(message="Refresh token not found")
+    return token

@@ -53,6 +53,14 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def delete_refresh_token(self, user_id: int, refresh_token: str):
+        ...
+
+    @abstractmethod
+    async def delete_all_refresh_tokens(self, user_id: int):
+        ...
+
+    @abstractmethod
     async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
         ...
 
@@ -137,6 +145,19 @@ class UserPostgresRepository(IUserRepository):
         await db_connection.execute_query(
             queries.ADD_REFRESH_TOKEN,
             refresh_token=refresh_token,
+            id=user_id,
+        )
+
+    async def delete_refresh_token(self, user_id: int, refresh_token: str):
+        await db_connection.execute_query(
+            queries.DELETE_REFRESH_TOKEN,
+            refresh_token=refresh_token,
+            id=user_id,
+        )
+
+    async def delete_all_refresh_tokens(self, user_id: int):
+        await db_connection.execute_query(
+            queries.DELETE_ALL_REFRESH_TOKENS,
             id=user_id,
         )
 

@@ -6,7 +6,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from user.crud.reporitories.user import get_user_repository
-from user.dto import UserBase, UserRegisterDTO, UserVerificationData, UserLoginDTO, UserRefreshTokenDTO
+from user.dto import UserBase, UserRegisterDTO, UserVerificationData, UserLoginDTO, UserRefreshTokenDTO, UserLogoutDTO
 from user.services.user import IUserService, get_user_service
 from user.services.token import ITokenService, get_token_service
 
@@ -33,11 +33,11 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def logout(self, dto: ...) -> None:
+    async def logout(self, dto: UserLogoutDTO) -> None:
         ...
 
     @abstractmethod
-    async def logout_everywhere(self, dto: ...) -> None:
+    async def logout_everywhere(self, dto: UserBase) -> None:
         ...
 
     @abstractmethod
@@ -137,11 +137,11 @@ class JwtAuthService(IAuthService):
 
         return access_token, refresh_token
 
-    async def logout(self, dto: ...):
-        ...
+    async def logout(self, dto: UserLogoutDTO):
+        await get_user_repository().delete_refresh_token(dto.user.id, dto.refresh_token)
 
-    async def logout_everywhere(self, dto: ...):
-        ...
+    async def logout_everywhere(self, dto: UserBase):
+        await get_user_repository().delete_all_refresh_tokens(dto.id)
 
     async def authenticate(self, dto: UserLoginDTO):
         user = await get_user_repository().authorise_user(dto)
