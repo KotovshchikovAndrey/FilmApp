@@ -1,82 +1,75 @@
-import { Box, Button, Stack, Typography } from "@mui/material"
+import {Button, Container, Stack, Typography} from "@mui/material"
 import * as React from "react"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
-import AddCircleIcon from "@mui/icons-material/AddCircle"
-import { Link, useParams } from "react-router-dom"
+import BackArrow from "../components/BackArrow"
+import {useParams} from "react-router-dom"
+import Grid from "@mui/material/Unstable_Grid2";
+import {Chip} from "@mui/material";
+import {Add} from "@mui/icons-material";
+import AspectRatio from "@mui/joy/AspectRatio";
 
 export default function FilmDetail() {
-  const { filmId } = useParams()
+    const {filmId} = useParams()
 
-  return (
-    <React.Fragment>
-      <Stack
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        maxWidth="md"
-        sx={{
-          margin: "0 auto",
-        }}
-      >
-        <Link to={"/"} style={{ textDecoration: "none", alignSelf: "flex-start", color: "black" }}>
-          <ArrowBackIcon fontSize="large" sx={{ marginTop: 3, cursor: "pointer" }} />
-        </Link>
-        <Box
-          mb={1.5}
-          sx={{
-            background: "url('https://i.ytimg.com/vi/MxjjLp2NF4U/maxresdefault.jpg')",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            width: 400,
-            height: 600,
-          }}
-        />
-        <Box>
-          <Typography width={500} fontSize={25} textAlign="center" mb={5}>
-            Светит дюралайт - это гигабайт!
-          </Typography>
-        </Box>
-        <Button
-          variant="outlined"
-          sx={{
-            color: "purple",
-            borderColor: "purple",
-            "&:hover": {
-              color: "purple",
-              borderColor: "purple",
-              background: "none",
-            },
-            marginBottom: 5,
-          }}
-        >
-          <AddCircleIcon sx={{ marginRight: 1.5 }} />
-          Добавить в коллекцию {filmId}
-        </Button>
-        <Box alignSelf="flex-start" mb={5}>
-          <Typography fontSize={25} fontWeight="bold" mb={1}>
-            Описание
-          </Typography>
-          <Typography fontSize={25}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti vero impedit
-            dignissimos itaque nam expedita? Inventore tempora praesentium maxime, nesciunt nemo
-            repudiandae soluta doloribus vero explicabo aliquid quod, nam ullam.
-          </Typography>
-        </Box>
-        <Box alignSelf="flex-start">
-          <Typography fontSize={25} fontWeight="bold" mb={1}>
-            Трейлер
-          </Typography>
-          <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/wyO8xy7fnBg" // Своя ссылка
-            title="YouTube video player" // Свое название
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        </Box>
-      </Stack>
-    </React.Fragment>
-  )
+    return (
+        <React.Fragment>
+            <Container>
+                <BackArrow/>
+                <Grid container spacing={5}>
+                    <Grid xs={12} sm={6}>
+                        <img style={{maxWidth: "100%"}}
+                             src="https://avatars.mds.yandex.net/get-kinopoisk-image/1900788/41daf06f-3187-4913-98aa-f72f77544d8f/orig"
+                             alt="aboba"
+                        />
+                    </Grid>
+                    <Grid xs={12} sm={6}>
+                        <Stack spacing={2}>
+                            <Typography variant="h4" component="h1">
+                                Название фильма #{filmId}
+                            </Typography>
+                            <Typography variant="subtitle1">
+                                1999, США, 3ч 9мин 18+
+                            </Typography>
+                            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                                <Chip label="Драма"/>
+                                <Chip label="Комедия"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                                <Chip label="Криминал"/>
+                            </Stack>
+                            <Button variant="outlined" startIcon={<Add/>}>
+                                Add to collection
+                            </Button>
+                            <Typography variant="h5">
+                                Description
+                            </Typography>
+                            <Typography>
+                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti vero impedit
+                                dignissimos itaque nam expedita? Inventore tempora praesentium maxime, nesciunt nemo
+                                repudiandae soluta doloribus vero explicabo aliquid quod, nam ullam.
+                            </Typography>
+                            <Typography variant="h5">
+                                Trailer
+                            </Typography>
+                            <AspectRatio>
+                                <iframe
+                                    src="https://www.youtube.com/embed/wyO8xy7fnBg" // Своя ссылка
+                                    title="YouTube video player" // Свое название
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                />
+                            </AspectRatio>
+                        </Stack>
+                    </Grid>
+                </Grid>
+            </Container>
+
+        </React.Fragment>
+    )
 }
