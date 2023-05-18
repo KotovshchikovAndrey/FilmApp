@@ -2,7 +2,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from app.utils.OtherUtils import get_password_hash
-from user.dto import UserRegisterDTO, UserVerificationData
+from user.dto import UserRegisterDTO, UserVerificationData, UserLoginDTO
 from app.db import db_connection
 from user.crud import queries
 
@@ -25,11 +25,15 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def authorise_user(self, dto: UserLoginDTO) -> tp.Mapping:
+        ...
+
+    @abstractmethod
     async def add_verification_code(self, dto: UserVerificationData) -> tp.Mapping:
         ...
 
     @abstractmethod
-    async def find_by_id(self, id: int) -> tp.Mapping:
+    async def find_by_id(self, target_id: int) -> tp.Mapping:
         ...
 
     @abstractmethod
@@ -46,6 +50,14 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def add_refresh_token(self, user_id: int, refresh_token: str):
+        ...
+
+    @abstractmethod
+    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+        ...
+
+    @abstractmethod
+    async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
         ...
 
 
@@ -94,6 +106,14 @@ class UserPostgresRepository(IUserRepository):
         user = await self.find_by_id(id)
         return user
 
+    async def authorise_user(self, dto: UserLoginDTO):
+        user = await db_connection.fetch_one(
+            queries.AUTHORISE_USER,
+            email=dto.email,
+            password=get_password_hash(dto.password)
+        )
+        return user
+
     # Этот костыль здесь не просто так. По-другому запрос отказывался выполняться.
     # Если есть непреодолимое желание исправить это, удачи. Мне лень.
     async def add_verification_code(self, dto: UserVerificationData):
@@ -119,6 +139,22 @@ class UserPostgresRepository(IUserRepository):
             refresh_token=refresh_token,
             id=user_id,
         )
+
+    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+        await db_connection.execute_query(
+            queries.UPDATE_REFRESH_TOKEN,
+            old_token=old_token,
+            new_token=new_token,
+            target_id=target_id
+        )
+
+    async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
+        user = await db_connection.fetch_one(
+            queries.CHECK_REFRESH_TOKEN,
+            target_id=target_id,
+            refresh_token=refresh_token
+        )
+        return user is not None
 
 
 user_repository = UserPostgresRepository()

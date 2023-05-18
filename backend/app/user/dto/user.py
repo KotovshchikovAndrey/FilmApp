@@ -33,3 +33,8 @@ class UserVerificationData(BaseModel):
     email: str
     timestamp: float = datetime.datetime.now().timestamp()
     reason: str
+
+
+class UserLoginDTO(BaseModel):
+    email: str
+    password: str

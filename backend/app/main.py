@@ -11,13 +11,12 @@ routes = [
     Mount("/users", routes=user_routes),
     Mount("/films", routes=film_routes),
 ]
-# middlewares = [
-#     Middleware(
-#         AuthenticationMiddleware,
-#         backend=JwtAuthBackend(),
-#     )
-# ]
-middlewares = []
+middlewares = [
+    Middleware(
+        AuthenticationMiddleware,
+        backend=JwtAuthBackend(),
+    )
+]
 
 server = StarletteServer(routes=routes, middlewares=middlewares)
 app = server.get_app_instance()

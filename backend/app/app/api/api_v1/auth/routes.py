@@ -6,6 +6,7 @@ routes = [
     Route("/request-code", controllers.RequestCode),
     Route("/register-complete", controllers.RegistrationComplete),
     Route("/login", controllers.Login),
-    Route("/refreshToken", controllers.TokenRefresh),
+    Route("/refresh-token", controllers.TokenRefresh),
     Route("/logout", controllers.Logout),
+    Route("/logout-everywhere", controllers.LogoutEverywhere),
 ]

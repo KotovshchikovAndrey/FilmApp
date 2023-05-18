@@ -1,12 +1,13 @@
 import typing as tp
 from abc import ABC, abstractmethod
 
-import asyncio
 from app.core import config
 from app.exceptions.api import ApiError
 from film.crud.reporitories import IFilmReporitory
+from film.services.imdb import fetch_poster_url_by_imdb_id, fetch_poster_binary_file
+from app.utils.file_manager import FileManager
+
 from film.dto import (
-    FilmPrimaryKeyDTO,
     GetFilmsDTO,
     FilmsDTO,
     CreateFilmDTO,
@@ -15,10 +16,8 @@ from film.dto import (
     FilmDTO,
     FilmFiltersDTO,
     SearchFilmDTO,
+    GetPosterDTO,
 )
-
-from film.services.imdb import fetch_poster_url_by_imdb_id, fetch_poster_binary_file
-from app.utils.file_manager import FileManager
 
 
 class IFilmService(ABC):
@@ -41,7 +40,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_poster_for_film(self, film_id: int) -> bytes:
+    async def get_poster_for_film(self, dto: GetPosterDTO) -> bytes:
         ...
 
     @abstractmethod
@@ -86,8 +85,8 @@ class FilmService(IFilmService):
             countries=film_countries.production_countries,
         )
 
-    async def get_poster_for_film(self, film_id: int):
-        film = await self.__repository.find_by_id(film_id)
+    async def get_poster_for_film(self, dto: GetPosterDTO):
+        film = await self.__repository.find_by_id(dto.film_id)
         if film is None:
             raise ApiError.not_found(message="Фильм с таким id не найден!")
 
@@ -95,7 +94,7 @@ class FilmService(IFilmService):
         if imdb_id is not None:
             poster_url = await fetch_poster_url_by_imdb_id(imdb_id)
             if poster_url is not None:
-                poster = await fetch_poster_binary_file(poster_url)
+                poster = await fetch_poster_binary_file(poster_url, dto.size)
                 return poster
 
         file_manager = FileManager(upload_dir=config.UPLOAD_DIR + "/posters")
