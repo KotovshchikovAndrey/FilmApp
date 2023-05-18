@@ -8,3 +8,9 @@ export const authSchema = zod.object({
 });
 
 export type AuthSchema = zod.infer<typeof authSchema>
+
+export const verificationSchema = zod.object({
+    verificationCode: zod.string().regex(/\d{6}/, "only digits").length(6)
+});
+export type VerificationSchema = zod.infer<typeof verificationSchema>
+
