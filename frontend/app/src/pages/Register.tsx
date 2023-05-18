@@ -9,24 +9,20 @@ import {
 import Grid from "@mui/material/Unstable_Grid2";
 import {useForm, Controller, useFormState} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import * as zod from "zod";
+import {authSchema, AuthSchema} from "../helpers/validators"
+import ky from "ky";
 
-const registerSchema = zod.object({
-    email: zod.string().email("Invalid email address"),
-    password: zod.string().min(8, "Must be 8 or more characters long").max(32, "Must be 32 or fewer characters long"),
-    name: zod.string().max(30, "Must be 30 or fewer characters long"),
-    surname: zod.string().max(30, "Must be 30 or fewer characters long"),
-});
-type IRegisterSchema = zod.infer<typeof registerSchema>
 
 export function Register() {
 
-    const {handleSubmit, control} = useForm<IRegisterSchema>({
-        resolver: zodResolver(registerSchema)
+    const {handleSubmit, control} = useForm<AuthSchema>({
+        resolver: zodResolver(authSchema)
     })
     const {errors} = useFormState({control})
-    const onSubmit = (data: IRegisterSchema) => {
-        console.log(data)
+    const onSubmit = async (data: AuthSchema) => {
+        console.log({json: data})
+        const json = await ky.post("https://127.0.0.1:8000/auth/register", {json: data}).json();
+        console.log(json)
     }
 
     return (
