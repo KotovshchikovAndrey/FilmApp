@@ -13,6 +13,7 @@ from film.dto import (
     SearchFilmDTO,
     CreateFilmDTO,
     UpdateFilmDTO,
+    GetPosterDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -94,7 +95,7 @@ class Poster(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
     async def get(self, request: Request):
-        film_id = request.path_params["film_id"]
-        poster = await self.__service.get_poster_for_film(film_id)
+        dto = GetPosterDTO(**request.query_params, **request.path_params)
+        poster = await self.__service.get_poster_for_film(dto)
 
         return Response(content=poster, media_type="image/jpeg")
