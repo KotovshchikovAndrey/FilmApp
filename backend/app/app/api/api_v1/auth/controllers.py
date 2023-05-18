@@ -126,6 +126,7 @@ class Logout(HTTPEndpoint):
 
 class LogoutEverywhere(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
+
     @requires("authenticated")
     async def delete(self, request: Request):
         await self.__auth_service.logout_everywhere(request.user.instance)

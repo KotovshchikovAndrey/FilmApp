@@ -13,8 +13,9 @@ from app.utils.OtherUtils import email_validate, generate_code, generate_expired
 
 class IUserService(ABC):
     __repository: IUserRepository
-    #TODO: убрать комментарий при деплое!!!
-    #mail_server: MailSender
+
+    # TODO: убрать комментарий при деплое!!!
+    # mail_server: MailSender
 
     @abstractmethod
     async def get_current_user(self, id: int) -> UserBase:
@@ -57,7 +58,7 @@ class UserService(IUserService):
     def __init__(self, repository: IUserRepository = get_user_repository()):
         self.__repository = repository
         # TODO: убрать комментарий при деплое!!!
-        #self.mail_server = MailSender(config.MAIL_LOGIN, config.MAIL_PASSWORD)
+        # self.mail_server = MailSender(config.MAIL_LOGIN, config.MAIL_PASSWORD)
 
     async def get_current_user(self, id: int):
         user = await self.__repository.find_by_id(id=id)
