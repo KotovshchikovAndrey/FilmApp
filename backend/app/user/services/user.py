@@ -62,19 +62,19 @@ class UserService(IUserService):
     async def get_current_user(self, id: int):
         user = await self.__repository.find_by_id(id=id)
         if user is None:
-            raise ApiError.not_found(message="Пользователь не найден")
+            raise ApiError.not_found(message="User not found")
         return UserBase(**user)
 
     async def find_user_by_email(self, email: str):
         user = await self.__repository.find_by_email(email=email)
         if user is None:
-            raise ApiError.not_found(message="Пользователь не найден")
+            raise ApiError.not_found(message="User not found")
         return UserBase(**user)
 
     async def find_user_by_id(self, id: int):
         user = await self.__repository.find_by_id(id=id)
         if user is None:
-            raise ApiError.not_found(message="Пользователь не найден")
+            raise ApiError.not_found(message="User not found")
         return UserBase(**user)
 
     async def check_user_exists(self, email: str):
@@ -85,10 +85,10 @@ class UserService(IUserService):
         is_user_exist = await self.check_user_exists(email=dto.email)
         if is_user_exist:
             raise ApiError.conflict(
-                "Пользователь с таким адресом электронной почты уже существует"
+                "User with this email already exists"
             )
         if not email_validate(dto.email):
-            raise ApiError.bad_request("Введён некорректный адрес электронной почты")
+            raise ApiError.bad_request("Invalid email address")
         user = await self.__repository.create(dto)
         return UserBase(**user)
 

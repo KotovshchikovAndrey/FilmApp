@@ -33,7 +33,7 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def find_by_id(self, id: int) -> tp.Mapping:
+    async def find_by_id(self, target_id: int) -> tp.Mapping:
         ...
 
     @abstractmethod
@@ -50,6 +50,14 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def add_refresh_token(self, user_id: int, refresh_token: str):
+        ...
+
+    @abstractmethod
+    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+        ...
+
+    @abstractmethod
+    async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
         ...
 
 
@@ -131,6 +139,22 @@ class UserPostgresRepository(IUserRepository):
             refresh_token=refresh_token,
             id=user_id,
         )
+
+    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+        await db_connection.execute_query(
+            queries.UPDATE_REFRESH_TOKEN,
+            old_token=old_token,
+            new_token=new_token,
+            target_id=target_id
+        )
+
+    async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
+        user = await db_connection.fetch_one(
+            queries.CHECK_REFRESH_TOKEN,
+            target_id=target_id,
+            refresh_token=refresh_token
+        )
+        return user is not None
 
 
 user_repository = UserPostgresRepository()
