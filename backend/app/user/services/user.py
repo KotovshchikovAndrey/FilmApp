@@ -6,7 +6,7 @@ from datetime import datetime
 from app.utils.MailSender import MailSender
 from app.core import config
 from user.crud.reporitories.user import IUserRepository, get_user_repository
-from user.dto import UserBase, UserRegisterDTO, UserVerificationData
+from user.dto import UserBase, UserRegisterDTO
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 
@@ -61,7 +61,7 @@ class UserService(IUserService):
         # self.mail_server = MailSender(config.MAIL_LOGIN, config.MAIL_PASSWORD)
 
     async def get_current_user(self, id: int):
-        user = await self.__repository.find_by_id(id=id)
+        user = await self.__repository.find_by_id(target_id=id)
         if user is None:
             raise ApiError.not_found(message="User not found")
         return UserBase(**user)

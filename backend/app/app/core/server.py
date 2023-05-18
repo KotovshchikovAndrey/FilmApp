@@ -57,12 +57,12 @@ class StarletteServer:
         if isinstance(exc, pydantic.ValidationError):
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                content={"message": "Невалидные данные!", "details": exc.errors()},
+                content={"message": "Invalid data", "details": exc.errors()},
             )
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Произошла непредвиденная ошибка!", "details": []},
+            content={"message": "Internal Server Error", "details": []},
         )
 
     async def __handle_startup(self):
