@@ -31,4 +31,5 @@ class UserVerificationData(BaseModel):
     ip: str
     code: str
     email: str
-    timestamp: datetime.datetime = datetime.datetime.now()
+    timestamp: float = datetime.datetime.now().timestamp()
+    reason: str

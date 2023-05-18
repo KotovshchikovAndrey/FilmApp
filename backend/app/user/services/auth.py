@@ -1,10 +1,31 @@
+import json
+from datetime import datetime
 import typing as tp
 from abc import ABC, ABCMeta, abstractmethod
+
+from app.exceptions.api import ApiError
+from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
+from user.crud.reporitories.user import get_user_repository
+from user.dto import UserBase, UserRegisterDTO, UserVerificationData
+from user.services.user import IUserService, get_user_service
+from user.services.token import ITokenService, get_token_service
 
 
 class IAuthService(ABC):
     @abstractmethod
-    async def regiter(self, dto: ...) -> ...:
+    async def register(self, dto: UserRegisterDTO) -> tp.Tuple[str, str]:
+        ...
+
+    @abstractmethod
+    async def send_verification_code(self, dto: UserVerificationData) -> None:
+        ...
+
+    @abstractmethod
+    async def request_code(self, email: str, host: str, reason: str) -> None:
+        ...
+
+    @abstractmethod
+    async def complete_register(self, dto: UserVerificationData) -> UserBase:
         ...
 
     @abstractmethod
@@ -25,14 +46,72 @@ class IAuthService(ABC):
 
 
 class JwtAuthService(IAuthService):
-    __user_service: ...
-    __token_service: ...
 
-    def __init__(self, user_service: ..., token_service: ...):
-        ...
+    def __init__(self, user_service: IUserService = get_user_service(),
+                 token_service: ITokenService = get_token_service()):
+        self.__user_service = user_service
+        self.__token_service = token_service
 
-    async def register(self, dto: ...):
-        ...
+    async def register(self, dto: UserRegisterDTO):
+        user = await get_user_repository().find_by_email(email=dto.email)
+        if user is not None:
+            raise ApiError.conflict(
+                "Пользователь с таким адресом электронной почты уже существует"
+            )
+        if not email_validate(dto.email):
+            raise ApiError.bad_request("Введён некорректный адрес электронной почты")
+        user = await get_user_repository().create(dto)
+
+        token_payload = {
+            "id": user["id"],
+            "email": user["email"],
+            "role": user["role"],
+        }
+        access_token = self.__token_service.generate_access_token(payload=token_payload)
+        refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
+                                                                    payload=token_payload)
+        await self.__user_service.add_refresh_token(user_id=user["id"], refresh_token=refresh_token)
+
+        return access_token, refresh_token
+
+    async def send_verification_code(self, dto: UserVerificationData):
+        await get_user_repository().add_verification_code(dto)
+        # TODO: убрать комментарий при деплое!!!
+        # get_user_service().mail_server.send_code(code=dto.code, target_email=dto.email)
+
+    async def request_code(self, email: str, host: str, reason: str):
+        await get_user_service().find_user_by_email(email)
+        await self.send_verification_code(
+            UserVerificationData(
+                ip=host,
+                code=generate_code(),
+                email=email,
+                timestamp=generate_expired_in(),
+                reason=reason,
+            )
+        )
+
+    async def complete_register(self, dto: UserVerificationData):
+        user = await get_user_repository().find_by_email_and_code(
+            email=dto.email, code=dto.code
+        )
+        if user is None:
+            raise ApiError.forbidden(message="Неверная связка пользователь-код")
+        code_info = json.loads(dict(user).get("value"))
+
+        if user["status"] != "not_verified":
+            raise ApiError.forbidden(message="Аккаунт уже подтверждён")
+
+        if code_info["ip"] != dto.ip:
+            raise ApiError.forbidden(
+                message="Код был отправлен не для этого устройства"
+            )
+        if int(code_info["timestamp"]) < int(datetime.now().timestamp()):
+            raise ApiError.forbidden(message="Код просрочен, запросите новый")
+        if code_info["reason"] != "complete-register":
+            raise ApiError.forbidden(message="Код предназначен для другой операции")
+        usr = await get_user_repository().verify_user(user["id"])
+        return UserBase(**usr)
 
     async def login(self, dto: ...):
         ...

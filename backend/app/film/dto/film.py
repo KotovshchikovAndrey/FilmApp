@@ -2,15 +2,16 @@ import typing as tp
 import json
 
 from pydantic import BaseModel, Json, validator
-from datetime import date
+from datetime import date, datetime
 
 
-class FilmBase(BaseModel):
+class FilmPrimaryKeyDTO(BaseModel):
     id: int
+
+
+class FilmBase(FilmPrimaryKeyDTO):
     title: str
     is_adult: bool
-    imdb_id: tp.Optional[str] = None
-    poster_url: tp.Optional[str] = None
     tagline: tp.Optional[str] = None
 
 
@@ -55,39 +56,22 @@ class FilmDTO(FilmBase):
     budget: int
     release_date: str
     time: tp.Optional[float] = None
-    genres: tp.List[GenreDTO]
-    production_companies: tp.Optional[tp.List[ProductionCompanyDTO]] = None
-    production_countries: tp.Optional[tp.List[ProductionCountryDTO]] = None
+    genres: tp.List[tp.Mapping[str, str]]
+    production_companies: tp.Optional[tp.List[tp.Mapping[str, str]]] = None
+    production_countries: tp.Optional[tp.List[tp.Mapping[str, str]]] = None
 
     class Config:
         fields = {"tagline": {"exclude": True}}
 
-    @validator("genres", pre=True)
-    def validate_genres(cls, value: tp.List[tp.Mapping[str, str]]):
-        genres = json.loads(value)
-        return [GenreDTO(**genre) for genre in genres]
-
-    @validator("production_countries", pre=True)
-    def validate_production_countries(cls, value: tp.List[tp.Mapping[str, str]] | None):
-        if value is None:
-            return value
-
-        production_countries = json.loads(value)
-        return [
-            ProductionCountryDTO(
-                iso_name=country["iso_3166_1"],
-                public_name=country["name"],
-            )
-            for country in production_countries
-        ]
-
-    @validator("production_companies", pre=True)
-    def validate_production_companies(cls, value: tp.List[tp.Mapping[str, str]] | None):
-        if value is None:
-            return value
-
-        production_companies = json.loads(value)
-        return [ProductionCompanyDTO(**company) for company in production_companies]
+    @validator(
+        "genres",
+        "production_companies",
+        "production_countries",
+        pre=True,
+    )
+    def validate_json(cls, value: tp.List[tp.Mapping[str, str]] | None):
+        if value is not None:
+            return json.loads(value)
 
     @validator("release_date", pre=True)
     def validate_release_date(cls, value: date):
@@ -111,3 +95,45 @@ class GetFilmDTO(BaseModel):
 
 class SearchFilmDTO(BaseModel):
     title: str
+
+
+class CreateFilmDTO(BaseModel):
+    title: str
+    is_adult: bool
+    tagline: tp.Optional[str] = None
+    description: tp.Optional[str] = None
+    imdb_id: tp.Optional[str] = None
+    language: tp.Optional[str] = None
+    budget: int
+    release_date: date
+    time: tp.Optional[float] = None
+    genres: str
+    production_companies: tp.Optional[str] = None
+    production_countries: tp.Optional[str] = None
+
+    @validator(
+        "genres",
+        "production_companies",
+        "production_countries",
+        pre=True,
+    )
+    def validate_json(cls, value: tp.List[tp.Mapping[str, str]]):
+        try:
+            value = json.dumps(value)
+        except:
+            raise ValueError(f"{value} - Невалидный json формат!")
+
+        return value
+
+    @validator("release_date", pre=True)
+    def validate_release_date(cls, value: str):
+        try:
+            year, month, day = map(int, value.split("-"))
+            value = date(year, month, day)
+        except:
+            raise ValueError("Невалидный формат даты для поля release_date!")
+
+        return value
+
+
+UpdateFilmDTO = CreateFilmDTO

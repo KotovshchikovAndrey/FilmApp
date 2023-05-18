@@ -1,6 +1,7 @@
 backend/venv
 backend/app/.env
 backend/app/alembic.ini
+backend/app/app/media
 **/__pycache__/**
 
 frontend/app/.env
@@ -10,3 +11,5 @@ frontend/app/tsconfig.json
 
 .idea/
 venv/
+venvpc/
+venvlaptop/
