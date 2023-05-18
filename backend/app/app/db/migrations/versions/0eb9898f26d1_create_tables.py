@@ -16,7 +16,7 @@ def create_user_table() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("name", sa.String(30), nullable=False),
         sa.Column("surname", sa.String(30), nullable=False),
-        sa.Column("email", sa.String(30), nullable=False, unique=True),
+        sa.Column("email", sa.String(50), nullable=False, unique=True),
         sa.Column("password", sa.TEXT(), nullable=False),
         sa.Column("avatar", sa.String(255), nullable=True),
         sa.Column("status", sa.String(15), nullable=False),
