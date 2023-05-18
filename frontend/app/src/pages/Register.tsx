@@ -11,6 +11,7 @@ import {useForm, Controller, useFormState} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {authSchema, AuthSchema} from "../helpers/validators"
 import ky from "ky";
+import {Link} from "react-router-dom";
 
 
 export function Register() {
@@ -108,12 +109,16 @@ export function Register() {
                                 />
                             )}
                         />
+                        <Link to="/verify" style={{width: "100%"}}>
+                            открыть страницу ввода кода
+                        </Link>
                         <Button
                             type="submit"
                             variant="contained"
                         >
                             Sign up
                         </Button>
+
                     </Stack>
                 </form>
             </Container>
