@@ -36,12 +36,12 @@ class TokenService(ITokenService):
 
     async def refresh_token(self, dto: UserRefreshTokenDTO):
         payload = self.decode_refresh_token(dto.access_token, dto.refresh_token)
-        is_refresh_valid = self.__repository.check_refresh_token(dto.user.id, dto.refresh_token)
+        is_refresh_valid = await self.__repository.check_refresh_token(payload["id"], dto.refresh_token)
         if not is_refresh_valid:
             raise ApiError.forbidden(message="Refresh token has been revoked")
         access_token = self.generate_access_token(payload)
         refresh_token = self.generate_refresh_token(access_token, payload)
-        await self.__repository.replace_refresh_token(dto.user.id, dto.refresh_token, refresh_token)
+        await self.__repository.replace_refresh_token(payload["id"], dto.refresh_token, refresh_token)
         return access_token, refresh_token
 
     def generate_access_token(self, payload: tp.Dict[str, tp.Any]) -> str:
@@ -61,7 +61,7 @@ class TokenService(ITokenService):
         try:
             payload = jwt.decode(refresh_token, str(config.SECRET_KEY) + access_token_part, ["HS256"])
         except jwt.ExpiredSignatureError:
-            raise ApiError.unauthorized(message="The token has expired")
+            raise ApiError.unauthorized(message="Refresh token has expired")
         except jwt.InvalidTokenError:
             raise ApiError.forbidden(message="Wrong token")
         return payload

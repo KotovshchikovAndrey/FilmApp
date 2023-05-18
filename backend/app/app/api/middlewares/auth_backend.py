@@ -22,8 +22,8 @@ class JwtUser(BaseUser):
         return self.instance.id
 
 
-def parse_token(conn: HTTPConnection) -> str:
-    token = conn.headers.get("authorization", None)
+def parse_token(conn: HTTPConnection, header_name: str = "authorization") -> str:
+    token = conn.headers.get(header_name, None)
     if token is None:
         raise ApiError.unauthorized(message="Token was not provided")
     return token

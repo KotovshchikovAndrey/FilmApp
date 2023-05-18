@@ -5,6 +5,7 @@ from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
 from starlette.responses import PlainTextResponse, JSONResponse, Response
 
+from app.api.middlewares.auth_backend import parse_token
 from app.exceptions.api import ApiError
 from user.dto import UserRefreshTokenDTO, UserLogoutDTO
 from user.dto.user import UserRegisterDTO, UserVerificationData, UserLoginDTO
@@ -87,12 +88,10 @@ class Login(HTTPEndpoint):
 class TokenRefresh(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
 
-    @requires("authenticated")
     async def put(self, request: Request):
         access_token, refresh_token = await self.__auth_service.refresh_token(
             UserRefreshTokenDTO(
-                user=request.user.instance,
-                access_token=request.user.token,
+                access_token=parse_token(request, "old_access"),
                 refresh_token=get_refresh_token_from_cookie(request)
             ),
         )
