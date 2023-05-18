@@ -2,7 +2,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from app.utils.OtherUtils import get_password_hash
-from user.dto import UserRegisterDTO, UserVerificationData
+from user.dto import UserRegisterDTO, UserVerificationData, UserLoginDTO
 from app.db import db_connection
 from user.crud import queries
 
@@ -22,6 +22,10 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def verify_user(self, id: int) -> tp.Mapping:
+        ...
+
+    @abstractmethod
+    async def authorise_user(self, dto: UserLoginDTO) -> tp.Mapping:
         ...
 
     @abstractmethod
@@ -92,6 +96,14 @@ class UserPostgresRepository(IUserRepository):
             id=id,
         )
         user = await self.find_by_id(id)
+        return user
+
+    async def authorise_user(self, dto: UserLoginDTO):
+        user = await db_connection.fetch_one(
+            queries.AUTHORISE_USER,
+            email=dto.email,
+            password=get_password_hash(dto.password)
+        )
         return user
 
     # Этот костыль здесь не просто так. По-другому запрос отказывался выполняться.

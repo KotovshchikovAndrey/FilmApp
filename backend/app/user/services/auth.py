@@ -6,7 +6,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from user.crud.reporitories.user import get_user_repository
-from user.dto import UserBase, UserRegisterDTO, UserVerificationData
+from user.dto import UserBase, UserRegisterDTO, UserVerificationData, UserLoginDTO
 from user.services.user import IUserService, get_user_service
 from user.services.token import ITokenService, get_token_service
 
@@ -29,11 +29,15 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def login(self, dto: ...) -> ...:
+    async def login(self, dto: UserLoginDTO) -> tp.Tuple[str, str]:
         ...
 
     @abstractmethod
     async def logout(self, dto: ...) -> None:
+        ...
+
+    @abstractmethod
+    async def logout_everywhere(self, dto: ...) -> None:
         ...
 
     @abstractmethod
@@ -60,17 +64,17 @@ class JwtAuthService(IAuthService):
             )
         if not email_validate(dto.email):
             raise ApiError.bad_request("Введён некорректный адрес электронной почты")
-        user = await get_user_repository().create(dto)
+        user = UserBase(**await get_user_repository().create(dto))
 
         token_payload = {
-            "id": user["id"],
-            "email": user["email"],
-            "role": user["role"],
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
         }
         access_token = self.__token_service.generate_access_token(payload=token_payload)
         refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
                                                                     payload=token_payload)
-        await self.__user_service.add_refresh_token(user_id=user["id"], refresh_token=refresh_token)
+        await self.__user_service.add_refresh_token(user_id=user.id, refresh_token=refresh_token)
 
         return access_token, refresh_token
 
@@ -113,14 +117,34 @@ class JwtAuthService(IAuthService):
         usr = await get_user_repository().verify_user(user["id"])
         return UserBase(**usr)
 
-    async def login(self, dto: ...):
-        ...
+    async def login(self, dto: UserLoginDTO):
+        user = await self.authenticate(dto)
+
+        token_payload = {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role,
+        }
+        access_token = self.__token_service.generate_access_token(payload=token_payload)
+        refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
+                                                                    payload=token_payload)
+        await self.__user_service.add_refresh_token(user_id=user.id, refresh_token=refresh_token)
+
+        return access_token, refresh_token
 
     async def logout(self, dto: ...):
         ...
 
-    async def authenticate(self, dto: ...):
+    async def logout_everywhere(self, dto: ...):
         ...
+
+    async def authenticate(self, dto: UserLoginDTO):
+        user = await get_user_repository().authorise_user(dto)
+        if user is None:
+            raise ApiError.forbidden(message="Неверный логин или пароль")
+        if user["status"] == "banned":
+            raise ApiError.forbidden(message="Этот аккаунт заблокирован")
+        return UserBase(**user)
 
     async def reset_password(self, dto: ...):
         ...

@@ -36,3 +36,6 @@ WHERE id = :id;
 
 """
 )
+AUTHORISE_USER = (
+    """SELECT * FROM "user" WHERE email = :email and password = :password;"""
+)

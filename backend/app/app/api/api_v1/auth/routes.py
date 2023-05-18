@@ -8,4 +8,5 @@ routes = [
     Route("/login", controllers.Login),
     Route("/refreshToken", controllers.TokenRefresh),
     Route("/logout", controllers.Logout),
+    Route("/logout-everywhere", controllers.LogoutEverywhere),
 ]

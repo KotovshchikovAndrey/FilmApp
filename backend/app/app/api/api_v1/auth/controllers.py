@@ -4,16 +4,14 @@ from starlette.requests import Request
 from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
 from starlette.responses import PlainTextResponse, JSONResponse
-from user.dto.user import UserRegisterDTO, UserVerificationData
+from user.dto.user import UserRegisterDTO, UserVerificationData, UserLoginDTO
 from app.core.ioc import container, user_services
 from app.utils.OtherUtils import generate_code, generate_expired_in
 
-IUserService = user_services.IUserService
 IAuthService = user_services.IAuthService
 
 
 class Registration(HTTPEndpoint):
-    __user_service: IUserService = container.resolve(IUserService)
     __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def post(self, request: Request):
@@ -41,7 +39,6 @@ class Registration(HTTPEndpoint):
 
 
 class RequestCode(HTTPEndpoint):
-    __user_service: IUserService = container.resolve(IUserService)
     __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def put(self, request: Request):
@@ -51,7 +48,6 @@ class RequestCode(HTTPEndpoint):
 
 
 class RegistrationComplete(HTTPEndpoint):
-    __user_service: IUserService = container.resolve(IUserService)
     __auth_service: IAuthService = container.resolve(IAuthService)
 
     async def put(self, request: Request):
@@ -64,8 +60,23 @@ class RegistrationComplete(HTTPEndpoint):
 
 
 class Login(HTTPEndpoint):
+    __auth_service: IAuthService = container.resolve(IAuthService)
+
     async def post(self, request: Request):
-        ...
+        data = UserLoginDTO(**dict(await request.json()))
+        access_token, refresh_token = await self.__auth_service.login(data)
+        output = {"access_token": access_token, "refresh_token": refresh_token}
+        response = JSONResponse(
+            status_code=200,
+            content=output
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            max_age=3600 * 24 * 90,  # 90 дней
+        )
+        return response
 
 
 class TokenRefresh(HTTPEndpoint):
@@ -74,5 +85,10 @@ class TokenRefresh(HTTPEndpoint):
 
 
 class Logout(HTTPEndpoint):
+    async def delete(self, request: Request):
+        ...
+
+
+class LogoutEverywhere(HTTPEndpoint):
     async def delete(self, request: Request):
         ...
