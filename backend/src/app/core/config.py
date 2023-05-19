@@ -30,3 +30,6 @@ UPLOAD_DIR = str((pathlib.Path("app") / "media").absolute())
 TMDB_API_KEY = env_config("TMDB_API_KEY", cast=str)
 # MAIL_LOGIN = env_config("MAIL_LOGIN", cast=str)
 # MAIL_PASSWORD = env_config("MAIL_PASSWORD", cast=str)
+
+# CORS
+ALLOW_ORIGINS = ["*"]  # Потом впишем адрес нашего сервера, откуда рендериться frontend

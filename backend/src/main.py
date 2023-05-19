@@ -1,7 +1,9 @@
 import uvicorn
 from starlette.routing import Mount
 from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
+from app.core import config
 from app.api.api_v1 import auth_routes, user_routes, film_routes
 from app.core.server import StarletteServer
 from app.api.middlewares.auth_backend import JwtAuthBackend
@@ -11,11 +13,19 @@ routes = [
     Mount("/users", routes=user_routes),
     Mount("/films", routes=film_routes),
 ]
+
 middlewares = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=config.ALLOW_ORIGINS,
+        allow_methods=["*"],
+        allow_credentials=True,
+        allow_headers=["*"],
+    ),
     Middleware(
         AuthenticationMiddleware,
         backend=JwtAuthBackend(),
-    )
+    ),
 ]
 
 server = StarletteServer(routes=routes, middlewares=middlewares)
