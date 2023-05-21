@@ -26,7 +26,7 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def find_by_id(self, film_id: int) -> FilmDTO:
+    async def find_by_id(self, film_id: int) -> tp.Optional[FilmDTO]:
         ...
 
     @abstractmethod
@@ -83,7 +83,8 @@ class FilmPostgresRepository(IFilmReporitory):
 
     async def find_by_id(self, film_id: int):
         film = await db_connection.fetch_one(queries.GET_FILM_BY_ID, id=film_id)
-        return FilmDTO(**film)
+        if film is not None:
+            return FilmDTO(**film)
 
     async def find_by_title(self, title: str):
         films = await db_connection.fetch_all(

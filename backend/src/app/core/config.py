@@ -24,6 +24,9 @@ TEST_DB_NAME = env_config("TEST_DB_NAME", cast=str)
 
 CSV_DATASET_PATH = env_config("CSV_DATASET_PATH", cast=str)
 
+# CSV Data for testing
+CSV_TESTING_DATA_PATH = env_config("CSV_TESTING_DATA_PATH", cast=str, default=None)
+
 UPLOAD_URL = "/media"
 UPLOAD_DIR = str((pathlib.Path("app") / "media").absolute())
 

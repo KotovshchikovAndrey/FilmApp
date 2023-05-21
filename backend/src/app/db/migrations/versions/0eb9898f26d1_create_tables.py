@@ -1,7 +1,7 @@
 from alembic import op
 import sqlalchemy as sa
 
-from enum import Enum
+import os
 from app.core import config
 
 revision = "0eb9898f26d1"
@@ -101,6 +101,10 @@ def upgrade() -> None:
     create_favorite_user_film_table()
     create_raiting_table()
 
+    csv_data = config.CSV_DATASET_PATH
+    if os.environ.get("IS_TESTING", False):
+        csv_data = config.CSV_TESTING_DATA_PATH or csv_data
+
     op.execute(
         """
         COPY film
@@ -158,7 +162,7 @@ CREATE TYPE user_status AS ENUM('active', 'not_verified', 'banned', 'muted');
 ALTER TABLE "user" ALTER COLUMN role TYPE user_role USING role::user_role;
 ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;
 """
-        % config.CSV_DATASET_PATH
+        % csv_data
     )
 
 

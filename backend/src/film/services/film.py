@@ -79,6 +79,9 @@ class FilmService(IFilmService):
 
     async def get_film_info(self, dto: GetFilmDTO):
         film = await self.__repository.find_by_id(film_id=dto.film_id)
+        if film is None:
+            raise ApiError.not_found(message="Film not found!")
+
         return film
 
     async def get_film_filters(self) -> FilmFiltersDTO:
@@ -93,7 +96,7 @@ class FilmService(IFilmService):
     async def get_poster_for_film(self, dto: GetPosterDTO):
         film = await self.__repository.find_by_id(dto.film_id)
         if film is None:
-            raise ApiError.not_found(message="Фильм с таким id не найден!")
+            raise ApiError.not_found(message="Film not found!")
 
         imdb_id = film.imdb_id
         if imdb_id is not None:
@@ -110,7 +113,7 @@ class FilmService(IFilmService):
     async def get_trailer_for_film(self, film_id: int):
         film = await self.__repository.find_by_id(film_id)
         if film is None:
-            raise ApiError.not_found(message="Film with this id not found!")
+            raise ApiError.not_found(message="Film not found!")
 
         imdb_id = film.imdb_id
         if imdb_id is not None:
@@ -118,7 +121,7 @@ class FilmService(IFilmService):
             if trailer_url is not None:
                 return trailer_url
 
-        raise ApiError.not_found(message="Trailer for this film not found!")
+        raise ApiError.not_found(message="Trailer not found!")
 
     async def search_film(self, dto: SearchFilmDTO):
         films = await self.__repository.find_by_title(title=dto.title)

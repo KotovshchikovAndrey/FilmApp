@@ -1,8 +1,8 @@
 import typing as tp
 import json
 
-from pydantic import BaseModel, Json, validator
-from datetime import date, datetime
+from pydantic import BaseModel, validator
+from datetime import date
 
 
 class FilmPrimaryKeyDTO(BaseModel):
@@ -36,8 +36,8 @@ class GenresDTO(BaseModel):
 
 
 class ProductionCountryDTO(BaseModel):
-    iso_name: Json | str
-    public_name: Json | str
+    iso_name: str
+    public_name: str
 
 
 class ProductionCountriesDTO(BaseModel):
@@ -127,11 +127,66 @@ class CreateFilmDTO(BaseModel):
     production_countries: tp.Optional[str] = None
 
     @validator("genres", "production_companies", "production_countries", pre=True)
-    def validate_json(cls, value: tp.List[tp.Mapping[str, str]]):
+    def validate_json(cls, value: tp.Any):
+        """Проверяем, можно ли введенные данные преобразовать в json формат"""
+
         try:
             value = json.dumps(value)
-        except:
-            raise ValueError(f"{value} - Невалидный json формат!")
+        except Exception:
+            raise ValueError(f"{value} - Invalid json format!")
+
+        return value
+
+    @validator("genres")
+    def validate_genres(cls, value: str):
+        """Проверяем, что json поле genres содержит все необходимые поля"""
+
+        genres = json.loads(value)
+        if not isinstance(genres, list):  # проверяем, что нам пришел именно список
+            raise ValueError(f"Field genres must be iterable!")
+
+        for genre in genres:
+            GenreDTO(**genre)  # если встретит невалидные данные, выплюнит ошибку
+
+        return value
+
+    @validator("production_countries")
+    def validate_production_countries(cls, value: str | None):
+        """Проверяем, что json поле production_countries содержит все необходимые поля"""
+
+        production_countries = json.loads(value)
+        if production_countries is None:  # вернет None, если в json null
+            return
+
+        if not isinstance(
+            production_countries, list
+        ):  # проверяем, что нам пришел именно список
+            raise ValueError(f"Field production_countries must be iterable!")
+
+        for country in production_countries:
+            ProductionCountryDTO(
+                **country
+            )  # если встретит невалидные данные, выплюнит ошибку
+
+        return value
+
+    @validator("production_companies")
+    def validate_production_companies(cls, value: str):
+        """Проверяем, что json поле production_companies содержит все необходимые поля"""
+
+        production_companies = json.loads(value)
+        if production_companies is None:  # вернет None, если в json null
+            return
+
+        if not isinstance(
+            production_companies, list
+        ):  # проверяем, что нам пришел именно список
+            raise ValueError(f"Field production_companies must be iterable!")
+
+        for company in production_companies:
+            ProductionCompanyDTO(
+                **company
+            )  # если встретит невалидные данные, выплюнит ошибку
 
         return value
 
@@ -140,8 +195,8 @@ class CreateFilmDTO(BaseModel):
         try:
             year, month, day = map(int, value.split("-"))
             value = date(year, month, day)
-        except:
-            raise ValueError("Невалидный формат даты для поля release_date!")
+        except Exception:
+            raise ValueError("Invalid date format for release_date!")
 
         return value
 
