@@ -128,7 +128,6 @@ class JwtAuthService(IAuthService):
         token_payload = {
             "id": user.id,
             "email": user.email,
-            "role": user.role,
         }
         access_token = self.__token_service.generate_access_token(payload=token_payload)
         refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
