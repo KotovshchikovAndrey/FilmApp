@@ -5,11 +5,9 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.endpoints import HTTPEndpoint
 
-from film.services.imdb import fetch_poster_url_by_imdb_id
 from app.core.ioc import container, film_services
 from film.dto import (
     GetFilmsDTO,
-    GetFilmDTO,
     SearchFilmDTO,
     CreateFilmDTO,
     UpdateFilmDTO,
@@ -48,8 +46,8 @@ class FilmDetail(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
     async def get(self, request: Request):
-        dto = GetFilmDTO(**request.path_params)
-        film = await self.__service.get_film_info(dto)
+        film_id = request.path_params["film_id"]
+        film = await self.__service.get_film_info(film_id)
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,

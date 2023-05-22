@@ -61,7 +61,9 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+    async def replace_refresh_token(
+        self, target_id: int, old_token: str, new_token: str
+    ):
         ...
 
     @abstractmethod
@@ -79,31 +81,22 @@ class UserPostgresRepository(IUserRepository):
             password=get_password_hash(dto.password),
         )
         user = await db_connection.fetch_one(
-            queries.FIND_USER_BY_EMAIL,
-            email=dto.email
+            queries.FIND_USER_BY_EMAIL, email=dto.email
         )
         return user
 
     async def find_by_email(self, email: str):
-        user = await db_connection.fetch_one(
-            queries.FIND_USER_BY_EMAIL,
-            email=email
-        )
+        user = await db_connection.fetch_one(queries.FIND_USER_BY_EMAIL, email=email)
         return user
 
     async def find_by_email_and_code(self, email: str, code: str):
         user = await db_connection.fetch_one(
-            queries.FIND_USER_WITH_CODE,
-            email=email,
-            code=code
+            queries.FIND_USER_WITH_CODE, email=email, code=code
         )
         return user
 
     async def find_by_id(self, target_id: int):
-        user = await db_connection.fetch_one(
-            queries.FIND_USER_BY_ID,
-            id=target_id
-        )
+        user = await db_connection.fetch_one(queries.FIND_USER_BY_ID, id=target_id)
         return user
 
     async def verify_user(self, id: int):
@@ -118,7 +111,7 @@ class UserPostgresRepository(IUserRepository):
         user = await db_connection.fetch_one(
             queries.AUTHORISE_USER,
             email=dto.email,
-            password=get_password_hash(dto.password)
+            password=get_password_hash(dto.password),
         )
         return user
 
@@ -126,10 +119,19 @@ class UserPostgresRepository(IUserRepository):
     # Если есть непреодолимое желание исправить это, удачи. Мне лень.
     async def add_verification_code(self, dto: UserVerificationData):
         await db_connection.execute_query(
-            queries.ADD_NEW_VERIFICATION_CODE.replace('PASTE_JSON_HERE',
-                                                      "'{\"ip\": \"" + dto.ip + "\", \"code\": \"" + dto.code + "\", \"timestamp\": " + str(
-                                                          int(dto.timestamp)) + ", \"reason\": \"" + dto.reason + "\"}'"),
-            email=dto.email
+            queries.ADD_NEW_VERIFICATION_CODE.replace(
+                "PASTE_JSON_HERE",
+                '\'{"ip": "'
+                + dto.ip
+                + '", "code": "'
+                + dto.code
+                + '", "timestamp": '
+                + str(int(dto.timestamp))
+                + ', "reason": "'
+                + dto.reason
+                + "\"}'",
+            ),
+            email=dto.email,
         )
 
     async def update(self, **kwargs: ...):
@@ -139,7 +141,11 @@ class UserPostgresRepository(IUserRepository):
         ...
 
     async def add_to_favorite(self, user_id: int, film_id: int):
-        ...
+        await db_connection.execute_query(
+            queries.ADD_FAVORITE_FILM_FOR_USER,
+            user_id=user_id,
+            film_id=film_id,
+        )
 
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         await db_connection.execute_query(
@@ -161,19 +167,21 @@ class UserPostgresRepository(IUserRepository):
             id=user_id,
         )
 
-    async def replace_refresh_token(self, target_id: int, old_token: str, new_token: str):
+    async def replace_refresh_token(
+        self, target_id: int, old_token: str, new_token: str
+    ):
         await db_connection.execute_query(
             queries.UPDATE_REFRESH_TOKEN,
             old_token=old_token,
             new_token=new_token,
-            target_id=target_id
+            target_id=target_id,
         )
 
     async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
         user = await db_connection.fetch_one(
             queries.CHECK_REFRESH_TOKEN,
             target_id=target_id,
-            refresh_token=refresh_token
+            refresh_token=refresh_token,
         )
         return user is not None
 
