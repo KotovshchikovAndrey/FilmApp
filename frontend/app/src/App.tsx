@@ -1,9 +1,9 @@
 import * as React from "react"
 import Home from "./pages/Home"
 import FilmDetail from "./pages/FilmDetail"
+import Login from "./pages/Login";
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
-import {Register} from "./pages/Register";
-import {Login} from "./pages/Login";
+import Register from "./pages/Register";
 import {VerifyEmail} from "./pages/VerifyEmail";
 
 const router = createBrowserRouter([

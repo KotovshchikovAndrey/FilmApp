@@ -19,3 +19,6 @@ code {
   font-family: "Roboto", serif;
 }
 
+.submit-error {
+  color: crimson;
+}

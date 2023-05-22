@@ -1,21 +1,33 @@
-import React from "react";
+import React, {FC, useContext, useState} from "react";
 import {Button, Container, Stack, TextField, Typography} from "@mui/material";
-import {authSchema, AuthSchema} from "../helpers/validators"
-import {Controller, useForm, useFormState} from "react-hook-form";
+import {loginSchema} from "../helpers/validators"
+import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import ky from "ky";
-import Grid from "@mui/material/Unstable_Grid2";
+import {Context} from "../index";
+import {ILogin} from "../core/entities";
+
+const defaultValues: ILogin = {
+    email: "",
+    password: "",
+}
 
 
-export function Login() {
-
-    const {handleSubmit, control} = useForm<AuthSchema>({
-        resolver: zodResolver(authSchema)
+const Login: FC = () => {
+    const {store} = useContext(Context)
+    const {
+        handleSubmit,
+        formState: {errors},
+        control,
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+        defaultValues: defaultValues
     })
-    const {errors} = useFormState({control})
-    const onSubmit = (data: AuthSchema) => {
-        console.log({json: data})
+    const onSubmit = async (data: ILogin) => {
+        await store.login(data)
+        setSubmitError(store.errors.loginError)
     }
+
+    const [submitError, setSubmitError] = useState("")
 
     return (
         <React.Fragment>
@@ -28,15 +40,14 @@ export function Login() {
                             name="email"
                             render={({field}) => (
                                 <TextField
+                                    autoFocus
                                     variant="outlined"
                                     fullWidth
                                     id="email"
                                     label="Email Address"
-                                    name="email"
-                                    onChange={(e) => field.onChange(e)}
-                                    value={field.value}
                                     error={!!errors.email?.message}
                                     helperText={errors.email?.message}
+                                    {...field}
                                 />
                             )}
 
@@ -50,24 +61,21 @@ export function Login() {
                                     fullWidth
                                     id="password"
                                     label="Password"
-                                    name="password"
                                     type="password"
-                                    onChange={(e) => field.onChange(e)}
-                                    value={field.value}
                                     error={!!errors.password?.message}
                                     helperText={errors.password?.message}
+                                    {...field}
                                 />
                             )}
                         />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                        >
+                        <Button type="submit" variant="contained">
                             Log in
                         </Button>
+                        <Typography className="submit-error">{submitError}</Typography>
                     </Stack>
                 </form>
             </Container>
         </React.Fragment>
     );
 };
+export default Login

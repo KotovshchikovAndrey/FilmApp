@@ -54,12 +54,16 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def update_film_info(
-        self, film_id: int, dto: UpdateFilmDTO
+            self, film_id: int, dto: UpdateFilmDTO
     ) -> tp.Optional[int]:
         ...
 
     @abstractmethod
     async def delete_film(self, film_id: int) -> tp.Optional[int]:
+        ...
+
+    @abstractmethod
+    async def get_user_favorite_films(self, target_id: int) -> FilmsDTO:
         ...
 
 
@@ -140,3 +144,7 @@ class FilmService(IFilmService):
         deleted_film = await self.__repository.delete(film_id)
         if deleted_film is not None:
             return deleted_film.id
+
+    async def get_user_favorite_films(self, target_id: int):
+        films = await self.__repository.get_favorite_films(target_id)
+        return films

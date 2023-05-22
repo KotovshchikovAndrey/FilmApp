@@ -15,6 +15,32 @@ export interface IFilm {
   backdropUrl?: string
 }
 
-export interface IUser {}
+export interface IUser {
+  id: string;
+  isActivated: boolean;
+  email: string;
+  name: string;
+  surname: string;
+}
 
-export interface IToken {}
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface IRegistration {
+  name: string;
+  surname: string;
+  email: string;
+  password: string;
+}
+
+export interface ILogin {
+  email: string;
+  password: string;
+}
+
+export interface IRegisterResponse {
+  refreshToken: string;
+  accessToken: string;
+}
