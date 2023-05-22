@@ -47,7 +47,7 @@ class IFilmReporitory(ABC):
 
     @abstractmethod
     async def update(
-        self, film_id: str, film_update: UpdateFilmDTO
+        self, film_id: int, film_update: UpdateFilmDTO
     ) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
@@ -55,6 +55,9 @@ class IFilmReporitory(ABC):
     async def delete(self, film_id: int) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
+    @abstractmethod
+    async def get_favorite_films(self, target_id: int) -> FilmsDTO:
+        ...
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
@@ -126,3 +129,10 @@ class FilmPostgresRepository(IFilmReporitory):
 
         if deleted_film is not None:
             return FilmPrimaryKeyDTO(**deleted_film)
+
+    async def get_favorite_films(self, target_id: int):
+        films = await db_connection.fetch_all(
+            queries.GET_FAVORITE_FILMS,
+            target_id=target_id,
+        )
+        return FilmsDTO(films=films)

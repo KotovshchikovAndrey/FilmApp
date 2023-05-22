@@ -107,6 +107,10 @@ WHERE id = :film_id RETURNING id;"""
 
 DELETE_FILM_BY_ID = """DELETE FROM "film" WHERE id = :film_id RETURNING id;"""
 
+GET_FAVORITE_FILMS = ("""SELECT * FROM "film" 
+WHERE id IN (SELECT film_id from "favorite_user_film" WHERE user_id = :target_id);
+""")
+
 
 # Архив душевнобольного, не обращайте внимания :)
 
