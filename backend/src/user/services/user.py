@@ -26,7 +26,7 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def find_user_by_id(self, id: int) -> UserBase:
+    async def find_user_by_id(self, target_id: int) -> UserBase:
         ...
 
     @abstractmethod
@@ -72,8 +72,8 @@ class UserService(IUserService):
             raise ApiError.not_found(message="User not found")
         return UserBase(**user)
 
-    async def find_user_by_id(self, id: int):
-        user = await self.__repository.find_by_id(id=id)
+    async def find_user_by_id(self, target_id: int):
+        user = await self.__repository.find_by_id(target_id=target_id)
         if user is None:
             raise ApiError.not_found(message="User not found")
         return UserBase(**user)
