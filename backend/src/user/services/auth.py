@@ -68,8 +68,8 @@ class JwtAuthService(IAuthService):
             )
         if not email_validate(dto.email):
             raise ApiError.bad_request("Invalid email address")
-        if len(dto.password) < 8:
-            raise ApiError.bad_request(message="Password length must be at least 8 characters")
+        if not (8 <= len(dto.password) <= 100):
+            raise ApiError.bad_request(message="Password length must be between 8 and 100 characters")
         user = UserBase(**await get_user_repository().create(dto))
 
         token_payload = {
