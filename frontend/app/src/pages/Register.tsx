@@ -1,5 +1,6 @@
 import * as React from "react"
 import {
+    Alert,
     Button,
     Container,
     Stack,
@@ -120,7 +121,8 @@ const Register: FC = () => {
                         </Button>
                         <Typography variant="body2">🍪 This site uses cookie. By continuing your browsing after being presented with the
                             cookie information you consent to such use.</Typography>
-                        <Typography className="submit-error">{submitError}</Typography>
+                        {submitError !== "" &&
+                        <Alert severity="error">{submitError}</Alert>}
                     </Stack>
                 </form>
             </Container>

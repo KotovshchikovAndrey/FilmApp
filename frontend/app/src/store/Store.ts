@@ -44,7 +44,7 @@ export default class Store {
             console.log(response.data)
             localStorage.setItem('token', response.data.access_token)
             this.setAuth(true)
-            this.errors.registerError = ""
+            this.errors.loginError = ""
         } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err))  {
                 const errMsg = err.response?.data.message

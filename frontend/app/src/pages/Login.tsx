@@ -1,5 +1,5 @@
 import React, {FC, useContext, useState} from "react";
-import {Button, Container, Stack, TextField, Typography} from "@mui/material";
+import {Alert, Button, Container, Stack, TextField, Typography} from "@mui/material";
 import {loginSchema} from "../helpers/validators"
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -71,7 +71,8 @@ const Login: FC = () => {
                         <Button type="submit" variant="contained">
                             Log in
                         </Button>
-                        <Typography className="submit-error">{submitError}</Typography>
+                        {submitError !== "" &&
+                            <Alert severity="error">{submitError}</Alert>}
                     </Stack>
                 </form>
             </Container>
