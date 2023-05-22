@@ -37,6 +37,8 @@ class Registration(HTTPEndpoint):
             key="refresh_token",
             value=refresh_token,
             httponly=True,
+            samesite="none",
+            secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
         )
         return response
@@ -80,6 +82,8 @@ class Login(HTTPEndpoint):
             key="refresh_token",
             value=refresh_token,
             httponly=True,
+            samesite="none",
+            secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
         )
         return response
@@ -104,6 +108,8 @@ class TokenRefresh(HTTPEndpoint):
             key="refresh_token",
             value=refresh_token,
             httponly=True,
+            samesite="none",
+            secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
         )
         return response
