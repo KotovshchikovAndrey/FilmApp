@@ -7,24 +7,37 @@ import {
     Typography
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import {useForm, Controller, useFormState} from "react-hook-form";
+import {useForm, Controller} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {authSchema, AuthSchema} from "../helpers/validators"
-import ky from "ky";
+import {registerSchema} from "../helpers/validators"
 import {Link} from "react-router-dom";
+import {FC, useContext, useState} from "react";
+import {IRegistration} from "../core/entities";
+import {Context} from "../index";
 
 
-export function Register() {
+const defaultValues: IRegistration = {
+    name: "",
+    surname: "",
+    email: "",
+    password: "",
+}
 
-    const {handleSubmit, control} = useForm<AuthSchema>({
-        resolver: zodResolver(authSchema)
+const Register: FC = () => {
+    const {store} = useContext(Context)
+    const {
+        handleSubmit,
+        formState: {errors},
+        control,
+    } = useForm<IRegistration>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: defaultValues,
     })
-    const {errors} = useFormState({control})
-    const onSubmit = async (data: AuthSchema) => {
-        console.log({json: data})
-        const json = await ky.post("https://127.0.0.1:8000/auth/register", {json: data}).json();
-        console.log(json)
+    const onSubmit = async (data: IRegistration) => {
+        await store.register(data)
+        setSubmitError(store.errors.registerError)
     }
+    const [submitError, setSubmitError] = useState("")
 
     return (
         <React.Fragment>
@@ -39,16 +52,14 @@ export function Register() {
                                     name="name"
                                     render={({field}) => (
                                         <TextField
-                                            name="name"
                                             variant="outlined"
                                             fullWidth
                                             id="name"
                                             label="Name"
                                             autoFocus
-                                            onChange={(e) => field.onChange(e)}
-                                            value={field.value}
                                             error={!!errors.name?.message}
                                             helperText={errors.name?.message}
+                                            {...field}
                                         />
                                     )}
                                 />
@@ -63,11 +74,9 @@ export function Register() {
                                             fullWidth
                                             id="surname"
                                             label="Surname"
-                                            name="surname"
-                                            onChange={(e) => field.onChange(e)}
-                                            value={field.value}
                                             error={!!errors.surname?.message}
                                             helperText={errors.surname?.message}
+                                            {...field}
                                         />
                                     )}
                                 />
@@ -82,11 +91,9 @@ export function Register() {
                                     fullWidth
                                     id="email"
                                     label="Email Address"
-                                    name="email"
-                                    onChange={(e) => field.onChange(e)}
-                                    value={field.value}
                                     error={!!errors.email?.message}
                                     helperText={errors.email?.message}
+                                    {...field}
                                 />
                             )}
 
@@ -94,34 +101,30 @@ export function Register() {
                         <Controller
                             control={control}
                             name="password"
+                            defaultValue=""
                             render={({field}) => (
                                 <TextField
                                     variant="outlined"
                                     fullWidth
                                     id="password"
                                     label="Password"
-                                    name="password"
                                     type="password"
-                                    onChange={(e) => field.onChange(e)}
-                                    value={field.value}
                                     error={!!errors.password?.message}
                                     helperText={errors.password?.message}
+                                    {...field}
                                 />
                             )}
                         />
-                        <Link to="/verify" style={{width: "100%"}}>
-                            открыть страницу ввода кода
-                        </Link>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                        >
+                        <Button type="submit" variant="contained">
                             Sign up
                         </Button>
-
+                        <Typography variant="body2">🍪 This site uses cookie. By continuing your browsing after being presented with the
+                            cookie information you consent to such use.</Typography>
+                        <Typography className="submit-error">{submitError}</Typography>
                     </Stack>
                 </form>
             </Container>
         </React.Fragment>
     )
 }
+export default Register
