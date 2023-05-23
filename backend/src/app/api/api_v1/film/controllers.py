@@ -34,7 +34,7 @@ class Film(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
-    @requires("admin", status_code=403)
+    # @requires("admin", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = CreateFilmDTO(**data)
@@ -55,21 +55,21 @@ class FilmDetail(HTTPEndpoint):
             content=film.dict(exclude={"imdb_id"}),
         )
 
-    @requires("admin", status_code=403)
+    # @requires("admin", status_code=403)
     async def put(self, request: Request):
         film_id = request.path_params["film_id"]
         data = await request.json()
         dto = UpdateFilmDTO(**data)
         updated_film = await self.__service.update_film_info(film_id, dto)
 
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=updated_film)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=updated_film)
 
     @requires("admin", status_code=403)
     async def delete(self, request: Request):
         film_id = request.path_params["film_id"]
         deleted_film = await self.__service.delete_film(film_id)
 
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=deleted_film)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=deleted_film)
 
 
 class FilmFilter(HTTPEndpoint):

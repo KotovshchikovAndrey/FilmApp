@@ -48,13 +48,20 @@ ADD_FAVORITE_FILM_FOR_USER = """INSERT INTO "favorite_user_film"
 SELECT :user_id, :film_id WHERE NOT EXISTS 
 (SELECT * FROM "favorite_user_film" WHERE user_id = :user_id AND film_id = :film_id);"""
 
-DELETE_FAVORITE_FILM_FROM_USER = (
-    """DELETE FROM "favorite_user_film"
+DELETE_FAVORITE_FILM_FROM_USER = """DELETE FROM "favorite_user_film"
 WHERE user_id = :user_id AND film_id = :film_id"""
-)
 
-CHANGE_USER_STATUS = (
-    """UPDATE "user"
+CHANGE_USER_STATUS = """UPDATE "user"
 SET status = :status
 WHERE id = :id;"""
-)
+
+UPDATE_PROFILE_FIELDS = """UPDATE "user" SET 
+name = :name,
+surname = :surname,
+email = :email
+WHERE id = :user_id;"""
+
+SET_AVATAR_FOR_USER = """UPDATE "user" SET
+avatar = :avatar
+WHERE id = :user_id
+RETURNING avatar as avatar_url;"""

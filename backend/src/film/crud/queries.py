@@ -26,8 +26,8 @@ production_countries
 FROM "film" WHERE id = :id;"""
 
 GET_ALL_PRODUCTION_COUNTRIES = """SELECT
-production_country -> 'iso_3166_1' as iso_name, 
-production_country -> 'name' as public_name 
+production_country -> 'iso_3166_1' as iso_3166_1, 
+production_country -> 'name' as name 
 FROM (SELECT DISTINCT JSONB_ARRAY_ELEMENTS(production_countries) as production_country FROM "film") as production_countries;"""
 
 GET_ALL_GENRES = (
@@ -107,9 +107,9 @@ WHERE id = :film_id RETURNING id;"""
 
 DELETE_FILM_BY_ID = """DELETE FROM "film" WHERE id = :film_id RETURNING id;"""
 
-GET_FAVORITE_FILMS = ("""SELECT * FROM "film" 
+GET_FAVORITE_FILMS = """SELECT * FROM "film" 
 WHERE id IN (SELECT film_id from "favorite_user_film" WHERE user_id = :target_id);
-""")
+"""
 
 
 # Архив душевнобольного, не обращайте внимания :)

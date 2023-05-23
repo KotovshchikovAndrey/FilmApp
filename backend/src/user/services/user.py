@@ -11,8 +11,17 @@ from film.services import IFilmService
 
 # from app.core.ioc import
 from film.dto import FilmsDTO
-from user.dto import UserBase, UserRegisterDTO, ManageFavoriteFilmDTO
+from user.dto import (
+    UserBase,
+    UserRegisterDTO,
+    ManageFavoriteFilmDTO,
+    UpdateProfileDTO,
+    FileDTO,
+    UserAvatarDTO,
+)
 from app.exceptions.api import ApiError
+
+from app.utils.file_manager import FileManager
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 
 
@@ -44,7 +53,11 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def update_user(self, dto: ...) -> ...:
+    async def update_user_profile(self, user: UserBase, dto: UpdateProfileDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def set_user_avatar(self, user: UserBase, dto: FileDTO) -> UserAvatarDTO:
         ...
 
     @abstractmethod
@@ -114,8 +127,16 @@ class UserService(IUserService):
         user = await self.__repository.create(dto)
         return UserBase(**user)
 
-    async def update_user(self, dto: ...):
-        ...
+    async def update_user_profile(self, user: UserBase, dto: UpdateProfileDTO) -> None:
+        return await self.__repository.update_profile_fields(
+            user_id=user.id, profile_update=dto
+        )
+
+    async def set_user_avatar(self, user: UserBase, dto: FileDTO):
+        file_manager = FileManager(upload_dir=config.UPLOAD_DIR + "/avatars")
+        avatar = await file_manager.upload(filename=dto.filename, file=dto.content)
+
+        return await self.__repository.set_avatar(user_id=user.id, avatar=avatar)
 
     async def delete_user(self, dto: ...):
         ...
@@ -129,7 +150,9 @@ class UserService(IUserService):
 
     async def delete_from_favorite(self, dto: ManageFavoriteFilmDTO):
         film = await self.__film_service.get_film_info(dto.film_id)
-        await self.__repository.delete_from_favorite(user_id=dto.user_id, film_id=film.id)
+        await self.__repository.delete_from_favorite(
+            user_id=dto.user_id, film_id=film.id
+        )
 
     async def get_favorites(self, user_id: int):
         return await self.__film_service.get_user_favorite_films(user_id)

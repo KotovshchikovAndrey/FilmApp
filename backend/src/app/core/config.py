@@ -28,7 +28,7 @@ CSV_DATASET_PATH = env_config("CSV_DATASET_PATH", cast=str)
 CSV_TESTING_DATA_PATH = env_config("CSV_TESTING_DATA_PATH", cast=str, default=None)
 
 UPLOAD_URL = "/media"
-UPLOAD_DIR = str((pathlib.Path("app") / "media").absolute())
+UPLOAD_DIR = str((pathlib.Path("src/app") / "media").absolute())
 
 TMDB_API_KEY = env_config("TMDB_API_KEY", cast=str)
 # MAIL_LOGIN = env_config("MAIL_LOGIN", cast=str)

@@ -1,6 +1,6 @@
 import datetime
 import typing as tp
-from pydantic import BaseModel, Json
+from pydantic import BaseModel, Json, validator
 
 
 # Токены и коды восстановления не должны быть здесь - небезопасно
@@ -48,3 +48,36 @@ class AddFavoriteFilmDTO(BaseModel):
 class ManageFavoriteFilmDTO(BaseModel):
     user_id: int
     film_id: int
+
+
+class FileDTO(BaseModel):
+    filename: str
+    content: bytes
+
+    @validator("filename", "content")
+    def validate_filename(cls, value: str):
+        if not value:
+            raise ValueError("Avatar file was not sent!")
+
+        return value
+
+
+class UserAvatarDTO(BaseModel):
+    avatar_url: str
+
+    @validator("avatar_url", pre=True)
+    def validate_avatar_url(cls, value: str):
+        return f"/{value}"
+
+
+class UpdateProfileDTO(BaseModel):
+    name: str
+    surname: str
+    email: str
+
+    @validator("name", "surname", "email")
+    def validate_length(cls, value: str):
+        if len(value) > 255:
+            raise ValueError("The field must not exceed 255 characters!")
+
+        return value

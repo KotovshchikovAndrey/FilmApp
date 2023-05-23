@@ -98,18 +98,20 @@ class TestFilmController:
             "is_adult",
             "release_date",
             "genres",
+            "time",
+            "title",
             "production_companies",
             "production_countries",
         }
 
         data = {
-            "title": "TEST",
+            "title": "",
             "is_adult": "INCORRECT BOOL VALUE",
             "description": "TEST",
             "language": "en",
             "budget": 30000000,
             "release_date": "199510-30",
-            "time": 81.0,
+            "time": -100,
             "genres": [{"incorrect_field": "TEST"}],
             "production_companies": "null",
             "production_countries": "null",
@@ -123,3 +125,59 @@ class TestFilmController:
             invalid_fields.extend(field["loc"])
 
         assert invalid_fields_in_data.issubset(set(invalid_fields)) == True
+
+    @pytest.mark.asyncio
+    async def test_update_film_incorrect(self, client: AsyncClient) -> None:
+        invalid_fields_in_data = {
+            "production_companies",
+            "production_countries",
+        }
+
+        response = await client.get(url="/films/1")
+        data = dict(response.json())
+
+        data["production_companies"] = {"": ""}
+        data["production_countries"] = [{"": ""}]
+
+        response = await client.put(url="/films/1", json=data)
+        assert response.status_code == 400
+
+        invalid_fields = []
+        for field in response.json()["details"]:
+            invalid_fields.extend(field["loc"])
+
+        assert invalid_fields_in_data.issubset(set(invalid_fields)) == True
+
+    @pytest.mark.asyncio
+    async def test_update_film_correct(self, client: AsyncClient) -> None:
+        response = await client.get(url="/films/1")
+        data_before_update = dict(response.json())
+
+        data_before_update["genres"] = [{"name": "Test Genre"}]
+        data_before_update["production_companies"] = None
+        data_before_update["production_countries"] = [
+            {
+                "name": "Test Name1",
+                "iso_3166_1": "Test Iso",
+            },
+            {
+                "name": "Test Name2",
+                "iso_3166_1": "Test Iso",
+            },
+        ]
+
+        response = await client.put(url="/films/1", json=data_before_update)
+        assert response.status_code == 200
+
+        response = await client.get(url="/films/1")
+        data_after_update = response.json()
+
+        assert data_after_update["genres"] == data_before_update["genres"]
+        assert (
+            data_after_update["production_countries"]
+            == data_before_update["production_countries"]
+        )
+        assert (
+            data_after_update["production_companies"]
+            == data_before_update["production_companies"]
+        )

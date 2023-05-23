@@ -2,7 +2,13 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 from app.utils.OtherUtils import get_password_hash
-from user.dto import UserRegisterDTO, UserVerificationData, UserLoginDTO
+from user.dto import (
+    UserRegisterDTO,
+    UserVerificationData,
+    UserLoginDTO,
+    UpdateProfileDTO,
+    UserAvatarDTO,
+)
 from app.db import db_connection
 from user.crud import queries
 
@@ -37,7 +43,13 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def update(self, **kwargs: ...) -> ...:
+    async def update_profile_fields(
+        self, user_id: int, profile_update: UpdateProfileDTO
+    ) -> None:
+        ...
+
+    @abstractmethod
+    async def set_avatar(self, user_id: int, avatar: str) -> UserAvatarDTO:
         ...
 
     @abstractmethod
@@ -146,8 +158,21 @@ class UserPostgresRepository(IUserRepository):
             email=dto.email,
         )
 
-    async def update(self, **kwargs: ...):
-        ...
+    async def update_profile_fields(
+        self, user_id: int, profile_update: UpdateProfileDTO
+    ):
+        return await db_connection.execute_query(
+            queries.UPDATE_PROFILE_FIELDS,
+            user_id=user_id,
+            **profile_update.dict(),
+        )
+
+    async def set_avatar(self, user_id: int, avatar: str):
+        avatar_url = await db_connection.fetch_one(
+            queries.SET_AVATAR_FOR_USER, user_id=user_id, avatar=avatar
+        )
+
+        return UserAvatarDTO(**avatar_url)
 
     async def delete(self, user_id: int):
         ...

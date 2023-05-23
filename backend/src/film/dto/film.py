@@ -16,12 +16,12 @@ class FilmBase(FilmPrimaryKeyDTO):
 
 
 class ProductionCompanyDTO(BaseModel):
-    id: int
+    id: tp.Optional[int] = None
     name: str
 
 
 class GenreDTO(BaseModel):
-    id: int
+    id: tp.Optional[int] = None
     name: str
 
 
@@ -36,8 +36,8 @@ class GenresDTO(BaseModel):
 
 
 class ProductionCountryDTO(BaseModel):
-    iso_name: str
-    public_name: str
+    name: str
+    iso_3166_1: str
 
 
 class ProductionCountriesDTO(BaseModel):
@@ -197,6 +197,20 @@ class CreateFilmDTO(BaseModel):
             value = date(year, month, day)
         except Exception:
             raise ValueError("Invalid date format for release_date!")
+
+        return value
+
+    @validator("title")
+    def validate_title(cls, value: str):
+        if not (0 < len(value) <= 255):
+            raise ValueError("The title field must be between 0 and 255 characters!")
+
+        return value
+
+    @validator("time")
+    def validate_time(cls, value: float | None):
+        if (value is not None) and (value <= 0):
+            raise ValueError("The time field must be greater 0!")
 
         return value
 
