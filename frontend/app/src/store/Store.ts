@@ -41,8 +41,8 @@ export default class Store {
     async login(data: ILogin) {
         try {
             const response = await AuthService.login(data)
-            console.log(response.data)
-            localStorage.setItem('token', response.data.access_token)
+            console.log(response)
+            localStorage.setItem('access_token', response.data.access_token)
             this.setAuth(true)
             this.errors.loginError = ""
         } catch (err: any | AxiosError) {
@@ -60,18 +60,21 @@ export default class Store {
         try {
             const response = await AuthService.logOut()
             console.log(response)
-            localStorage.removeItem('token')
+            localStorage.removeItem('access_token')
             this.setAuth(false)
-        } catch (err) {
-            console.log(err)
+        } catch (e: any) {
+            console.log(e.message)
         }
     }
 
     async checkAuth() {
         try {
             const response = await AuthService.checkAuth()
-        } catch (e) {
-            console.log(e)
+            localStorage.setItem('access_token', response.data.access_token)
+            this.setAuth(true)
+            console.log(response)
+        } catch (e: any) {
+            console.log(e.message)
         }
     }
 }

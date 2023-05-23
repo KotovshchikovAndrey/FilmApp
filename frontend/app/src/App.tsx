@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import Register from "./pages/Register";
 import {VerifyEmail} from "./pages/VerifyEmail";
+import {useContext, useEffect} from "react";
+import {Context} from "./index";
 
 const router = createBrowserRouter([
     {
@@ -30,6 +32,12 @@ const router = createBrowserRouter([
 ])
 
 function App() {
+    const {store} = useContext(Context)
+    useEffect(() => {
+        if (localStorage.getItem('access_token')) {
+            store.checkAuth()
+        }
+    }, [])
     return (
         <React.Fragment>
             <RouterProvider router={router}/>
