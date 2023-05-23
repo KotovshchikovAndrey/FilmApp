@@ -11,7 +11,7 @@ from film.services import IFilmService
 
 # from app.core.ioc import
 from film.dto import FilmsDTO
-from user.dto import UserBase, UserRegisterDTO, AddFavoriteFilmDTO
+from user.dto import UserBase, UserRegisterDTO, ManageFavoriteFilmDTO
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 
@@ -56,7 +56,7 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def add_to_favorite(self, dto: AddFavoriteFilmDTO) -> None:
+    async def add_to_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
         ...
 
     @abstractmethod
@@ -111,9 +111,9 @@ class UserService(IUserService):
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         await self.__repository.add_refresh_token(user_id, refresh_token)
 
-    async def add_to_favorite(self, dto: AddFavoriteFilmDTO):
+    async def add_to_favorite(self, dto: ManageFavoriteFilmDTO):
         film = await self.__film_service.get_film_info(dto.film_id)
-        await self.__repository.add_to_favorite(user_id=dto.user.id, film_id=film.id)
+        await self.__repository.add_to_favorite(user_id=dto.user_id, film_id=film.id)
 
     async def get_favorites(self, user_id: int):
         return await self.__film_service.get_user_favorite_films(user_id)

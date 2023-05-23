@@ -43,3 +43,8 @@ class UserLoginDTO(BaseModel):
 class AddFavoriteFilmDTO(BaseModel):
     user: UserBase
     film_id: int
+
+
+class ManageFavoriteFilmDTO(BaseModel):
+    user_id: int
+    film_id: int
