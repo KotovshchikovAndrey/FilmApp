@@ -6,4 +6,6 @@ routes = [
     Route("/favorite/{user_id:int}", controllers.UserFavorite),
     Route("/profile/me", controllers.MyProfile),
     Route("/favorite/me", controllers.MyFavorite),
+    Route("/{user_id:int}/ban", controllers.BanUser),
+    Route("/{user_id:int}/unban", controllers.UnbanUser),
 ]

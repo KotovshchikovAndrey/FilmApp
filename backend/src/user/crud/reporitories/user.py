@@ -45,6 +45,14 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def ban_user(self, target_id: int) -> None:
+        ...
+
+    @abstractmethod
+    async def unban_user(self, target_id: int) -> None:
+        ...
+
+    @abstractmethod
     async def add_to_favorite(self, user_id: int, film_id: int):
         ...
 
@@ -143,6 +151,20 @@ class UserPostgresRepository(IUserRepository):
 
     async def delete(self, user_id: int):
         ...
+
+    async def ban_user(self, target_id: int):
+        await db_connection.execute_query(
+            queries.CHANGE_USER_STATUS,
+            status="banned",
+            id=target_id,
+        )
+
+    async def unban_user(self, target_id: int):
+        await db_connection.execute_query(
+            queries.CHANGE_USER_STATUS,
+            status="active",
+            id=target_id,
+        )
 
     async def add_to_favorite(self, user_id: int, film_id: int):
         await db_connection.execute_query(

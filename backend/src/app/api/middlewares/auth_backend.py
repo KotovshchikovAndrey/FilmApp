@@ -48,7 +48,12 @@ class JwtAuthBackend(AuthenticationBackend):
         current_user = await get_user_repository().find_by_id(target_id=payload["id"])
         if current_user is None:
             raise ApiError.not_found(message="User not found")
+        user_status = current_user["status"]
+        if user_status == "banned":
+            raise ApiError.forbidden("Your account has been banned")
         credentials = ["authenticated"]
+        if user_status == "active":
+            credentials.append("active")
         if current_user["role"] == "admin":
             credentials.append("admin")
         return (

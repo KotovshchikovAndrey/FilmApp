@@ -52,3 +52,9 @@ DELETE_FAVORITE_FILM_FROM_USER = (
     """DELETE FROM "favorite_user_film"
 WHERE user_id = :user_id AND film_id = :film_id"""
 )
+
+CHANGE_USER_STATUS = (
+    """UPDATE "user"
+SET status = :status
+WHERE id = :id;"""
+)

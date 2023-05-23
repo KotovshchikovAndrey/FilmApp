@@ -52,6 +52,14 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def ban_user(self, target_id: int) -> None:
+        ...
+
+    @abstractmethod
+    async def unban_user(self, target_id: int) -> None:
+        ...
+
+    @abstractmethod
     async def add_refresh_token(self, user_id: int, refresh_token: str) -> None:
         ...
 
@@ -128,3 +136,15 @@ class UserService(IUserService):
 
     async def __generate_reset_token(self, token: str) -> str:
         ...
+
+    async def ban_user(self, target_id: int):
+        user = await self.find_user_by_id(target_id)
+        if user.role == "admin":
+            raise ApiError.conflict(message="You can't ban admin")
+        await self.__repository.ban_user(target_id)
+
+    async def unban_user(self, target_id: int):
+        user = await self.find_user_by_id(target_id)
+        if user.role == "admin":
+            raise ApiError.conflict(message="You can't unban admin")
+        await self.__repository.unban_user(target_id)

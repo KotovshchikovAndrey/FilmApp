@@ -23,6 +23,7 @@ class MyFavorite(HTTPEndpoint):
         return JSONResponse(content=result.dict()["films"])
 
     @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
@@ -31,6 +32,7 @@ class MyFavorite(HTTPEndpoint):
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
     async def delete(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
@@ -45,7 +47,8 @@ class UserFavorite(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def get(self, request: Request):
-        await self.__service.get_current_user(request.path_params["user_id"])  # Если пользователь не существует, будет ошибка
+        await self.__service.find_user_by_id(
+            request.path_params["user_id"])  # Если пользователь не существует, будет ошибка
         result = await self.__service.get_favorites(request.path_params["user_id"])
         return JSONResponse(content=result.dict()["films"])
 
@@ -54,7 +57,7 @@ class UserFavorite(HTTPEndpoint):
     async def post(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.path_params["user_id"], **data)
-        await self.__service.get_current_user(dto.user_id)  # Если пользователь не существует, будет ошибка
+        await self.__service.find_user_by_id(dto.user_id)  # Если пользователь не существует, будет ошибка
         await self.__service.add_to_favorite(dto)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -63,7 +66,7 @@ class UserFavorite(HTTPEndpoint):
     async def delete(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.path_params["user_id"], **data)
-        await self.__service.get_current_user(dto.user_id)  # Если пользователь не существует, будет ошибка
+        await self.__service.find_user_by_id(dto.user_id)  # Если пользователь не существует, будет ошибка
         await self.__service.delete_from_favorite(dto)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -106,3 +109,23 @@ class Profile(HTTPEndpoint):
     @requires("admin", status_code=403)
     async def delete(self, request: Request):
         ...
+
+
+class BanUser(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    @requires("admin", status_code=403)
+    async def put(self, request: Request):
+        await self.__service.ban_user(request.path_params["user_id"])
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class UnbanUser(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    @requires("admin", status_code=403)
+    async def put(self, request: Request):
+        await self.__service.unban_user(request.path_params["user_id"])
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
