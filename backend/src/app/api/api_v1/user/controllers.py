@@ -45,6 +45,7 @@ class UserFavorite(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def get(self, request: Request):
+        await self.__service.get_current_user(request.path_params["user_id"])  # Если пользователь не существует, будет ошибка
         result = await self.__service.get_favorites(request.path_params["user_id"])
         return JSONResponse(content=result.dict()["films"])
 
