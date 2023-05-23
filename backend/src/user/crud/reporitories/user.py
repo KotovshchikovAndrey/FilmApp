@@ -49,6 +49,10 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def delete_from_favorite(self, user_id: int, film_id: int):
+        ...
+
+    @abstractmethod
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         ...
 
@@ -143,6 +147,13 @@ class UserPostgresRepository(IUserRepository):
     async def add_to_favorite(self, user_id: int, film_id: int):
         await db_connection.execute_query(
             queries.ADD_FAVORITE_FILM_FOR_USER,
+            user_id=user_id,
+            film_id=film_id,
+        )
+
+    async def delete_from_favorite(self, user_id: int, film_id: int):
+        await db_connection.execute_query(
+            queries.DELETE_FAVORITE_FILM_FROM_USER,
             user_id=user_id,
             film_id=film_id,
         )

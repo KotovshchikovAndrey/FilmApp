@@ -32,7 +32,11 @@ class MyFavorite(HTTPEndpoint):
 
     @requires("authenticated", status_code=401)
     async def delete(self, request: Request):
-        ...
+        data = await request.json()
+        dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
+        await self.__service.delete_from_favorite(dto)
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 class UserFavorite(HTTPEndpoint):
@@ -56,7 +60,11 @@ class UserFavorite(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def delete(self, request: Request):
-        ...
+        data = await request.json()
+        dto = ManageFavoriteFilmDTO(user_id=request.path_params["user_id"], **data)
+        await self.__service.get_current_user(dto.user_id)  # Если пользователь не существует, будет ошибка
+        await self.__service.delete_from_favorite(dto)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # Profiles

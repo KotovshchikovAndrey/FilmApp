@@ -47,3 +47,8 @@ ADD_FAVORITE_FILM_FOR_USER = """INSERT INTO "favorite_user_film"
 (user_id, film_id)
 SELECT :user_id, :film_id WHERE NOT EXISTS 
 (SELECT * FROM "favorite_user_film" WHERE user_id = :user_id AND film_id = :film_id);"""
+
+DELETE_FAVORITE_FILM_FROM_USER = (
+    """DELETE FROM "favorite_user_film"
+WHERE user_id = :user_id AND film_id = :film_id"""
+)

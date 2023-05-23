@@ -60,6 +60,10 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def delete_from_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
+        ...
+
+    @abstractmethod
     async def get_favorites(self, user_id: int) -> FilmsDTO:
         ...
 
@@ -114,6 +118,10 @@ class UserService(IUserService):
     async def add_to_favorite(self, dto: ManageFavoriteFilmDTO):
         film = await self.__film_service.get_film_info(dto.film_id)
         await self.__repository.add_to_favorite(user_id=dto.user_id, film_id=film.id)
+
+    async def delete_from_favorite(self, dto: ManageFavoriteFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.delete_from_favorite(user_id=dto.user_id, film_id=film.id)
 
     async def get_favorites(self, user_id: int):
         return await self.__film_service.get_user_favorite_films(user_id)
