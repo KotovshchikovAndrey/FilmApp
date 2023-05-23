@@ -1,6 +1,7 @@
 import typing as tp
 
 from starlette import status
+from starlette.authentication import requires
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.endpoints import HTTPEndpoint
@@ -33,7 +34,7 @@ class Film(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
-    # Нужно ограничить доступ (доступно только админам)
+    @requires("admin", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = CreateFilmDTO(**data)
@@ -54,7 +55,7 @@ class FilmDetail(HTTPEndpoint):
             content=film.dict(exclude={"imdb_id"}),
         )
 
-    # Нужно ограничить доступ (доступно только админам)
+    @requires("admin", status_code=403)
     async def put(self, request: Request):
         film_id = request.path_params["film_id"]
         data = await request.json()
@@ -63,7 +64,7 @@ class FilmDetail(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=updated_film)
 
-    # Нужно ограничить доступ (доступно только админам)
+    @requires("admin", status_code=403)
     async def delete(self, request: Request):
         film_id = request.path_params["film_id"]
         deleted_film = await self.__service.delete_film(film_id)
