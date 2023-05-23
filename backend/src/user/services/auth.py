@@ -6,9 +6,17 @@ from abc import ABC, ABCMeta, abstractmethod
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from user.crud.reporitories.user import get_user_repository
-from user.dto import UserBase, UserRegisterDTO, UserVerificationData, UserLoginDTO, UserRefreshTokenDTO, UserLogoutDTO
-from user.services.user import IUserService, get_user_service
-from user.services.token import ITokenService, get_token_service
+from user.dto import (
+    UserBase,
+    UserRegisterDTO,
+    UserVerificationData,
+    UserLoginDTO,
+    UserRefreshTokenDTO,
+    UserLogoutDTO,
+)
+
+from user.services.user import IUserService
+from user.services.token import ITokenService
 
 
 class IAuthService(ABC):
@@ -54,22 +62,20 @@ class IAuthService(ABC):
 
 
 class JwtAuthService(IAuthService):
-
-    def __init__(self, user_service: IUserService = get_user_service(),
-                 token_service: ITokenService = get_token_service()):
+    def __init__(self, user_service: IUserService, token_service: ITokenService):
         self.__user_service = user_service
         self.__token_service = token_service
 
     async def register(self, dto: UserRegisterDTO):
         user = await get_user_repository().find_by_email(email=dto.email)
         if user is not None:
-            raise ApiError.conflict(
-                "User with this email address already exists"
-            )
+            raise ApiError.conflict("User with this email address already exists")
         if not email_validate(dto.email):
             raise ApiError.bad_request("Invalid email address")
-        if not (8 <= len(dto.password) <= 100):
-            raise ApiError.bad_request(message="Password length must be between 8 and 100 characters")
+        if len(dto.password) < 8:
+            raise ApiError.bad_request(
+                message="Password length must be at least 8 characters"
+            )
         user = UserBase(**await get_user_repository().create(dto))
 
         token_payload = {
@@ -77,19 +83,22 @@ class JwtAuthService(IAuthService):
             "email": user.email,
         }
         access_token = self.__token_service.generate_access_token(payload=token_payload)
-        refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
-                                                                    payload=token_payload)
-        await self.__user_service.add_refresh_token(user_id=user.id, refresh_token=refresh_token)
+        refresh_token = self.__token_service.generate_refresh_token(
+            access_token=access_token, payload=token_payload
+        )
+        await self.__user_service.add_refresh_token(
+            user_id=user.id, refresh_token=refresh_token
+        )
 
         return access_token, refresh_token
 
     async def send_verification_code(self, dto: UserVerificationData):
         await get_user_repository().add_verification_code(dto)
         # TODO: убрать комментарий при деплое!!!
-        # get_user_service().mail_server.send_code(code=dto.code, target_email=dto.email)
+        # self.__user_service.mail_server.send_code(code=dto.code, target_email=dto.email)
 
     async def request_code(self, email: str, host: str, reason: str):
-        await get_user_service().find_user_by_email(email)
+        await self.__user_service.find_user_by_email(email)
         await self.send_verification_code(
             UserVerificationData(
                 ip=host,
@@ -112,9 +121,7 @@ class JwtAuthService(IAuthService):
             raise ApiError.forbidden(message="Account already verified")
 
         if code_info["ip"] != dto.ip:
-            raise ApiError.forbidden(
-                message="Code not sent for this device"
-            )
+            raise ApiError.forbidden(message="Code not sent for this device")
         if int(code_info["timestamp"]) < int(datetime.now().timestamp()):
             raise ApiError.forbidden(message="Code has expired, request a new one")
         if code_info["reason"] != "complete-register":
@@ -130,9 +137,12 @@ class JwtAuthService(IAuthService):
             "email": user.email,
         }
         access_token = self.__token_service.generate_access_token(payload=token_payload)
-        refresh_token = self.__token_service.generate_refresh_token(access_token=access_token,
-                                                                    payload=token_payload)
-        await self.__user_service.add_refresh_token(user_id=user.id, refresh_token=refresh_token)
+        refresh_token = self.__token_service.generate_refresh_token(
+            access_token=access_token, payload=token_payload
+        )
+        await self.__user_service.add_refresh_token(
+            user_id=user.id, refresh_token=refresh_token
+        )
 
         return access_token, refresh_token
 

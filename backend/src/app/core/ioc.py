@@ -16,6 +16,7 @@ container.register(
     scope=punq.Scope.singleton,
 )
 
+
 container.register(
     user_repositories.IUserRepository,
     user_repositories.UserPostgresRepository,
@@ -31,6 +32,12 @@ container.register(
 )
 
 container.register(
+    user_services.ITokenService,
+    user_services.TokenService,
+    scope=punq.Scope.singleton,
+)
+
+container.register(
     user_services.IUserService,
     user_services.UserService,
     scope=punq.Scope.singleton,
@@ -39,11 +46,5 @@ container.register(
 container.register(
     user_services.IAuthService,
     user_services.JwtAuthService,
-    scope=punq.Scope.singleton
-)
-
-container.register(
-    user_services.ITokenService,
-    user_services.TokenService,
-    scope=punq.Scope.singleton
+    scope=punq.Scope.singleton,
 )

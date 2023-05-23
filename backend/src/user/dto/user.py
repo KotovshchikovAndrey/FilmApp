@@ -38,3 +38,8 @@ class UserVerificationData(BaseModel):
 class UserLoginDTO(BaseModel):
     email: str
     password: str
+
+
+class AddFavoriteFilmDTO(BaseModel):
+    user: UserBase
+    film_id: int

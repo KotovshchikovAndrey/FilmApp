@@ -5,14 +5,20 @@ from datetime import datetime
 
 from app.utils.MailSender import MailSender
 from app.core import config
-from user.crud.reporitories.user import IUserRepository, get_user_repository
-from user.dto import UserBase, UserRegisterDTO
+
+from user.crud.reporitories.user import IUserRepository
+from film.services import IFilmService
+
+# from app.core.ioc import
+from film.dto import FilmsDTO
+from user.dto import UserBase, UserRegisterDTO, AddFavoriteFilmDTO
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 
 
 class IUserService(ABC):
     __repository: IUserRepository
+    __film_service: IFilmService
 
     # TODO: убрать комментарий при деплое!!!
     # mail_server: MailSender
@@ -50,13 +56,18 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def add_to_favorite(self, dto: ...) -> None:
+    async def add_to_favorite(self, dto: AddFavoriteFilmDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def get_favorites(self, user_id: int) -> FilmsDTO:
         ...
 
 
 class UserService(IUserService):
-    def __init__(self, repository: IUserRepository = get_user_repository()):
+    def __init__(self, repository: IUserRepository, film_service: IFilmService):
         self.__repository = repository
+        self.__film_service = film_service
         # TODO: убрать комментарий при деплое!!!
         # self.mail_server = MailSender(config.MAIL_LOGIN, config.MAIL_PASSWORD)
 
@@ -85,9 +96,7 @@ class UserService(IUserService):
     async def create_user(self, dto: UserRegisterDTO):
         is_user_exist = await self.check_user_exists(email=dto.email)
         if is_user_exist:
-            raise ApiError.conflict(
-                "User with this email already exists"
-            )
+            raise ApiError.conflict("User with this email already exists")
         if not email_validate(dto.email):
             raise ApiError.bad_request("Invalid email address")
         user = await self.__repository.create(dto)
@@ -102,15 +111,12 @@ class UserService(IUserService):
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         await self.__repository.add_refresh_token(user_id, refresh_token)
 
-    async def add_to_favorite(self, dto: ...) -> None:
-        ...
+    async def add_to_favorite(self, dto: AddFavoriteFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.add_to_favorite(user_id=dto.user.id, film_id=film.id)
+
+    async def get_favorites(self, user_id: int):
+        return await self.__film_service.get_user_favorite_films(user_id)
 
     async def __generate_reset_token(self, token: str) -> str:
         ...
-
-
-user_service = UserService()
-
-
-def get_user_service() -> IUserService:
-    return user_service

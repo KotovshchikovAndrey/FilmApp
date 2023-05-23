@@ -29,7 +29,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_film_info(self, dto: GetFilmDTO) -> FilmDTO:
+    async def get_film_info(self, film_id: int) -> FilmDTO:
         ...
 
     @abstractmethod
@@ -81,8 +81,8 @@ class FilmService(IFilmService):
 
         return films
 
-    async def get_film_info(self, dto: GetFilmDTO):
-        film = await self.__repository.find_by_id(film_id=dto.film_id)
+    async def get_film_info(self, film_id: int):
+        film = await self.__repository.find_by_id(film_id)
         if film is None:
             raise ApiError.not_found(message="Film not found!")
 
