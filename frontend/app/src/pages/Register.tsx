@@ -121,7 +121,7 @@ const Register: FC = () => {
                         </Button>
                         <Typography variant="body2">🍪 This site uses cookie. By continuing your browsing after being presented with the
                             cookie information you consent to such use.</Typography>
-                        {submitError !== "" &&
+                        {submitError &&
                         <Alert severity="error">{submitError}</Alert>}
                     </Stack>
                 </form>

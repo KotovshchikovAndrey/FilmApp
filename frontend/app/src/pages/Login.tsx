@@ -71,7 +71,7 @@ const Login: FC = () => {
                         <Button type="submit" variant="contained">
                             Log in
                         </Button>
-                        {submitError !== "" &&
+                        {submitError &&
                             <Alert severity="error">{submitError}</Alert>}
                     </Stack>
                 </form>
