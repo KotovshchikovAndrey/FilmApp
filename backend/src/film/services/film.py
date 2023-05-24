@@ -12,7 +12,6 @@ from film.dto import (
     FilmsDTO,
     CreateFilmDTO,
     UpdateFilmDTO,
-    GetFilmDTO,
     FilmDTO,
     FilmFiltersDTO,
     SearchFilmDTO,
@@ -54,7 +53,7 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def update_film_info(
-            self, film_id: int, dto: UpdateFilmDTO
+        self, film_id: int, dto: UpdateFilmDTO
     ) -> tp.Optional[int]:
         ...
 
@@ -63,7 +62,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_user_favorite_films(self, target_id: int) -> FilmsDTO:
+    async def get_user_favorite_films(self, target_id: int, order_by: str) -> FilmsDTO:
         ...
 
 
@@ -145,6 +144,6 @@ class FilmService(IFilmService):
         if deleted_film is not None:
             return deleted_film.id
 
-    async def get_user_favorite_films(self, target_id: int):
-        films = await self.__repository.get_favorite_films(target_id)
+    async def get_user_favorite_films(self, target_id: int, order_by: str):
+        films = await self.__repository.get_favorite_films(target_id, order_by)
         return films

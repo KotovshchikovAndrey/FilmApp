@@ -1,5 +1,7 @@
 import datetime
 import typing as tp
+import enum
+
 from pydantic import BaseModel, Json, validator
 
 
@@ -43,6 +45,15 @@ class UserLoginDTO(BaseModel):
 class AddFavoriteFilmDTO(BaseModel):
     user: UserBase
     film_id: int
+
+
+class GetUserFavoriteFilmsDTO(BaseModel):
+    class OrderUserFilmsEnum(str, enum.Enum):
+        id = "id"
+        date = "added_date"
+
+    user: UserBase
+    order_by: OrderUserFilmsEnum = OrderUserFilmsEnum.id
 
 
 class ManageFavoriteFilmDTO(BaseModel):

@@ -92,6 +92,29 @@ def create_favorite_user_film_table() -> None:
             sa.ForeignKey("film.id", ondelete="CASCADE"),
             nullable=False,
         ),
+        sa.Column("added_date", sa.TIMESTAMP(), nullable=False),
+    )
+
+
+def create_trigger_on_favorite_user_film_table() -> None:
+    op.execute(
+        """
+    CREATE FUNCTION set_added_date()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.added_date IS NULL THEN
+    NEW.added_date := (SELECT NOW()::timestamp);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_added_date
+BEFORE INSERT
+ON favorite_user_film
+FOR EACH ROW
+EXECUTE PROCEDURE set_added_date();"""
     )
 
 
@@ -99,6 +122,7 @@ def upgrade() -> None:
     create_user_table()
     create_film_table()
     create_favorite_user_film_table()
+    create_trigger_on_favorite_user_film_table()
     create_raiting_table()
 
     csv_data = config.CSV_DATASET_PATH
@@ -173,3 +197,4 @@ def downgrade() -> None:
     op.drop_table("film")
 
     op.execute("""DROP TYPE "user_role"; DROP TYPE user_status;""")
+    op.execute("""drop function set_added_date() cascade;""")

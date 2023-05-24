@@ -56,8 +56,9 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def get_favorite_films(self, target_id: int) -> FilmsDTO:
+    async def get_favorite_films(self, target_id: int, order_by: str) -> FilmsDTO:
         ...
+
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
@@ -130,9 +131,9 @@ class FilmPostgresRepository(IFilmReporitory):
         if deleted_film is not None:
             return FilmPrimaryKeyDTO(**deleted_film)
 
-    async def get_favorite_films(self, target_id: int):
+    async def get_favorite_films(self, target_id: int, order_by: str):
         films = await db_connection.fetch_all(
-            queries.GET_FAVORITE_FILMS,
-            target_id=target_id,
+            queries.GET_USER_FAVORITE_FILMS + order_by, user_id=target_id
         )
+
         return FilmsDTO(films=films)

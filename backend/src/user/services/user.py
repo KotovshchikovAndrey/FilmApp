@@ -14,6 +14,7 @@ from film.dto import FilmsDTO
 from user.dto import (
     UserBase,
     UserRegisterDTO,
+    GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
     UpdateProfileDTO,
     FileDTO,
@@ -85,7 +86,7 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def get_favorites(self, user_id: int) -> FilmsDTO:
+    async def get_favorites(self, dto: GetUserFavoriteFilmsDTO) -> FilmsDTO:
         ...
 
 
@@ -112,6 +113,7 @@ class UserService(IUserService):
         user = await self.__repository.find_by_id(target_id=target_id)
         if user is None:
             raise ApiError.not_found(message="User not found")
+
         return UserBase(**user)
 
     async def check_user_exists(self, email: str):
@@ -154,11 +156,13 @@ class UserService(IUserService):
             user_id=dto.user_id, film_id=film.id
         )
 
-    async def get_favorites(self, user_id: int):
-        return await self.__film_service.get_user_favorite_films(user_id)
+    async def get_favorites(self, dto: GetUserFavoriteFilmsDTO):
+        user, order_by = dto.user, dto.order_by.value
+        films = await self.__film_service.get_user_favorite_films(
+            target_id=user.id, order_by=order_by
+        )
 
-    async def __generate_reset_token(self, token: str) -> str:
-        ...
+        return films
 
     async def ban_user(self, target_id: int):
         user = await self.find_user_by_id(target_id)
@@ -171,3 +175,6 @@ class UserService(IUserService):
         if user.role == "admin":
             raise ApiError.conflict(message="You can't unban admin")
         await self.__repository.unban_user(target_id)
+
+    async def __generate_reset_token(self, token: str) -> str:
+        ...

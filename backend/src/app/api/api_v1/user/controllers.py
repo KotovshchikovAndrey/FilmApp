@@ -7,7 +7,12 @@ from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
 from starlette.responses import JSONResponse
 
-from user.dto import ManageFavoriteFilmDTO, UpdateProfileDTO, FileDTO
+from user.dto import (
+    ManageFavoriteFilmDTO,
+    UpdateProfileDTO,
+    FileDTO,
+    GetUserFavoriteFilmsDTO,
+)
 from app.core.ioc import container, film_services, user_services
 from app.exceptions.api import ApiError
 
@@ -20,11 +25,14 @@ class MyFavorite(HTTPEndpoint):
 
     @requires("authenticated", status_code=401)
     async def get(self, request: Request):
-        result = await self.__service.get_favorites(request.user.instance.id)
-        return JSONResponse(content=result.dict()["films"])
+        user = request.user.instance
+        dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
+        films = await self.__service.get_favorites(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
     @requires("authenticated", status_code=401)
-    @requires("active", status_code=403)
+    # @requires("active", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
@@ -48,11 +56,13 @@ class UserFavorite(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def get(self, request: Request):
-        await self.__service.find_user_by_id(
-            request.path_params["user_id"]
-        )  # Если пользователь не существует, будет ошибка
-        result = await self.__service.get_favorites(request.path_params["user_id"])
-        return JSONResponse(content=result.dict()["films"])
+        user_id = request.path_params["user_id"]
+        user = await self.__service.find_user_by_id(user_id)
+
+        dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
+        films = await self.__service.get_favorites(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)

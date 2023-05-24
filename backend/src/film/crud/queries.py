@@ -107,8 +107,19 @@ WHERE id = :film_id RETURNING id;"""
 
 DELETE_FILM_BY_ID = """DELETE FROM "film" WHERE id = :film_id RETURNING id;"""
 
-GET_FAVORITE_FILMS = """SELECT * FROM "film" 
-WHERE id IN (SELECT film_id from "favorite_user_film" WHERE user_id = :target_id);
+GET_FAVORITE_FILMS = """SELECT * FROM "film"
+WHERE id IN (SELECT film_id from "favorite_user_film" WHERE user_id = :target_id)
+"""
+
+GET_USER_FAVORITE_FILMS = """SELECT 
+film.id,
+title,
+is_adult,
+tagline
+FROM "film" as film JOIN "favorite_user_film" as user_film
+ON film.id = user_film.film_id 
+WHERE user_film.user_id = :user_id
+ORDER BY 
 """
 
 
