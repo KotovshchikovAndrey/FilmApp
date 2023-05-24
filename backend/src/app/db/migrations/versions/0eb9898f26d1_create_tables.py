@@ -118,13 +118,44 @@ EXECUTE PROCEDURE set_added_date();"""
     )
 
 
-def upgrade() -> None:
-    create_user_table()
-    create_film_table()
-    create_favorite_user_film_table()
-    create_trigger_on_favorite_user_film_table()
-    create_raiting_table()
+def normolize_json_fields_in_csv_data() -> None:
+    op.execute(
+        """ALTER TABLE "film" ALTER COLUMN genres TYPE jsonb USING genres::jsonb;
 
+create or replace function is_valid_json(p_json text)
+returns boolean
+as
+$$
+begin
+return (p_json::json is not null);
+exception
+when others then
+	return false;
+end;
+$$
+language plpgsql
+immutable;
+
+
+UPDATE "film"
+SET production_companies = NULL
+WHERE is_valid_json(production_companies) = FALSE;
+
+
+ALTER TABLE "film" ALTER COLUMN production_companies TYPE jsonb USING production_companies::jsonb;
+
+
+UPDATE "film"
+SET production_countries = NULL
+WHERE is_valid_json(production_countries) = FALSE;
+
+
+ALTER TABLE "film" ALTER COLUMN production_countries TYPE jsonb USING production_countries::jsonb;
+ALTER TABLE "user" ALTER COLUMN reset_codes TYPE jsonb USING reset_codes::jsonb;"""
+    )
+
+
+def load_csv_data() -> None:
     csv_data = config.CSV_DATASET_PATH
     if os.environ.get("IS_TESTING", False):
         csv_data = config.CSV_TESTING_DATA_PATH or csv_data
@@ -144,50 +175,33 @@ def upgrade() -> None:
 "tagline",
 "genres",
 "production_companies",
-"production_countries") FROM '%s' DELIMITERS ',' CSV HEADER;
-
-ALTER TABLE "film" ALTER COLUMN genres TYPE jsonb USING genres::jsonb;
-
-
-create or replace function is_valid_json(p_json text)
-  returns boolean
-as
-$$
-begin
-  return (p_json::json is not null);
-exception
-  when others then
-     return false;
-end;
-$$
-language plpgsql
-immutable;
-
-
-UPDATE "film"
-SET production_companies = NULL
-WHERE is_valid_json(production_companies) = FALSE;
-
-ALTER TABLE "film" ALTER COLUMN production_companies TYPE jsonb USING production_companies::jsonb;
-
-
-UPDATE "film"
-SET production_countries = NULL
-WHERE is_valid_json(production_countries) = FALSE;
-
-ALTER TABLE "film" ALTER COLUMN production_countries TYPE jsonb USING production_countries::jsonb;
-
-ALTER TABLE "user" ALTER COLUMN reset_codes TYPE jsonb USING reset_codes::jsonb;
-
-
-CREATE TYPE user_role AS ENUM('user', 'admin', 'owner');
-CREATE TYPE user_status AS ENUM('active', 'not_verified', 'banned', 'muted');
-
-ALTER TABLE "user" ALTER COLUMN role TYPE user_role USING role::user_role;
-ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;
-"""
+"production_countries") FROM '%s' DELIMITERS ',' CSV HEADER;"""
         % csv_data
     )
+
+    normolize_json_fields_in_csv_data()
+
+
+def create_custom_types() -> None:
+    op.execute(
+        """CREATE TYPE user_role AS ENUM('user', 'admin', 'owner');
+CREATE TYPE user_status AS ENUM('active', 'not_verified', 'banned', 'muted');
+
+
+ALTER TABLE "user" ALTER COLUMN role TYPE user_role USING role::user_role;
+ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;"""
+    )
+
+
+def upgrade() -> None:
+    create_user_table()
+    create_film_table()
+    create_favorite_user_film_table()
+    create_trigger_on_favorite_user_film_table()
+    create_raiting_table()
+
+    load_csv_data()
+    create_custom_types()
 
 
 def downgrade() -> None:
