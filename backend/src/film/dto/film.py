@@ -2,6 +2,7 @@ import typing as tp
 import json
 from enum import Enum
 
+from user.dto import UserBase
 from pydantic import BaseModel, validator
 from datetime import date
 
@@ -217,3 +218,21 @@ class CreateFilmDTO(BaseModel):
 
 
 UpdateFilmDTO = CreateFilmDTO
+
+
+class SetFilmRaitingDTO(BaseModel):
+    user: UserBase
+    film_id: int
+    value: int
+
+    @validator("value")
+    def validate_value(cls, value: int):
+        if not (0 <= value <= 5):
+            raise ValueError("Raiting value must be between 0 and 5!")
+
+        return value
+
+
+class FilmRaitingDTO(BaseModel):
+    film_id: int
+    raiting: float

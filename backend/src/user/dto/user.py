@@ -84,9 +84,8 @@ class UserAvatarDTO(BaseModel):
 class UpdateProfileDTO(BaseModel):
     name: str
     surname: str
-    email: str
 
-    @validator("name", "surname", "email")
+    @validator("name", "surname")
     def validate_length(cls, value: str):
         if len(value) > 255:
             raise ValueError("The field must not exceed 255 characters!")

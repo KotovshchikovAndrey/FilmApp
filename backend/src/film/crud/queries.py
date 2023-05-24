@@ -75,21 +75,6 @@ VALUES
     :production_companies
 ) RETURNING id;"""
 
-# UPDATE_FILM = """UPDATE "film" SET
-# title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,
-# description = CASE WHEN :description IS NOT NULL THEN :description ELSE description END,
-# budget = CASE WHEN :budget IS NOT NULL THEN :budget ELSE budget END,
-# is_adult = CASE WHEN :is_adult IS NOT NULL THEN :is_adult ELSE is_adult END,
-# language = CASE WHEN :language IS NOT NULL THEN :language ELSE language END,
-# imdb_id = CASE WHEN :imdb_id IS NOT NULL THEN :imdb_id ELSE imdb_id END,
-# release_date = CASE WHEN :release_date IS NOT NULL THEN :release_date ELSE release_date END,
-# time = CASE WHEN :time IS NOT NULL THEN :time ELSE time END,
-# tagline = CASE WHEN :tagline IS NOT NULL THEN :tagline ELSE tagline END,
-# genres = CASE WHEN :genres IS NOT NULL THEN :genres ELSE genres END,
-# production_countries = CASE WHEN :production_countries IS NOT NULL THEN :production_countries ELSE production_countries END,
-# production_companies = CASE WHEN :production_companies IS NOT NULL THEN :production_companies ELSE production_companies END
-# WHERE id = :film_id RETURNING id;"""
-
 UPDATE_FILM = """UPDATE "film" SET
 title = :title,
 description = :description,
@@ -122,8 +107,31 @@ WHERE user_film.user_id = :user_id
 ORDER BY 
 """
 
+AGREGATE_AVG_FILM_RAITING = """SELECT film_id, AVG(value)::float as raiting FROM "raiting"
+WHERE film_id = :film_id
+GROUP BY film_id;"""
+
+SET_FILM_RAITING = """INSERT INTO "raiting" (user_id, film_id, value)
+VALUES (:user_id, :film_id, :value) ON CONFLICT (user_id, film_id) DO
+UPDATE SET value = EXCLUDED.value;"""
+
 
 # Архив душевнобольного, не обращайте внимания :)
+
+# UPDATE_FILM = """UPDATE "film" SET
+# title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,
+# description = CASE WHEN :description IS NOT NULL THEN :description ELSE description END,
+# budget = CASE WHEN :budget IS NOT NULL THEN :budget ELSE budget END,
+# is_adult = CASE WHEN :is_adult IS NOT NULL THEN :is_adult ELSE is_adult END,
+# language = CASE WHEN :language IS NOT NULL THEN :language ELSE language END,
+# imdb_id = CASE WHEN :imdb_id IS NOT NULL THEN :imdb_id ELSE imdb_id END,
+# release_date = CASE WHEN :release_date IS NOT NULL THEN :release_date ELSE release_date END,
+# time = CASE WHEN :time IS NOT NULL THEN :time ELSE time END,
+# tagline = CASE WHEN :tagline IS NOT NULL THEN :tagline ELSE tagline END,
+# genres = CASE WHEN :genres IS NOT NULL THEN :genres ELSE genres END,
+# production_countries = CASE WHEN :production_countries IS NOT NULL THEN :production_countries ELSE production_countries END,
+# production_companies = CASE WHEN :production_companies IS NOT NULL THEN :production_companies ELSE production_companies END
+# WHERE id = :film_id RETURNING id;"""
 
 # -- SELECT id, title, is_adult, tagline FROM "film"  WHERE ;
 # -- SELECT DISTINCT ON (production_countries -> 0 -> 'iso_3166_1')

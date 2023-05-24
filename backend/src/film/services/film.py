@@ -17,6 +17,8 @@ from film.dto import (
     SearchFilmDTO,
     GetPosterDTO,
     FilmTrailerDTO,
+    FilmRaitingDTO,
+    SetFilmRaitingDTO,
 )
 
 
@@ -63,6 +65,14 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def get_user_favorite_films(self, target_id: int, order_by: str) -> FilmsDTO:
+        ...
+
+    @abstractmethod
+    async def calculate_film_raiting(self, film_id: int) -> FilmRaitingDTO:
+        ...
+
+    @abstractmethod
+    async def set_film_raiting(self, dto: SetFilmRaitingDTO) -> None:
         ...
 
 
@@ -147,3 +157,14 @@ class FilmService(IFilmService):
     async def get_user_favorite_films(self, target_id: int, order_by: str):
         films = await self.__repository.get_favorite_films(target_id, order_by)
         return films
+
+    async def calculate_film_raiting(self, film_id: int):
+        raiting = await self.__repository.agregate_raiting(film_id)
+        return raiting
+
+    async def set_film_raiting(self, dto: SetFilmRaitingDTO):
+        return await self.__repository.set_raiting(
+            user_id=dto.user.id,
+            film_id=dto.film_id,
+            value=dto.value,
+        )

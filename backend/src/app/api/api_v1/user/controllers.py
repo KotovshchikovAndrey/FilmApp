@@ -91,11 +91,11 @@ class UserFavorite(HTTPEndpoint):
 class MyProfile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    @requires("authenticated", status_code=401)
-    async def get(self, request: Request):
-        user = request.user.instance
-        films = await self.__service.get_favorites(user.id)
-        return JSONResponse(content=user.dict() | films.dict())
+    # @requires("authenticated", status_code=401)
+    # async def get(self, request: Request):
+    #     user = request.user.instance
+    #     films = await self.__service.get_favorites(user.id)
+    #     return JSONResponse(content=user.dict() | films.dict())
 
     @requires("authenticated", status_code=401)
     async def put(self, request: Request):
@@ -115,12 +115,12 @@ class MyProfile(HTTPEndpoint):
 class Profile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    @requires("authenticated", status_code=401)
-    @requires("admin", status_code=403)
-    async def get(self, request: Request):
-        user = await self.__service.find_user_by_id(request.path_params["user_id"])
-        films = await self.__service.get_favorites(user.id)
-        return JSONResponse(content=user.dict() | films.dict())
+    # @requires("authenticated", status_code=401)
+    # @requires("admin", status_code=403)
+    # async def get(self, request: Request):
+    #     user = await self.__service.find_user_by_id(request.path_params["user_id"])
+    #     films = await self.__service.get_favorites(user.id)
+    #     return JSONResponse(content=user.dict() | films.dict())
 
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)

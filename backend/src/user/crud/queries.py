@@ -57,8 +57,7 @@ WHERE id = :id;"""
 
 UPDATE_PROFILE_FIELDS = """UPDATE "user" SET 
 name = :name,
-surname = :surname,
-email = :email
+surname = :surname
 WHERE id = :user_id;"""
 
 SET_AVATAR_FOR_USER = """UPDATE "user" SET

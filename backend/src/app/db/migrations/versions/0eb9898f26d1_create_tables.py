@@ -60,7 +60,7 @@ def create_raiting_table() -> None:
     op.create_table(
         "raiting",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("value", sa.NUMERIC(1, 1), nullable=False),
+        sa.Column("value", sa.NUMERIC(1, 0), nullable=False, server_default="0"),
         sa.Column(
             "user_id",
             sa.Integer(),

@@ -13,6 +13,7 @@ from film.dto import (
     CreateFilmDTO,
     UpdateFilmDTO,
     GetPosterDTO,
+    SetFilmRaitingDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -108,3 +109,24 @@ class Trailer(HTTPEndpoint):
         trailer = await self.__service.get_trailer_for_film(film_id)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=trailer.dict())
+
+
+class FilmRating(HTTPEndpoint):
+    __service: IFilmService = container.resolve(IFilmService)
+
+    async def get(self, request: Request):
+        film_id = request.path_params["film_id"]
+        film_raiting = await self.__service.calculate_film_raiting(film_id)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=film_raiting.dict())
+
+    @requires("authenticated", status_code=401)
+    async def put(self, request: Request):
+        user = request.user.instance
+        film_id = request.path_params["film_id"]
+        data = await request.json()
+
+        dto = SetFilmRaitingDTO(**data, film_id=film_id, user=user)
+        await self.__service.set_film_raiting(dto)
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
