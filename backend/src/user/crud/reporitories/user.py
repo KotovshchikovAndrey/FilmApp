@@ -183,6 +183,10 @@ class UserPostgresRepository(IUserRepository):
             status="banned",
             id=target_id,
         )
+        await db_connection.execute_query(
+            queries.DELETE_ALL_REFRESH_TOKENS,
+            id=target_id,
+        )
 
     async def unban_user(self, target_id: int):
         await db_connection.execute_query(
