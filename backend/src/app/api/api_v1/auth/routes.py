@@ -1,4 +1,5 @@
 from starlette.routing import Route
+
 from app.api.api_v1.auth import controllers
 
 routes = [

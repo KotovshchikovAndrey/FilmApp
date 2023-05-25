@@ -1,4 +1,5 @@
 import pathlib
+
 from starlette.config import Config
 from starlette.datastructures import Secret
 

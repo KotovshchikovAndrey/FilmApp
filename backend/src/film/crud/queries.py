@@ -76,18 +76,18 @@ VALUES
 ) RETURNING id;"""
 
 UPDATE_FILM = """UPDATE "film" SET
-title = :title,
-description = :description,
-budget = :budget,
-is_adult = :is_adult,
-language = :language,
-imdb_id = :imdb_id,
-release_date = :release_date,
-time = :time,
-tagline = :tagline,
-genres = :genres,
-production_countries = :production_countries,
-production_companies = :production_companies
+title = COALESCE(:title, title),
+description = COALESCE(:description, description),
+budget = COALESCE(:budget, budget),
+is_adult = COALESCE(:is_adult, is_adult),
+language = COALESCE(:language, language),
+imdb_id = COALESCE(:imdb_id, imdb_id),
+release_date = COALESCE(:release_date, release_date),
+time = COALESCE(:time, time),
+tagline = COALESCE(:tagline, tagline),
+genres = COALESCE(:genres, genres),
+production_countries = COALESCE(:production_countries, production_countries),
+production_companies = COALESCE(:production_companies, production_companies)
 WHERE id = :film_id RETURNING id;"""
 
 DELETE_FILM_BY_ID = """DELETE FROM "film" WHERE id = :film_id RETURNING id;"""

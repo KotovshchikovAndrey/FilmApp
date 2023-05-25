@@ -1,16 +1,16 @@
 import typing as tp
 from abc import ABC, abstractmethod
 
+from app.db import db_connection
 from app.utils.OtherUtils import get_password_hash
+from user.crud import queries
 from user.dto import (
-    UserRegisterDTO,
-    UserVerificationData,
-    UserLoginDTO,
     UpdateProfileDTO,
     UserAvatarDTO,
+    UserLoginDTO,
+    UserRegisterDTO,
+    UserVerificationData,
 )
-from app.db import db_connection
-from user.crud import queries
 
 
 class IUserRepository(ABC):

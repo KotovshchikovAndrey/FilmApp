@@ -1,20 +1,19 @@
 import typing as tp
 
-from starlette.requests import Request
-from starlette.responses import Response
 from starlette import status
 from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
-from starlette.responses import JSONResponse
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
 
-from user.dto import (
-    ManageFavoriteFilmDTO,
-    UpdateProfileDTO,
-    FileDTO,
-    GetUserFavoriteFilmsDTO,
-)
 from app.core.ioc import container, film_services, user_services
 from app.exceptions.api import ApiError
+from user.dto import (
+    FileDTO,
+    GetUserFavoriteFilmsDTO,
+    ManageFavoriteFilmDTO,
+    UpdateProfileDTO,
+)
 
 IFilmService = film_services.IFilmService
 IUserService = user_services.IUserService
@@ -91,11 +90,13 @@ class UserFavorite(HTTPEndpoint):
 class MyProfile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    # @requires("authenticated", status_code=401)
-    # async def get(self, request: Request):
-    #     user = request.user.instance
-    #     films = await self.__service.get_favorites(user.id)
-    #     return JSONResponse(content=user.dict() | films.dict())
+    @requires("authenticated", status_code=401)
+    async def get(self, request: Request):
+        user = request.user.instance
+        dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
+        films = await self.__service.get_favorites(dto)
+
+        return JSONResponse(content=user.dict() | films.dict())
 
     @requires("authenticated", status_code=401)
     async def put(self, request: Request):
@@ -115,12 +116,16 @@ class MyProfile(HTTPEndpoint):
 class Profile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    # @requires("authenticated", status_code=401)
-    # @requires("admin", status_code=403)
-    # async def get(self, request: Request):
-    #     user = await self.__service.find_user_by_id(request.path_params["user_id"])
-    #     films = await self.__service.get_favorites(user.id)
-    #     return JSONResponse(content=user.dict() | films.dict())
+    @requires("authenticated", status_code=401)
+    @requires("admin", status_code=403)
+    async def get(self, request: Request):
+        user_id = request.path_params["user_id"]
+        user = await self.__service.find_user_by_id(user_id)
+
+        dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
+        films = await self.__service.get_favorites(dto)
+
+        return JSONResponse(content=user.dict() | films.dict())
 
     @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)

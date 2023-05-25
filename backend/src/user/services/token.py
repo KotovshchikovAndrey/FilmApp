@@ -3,10 +3,10 @@ import typing as tp
 from abc import ABC, abstractmethod
 
 import jwt
+
 from app.core import config
 from app.exceptions.api import ApiError
 from user.crud.reporitories import IUserRepository
-
 from user.dto import UserRefreshTokenDTO
 
 

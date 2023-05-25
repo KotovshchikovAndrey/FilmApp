@@ -1,1 +1,1 @@
-from .film import IFilmReporitory, FilmPostgresRepository
+from .film import FilmPostgresRepository, IFilmReporitory

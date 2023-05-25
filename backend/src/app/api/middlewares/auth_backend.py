@@ -1,12 +1,13 @@
 import typing as tp
 
 import jwt
-from app.exceptions.api import ApiError
-from user.dto.user import UserBase
-from app.core import config
-from user.crud.reporitories.user import get_user_repository
+from starlette.authentication import AuthCredentials, AuthenticationBackend, BaseUser
 from starlette.requests import HTTPConnection
-from starlette.authentication import AuthenticationBackend, AuthCredentials, BaseUser
+
+from app.core import config
+from app.exceptions.api import ApiError
+from user.crud.reporitories.user import get_user_repository
+from user.dto.user import UserBase
 
 
 class JwtUser(BaseUser):

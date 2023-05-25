@@ -1,7 +1,8 @@
-from alembic import op
-import sqlalchemy as sa
-
 import os
+
+import sqlalchemy as sa
+from alembic import op
+
 from app.core import config
 
 revision = "0eb9898f26d1"
@@ -75,6 +76,8 @@ def create_raiting_table() -> None:
         ),
     )
 
+    op.execute("""create unique index unique_raiting on raiting (user_id, film_id);""")
+
 
 def create_favorite_user_film_table() -> None:
     op.create_table(
@@ -138,7 +141,7 @@ immutable;
 
 
 UPDATE "film"
-SET production_companies = NULL
+SET production_companies = '[]'
 WHERE is_valid_json(production_companies) = FALSE;
 
 
@@ -146,7 +149,7 @@ ALTER TABLE "film" ALTER COLUMN production_companies TYPE jsonb USING production
 
 
 UPDATE "film"
-SET production_countries = NULL
+SET production_countries = '[]'
 WHERE is_valid_json(production_countries) = FALSE;
 
 
@@ -180,6 +183,10 @@ def load_csv_data() -> None:
     )
 
     normolize_json_fields_in_csv_data()
+
+    # Пока захардкодил. Если нужно будет, полностью удалим из датасет файла,
+    # так как не используем данное поле
+    op.execute("""ALTER TABLE "film" DROP COLUMN poster_path;""")
 
 
 def create_custom_types() -> None:

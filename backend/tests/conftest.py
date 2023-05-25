@@ -1,11 +1,11 @@
-import typing as tp
 import os
+import typing as tp
 
 import pytest
-from httpx import AsyncClient, ASGITransport
 from asgi_lifespan import LifespanManager
+from httpx import ASGITransport, AsyncClient
 
-from src.app.utils.commands import run_migrations, drop_tables
+from src.app.utils.commands import drop_tables, run_migrations
 
 
 @pytest.fixture(scope="session")

@@ -3,27 +3,23 @@ import typing as tp
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from app.utils.MailSender import MailSender
 from app.core import config
-
-from user.crud.reporitories.user import IUserRepository
-from film.services import IFilmService
-
-# from app.core.ioc import
+from app.exceptions.api import ApiError
+from app.utils.file_manager import FileManager
+from app.utils.MailSender import MailSender
+from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from film.dto import FilmsDTO
+from film.services import IFilmService
+from user.crud.reporitories import IUserRepository
 from user.dto import (
-    UserBase,
-    UserRegisterDTO,
+    FileDTO,
     GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
     UpdateProfileDTO,
-    FileDTO,
     UserAvatarDTO,
+    UserBase,
+    UserRegisterDTO,
 )
-from app.exceptions.api import ApiError
-
-from app.utils.file_manager import FileManager
-from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 
 
 class IUserService(ABC):

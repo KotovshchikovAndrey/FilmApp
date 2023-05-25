@@ -2,18 +2,18 @@ import typing as tp
 
 from starlette import status
 from starlette.authentication import requires
+from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
-from starlette.endpoints import HTTPEndpoint
 
 from app.core.ioc import container, film_services
 from film.dto import (
-    GetFilmsDTO,
-    SearchFilmDTO,
     CreateFilmDTO,
-    UpdateFilmDTO,
+    GetFilmsDTO,
     GetPosterDTO,
+    SearchFilmDTO,
     SetFilmRaitingDTO,
+    UpdateFilmDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -57,7 +57,7 @@ class FilmDetail(HTTPEndpoint):
         )
 
     # @requires("admin", status_code=403)
-    async def put(self, request: Request):
+    async def patch(self, request: Request):
         film_id = request.path_params["film_id"]
         data = await request.json()
         dto = UpdateFilmDTO(**data)

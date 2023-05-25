@@ -1,10 +1,10 @@
-import typing as tp
 import json
-from enum import Enum
+import typing as tp
+from datetime import date
+
+from pydantic import BaseModel, validator
 
 from user.dto import UserBase
-from pydantic import BaseModel, validator
-from datetime import date
 
 
 class FilmPrimaryKeyDTO(BaseModel):
@@ -217,7 +217,10 @@ class CreateFilmDTO(BaseModel):
         return value
 
 
-UpdateFilmDTO = CreateFilmDTO
+class UpdateFilmDTO(CreateFilmDTO):
+    __annotations__ = {
+        k: tp.Optional[v] for k, v in CreateFilmDTO.__annotations__.items()
+    }
 
 
 class SetFilmRaitingDTO(BaseModel):

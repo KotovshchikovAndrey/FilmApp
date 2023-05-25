@@ -3,23 +3,22 @@ from abc import ABC, abstractmethod
 
 from app.core import config
 from app.exceptions.api import ApiError
-from film.crud.reporitories import IFilmReporitory
-from film.services import imdb
 from app.utils.file_manager import FileManager
-
+from film.crud.reporitories import IFilmReporitory
 from film.dto import (
-    GetFilmsDTO,
-    FilmsDTO,
     CreateFilmDTO,
-    UpdateFilmDTO,
     FilmDTO,
     FilmFiltersDTO,
-    SearchFilmDTO,
-    GetPosterDTO,
-    FilmTrailerDTO,
     FilmRaitingDTO,
+    FilmsDTO,
+    FilmTrailerDTO,
+    GetFilmsDTO,
+    GetPosterDTO,
+    SearchFilmDTO,
     SetFilmRaitingDTO,
+    UpdateFilmDTO,
 )
+from film.services import imdb
 
 
 class IFilmService(ABC):

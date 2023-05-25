@@ -1,22 +1,21 @@
 import json
-from datetime import datetime
 import typing as tp
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
+from datetime import datetime
 
 from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from user.crud.reporitories.user import get_user_repository
 from user.dto import (
     UserBase,
+    UserLoginDTO,
+    UserLogoutDTO,
+    UserRefreshTokenDTO,
     UserRegisterDTO,
     UserVerificationData,
-    UserLoginDTO,
-    UserRefreshTokenDTO,
-    UserLogoutDTO,
 )
-
-from user.services.user import IUserService
 from user.services.token import ITokenService
+from user.services.user import IUserService
 
 
 class IAuthService(ABC):

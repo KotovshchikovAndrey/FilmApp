@@ -3,17 +3,16 @@ from __future__ import annotations
 import typing as tp
 
 import pydantic
-
 from starlette import status
-from starlette.requests import Request
 from starlette.applications import Starlette
-from starlette.routing import Mount
 from starlette.middleware import Middleware
+from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
+from starlette.routing import Mount
 
 from app.core import config
-from app.exceptions.api import ApiError
 from app.db import IDbConnection, db_connection
+from app.exceptions.api import ApiError
 
 
 class StarletteServer:

@@ -1,12 +1,13 @@
 import uvicorn
-from starlette.routing import Mount
 from starlette.middleware import Middleware
-from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
-from app.core import config
-from app.api.api_v1 import auth_routes, user_routes, film_routes
-from app.core.server import StarletteServer
+from starlette.middleware.cors import CORSMiddleware
+from starlette.routing import Mount
+
+from app.api.api_v1 import auth_routes, film_routes, user_routes
 from app.api.middlewares.auth_backend import JwtAuthBackend
+from app.core import config
+from app.core.server import StarletteServer
 
 routes = [
     Mount("/auth", routes=auth_routes),

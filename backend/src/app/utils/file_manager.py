@@ -1,9 +1,9 @@
+import pathlib
 import typing as tp
+import uuid
+
 import aiofiles
 import httpx
-import pathlib
-
-import uuid
 
 
 class FileManager:

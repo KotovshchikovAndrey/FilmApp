@@ -10,7 +10,7 @@ def email_validate(email: str):
 
 
 def generate_code(length: int = 5):
-    return ''.join(random.choice('0123456789') for _ in range(length))
+    return "".join(random.choice("0123456789") for _ in range(length))
 
 
 def generate_expired_in(live_ex: int = 10):

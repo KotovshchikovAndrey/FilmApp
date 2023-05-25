@@ -10,21 +10,25 @@ class MailSender:
         self.email = email
         self.password = password
         self.server = self.connect()
-        print('[MailService] Connected!')
+        print("[MailService] Connected!")
 
     def connect(self):
-        server = smtplib.SMTP('smtp.zoho.com', 587)
+        server = smtplib.SMTP("smtp.zoho.com", 587)
         server.starttls()
         server.login(self.email, self.password)
         return server
 
     def send_code(self, code: str, target_email: str):
-        print('[MailService]', target_email, code)
+        print("[MailService]", target_email, code)
         msg = MIMEMultipart()
-        msg['From'] = self.email
-        msg['To'] = target_email
-        msg['Subject'] = 'Код подтверждения - POTOM-PRIDUMAYU'
-        msg.attach(MIMEText(f'Ваш код для подтверждения: {code}\n\nВведите его на сайте. Код действителен 10 минут',
-                            'plain'))
+        msg["From"] = self.email
+        msg["To"] = target_email
+        msg["Subject"] = "Код подтверждения - POTOM-PRIDUMAYU"
+        msg.attach(
+            MIMEText(
+                f"Ваш код для подтверждения: {code}\n\nВведите его на сайте. Код действителен 10 минут",
+                "plain",
+            )
+        )
         self.server.send_message(msg)
-        print('[MailService] Successful')
+        print("[MailService] Successful")

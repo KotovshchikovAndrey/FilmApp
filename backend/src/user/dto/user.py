@@ -1,6 +1,6 @@
 import datetime
-import typing as tp
 import enum
+import typing as tp
 
 from pydantic import BaseModel, Json, validator
 

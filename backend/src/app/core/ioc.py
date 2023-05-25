@@ -1,10 +1,11 @@
 import typing as tp
+
 import punq
 
-from film.crud import reporitories as film_repositories
-from user.crud import reporitories as user_repositories
 from film import services as film_services
+from film.crud import reporitories as film_repositories
 from user import services as user_services
+from user.crud import reporitories as user_repositories
 
 container = punq.Container()
 

@@ -139,7 +139,7 @@ class TestFilmController:
         data["production_companies"] = {"": ""}
         data["production_countries"] = [{"": ""}]
 
-        response = await client.put(url="/films/1", json=data)
+        response = await client.patch(url="/films/1", json=data)
         assert response.status_code == 400
 
         invalid_fields = []
@@ -154,7 +154,7 @@ class TestFilmController:
         data_before_update = dict(response.json())
 
         data_before_update["genres"] = [{"name": "Test Genre"}]
-        data_before_update["production_companies"] = None
+        data_before_update["production_companies"] = []
         data_before_update["production_countries"] = [
             {
                 "name": "Test Name1",
@@ -166,7 +166,7 @@ class TestFilmController:
             },
         ]
 
-        response = await client.put(url="/films/1", json=data_before_update)
+        response = await client.patch(url="/films/1", json=data_before_update)
         assert response.status_code == 200
 
         response = await client.get(url="/films/1")
