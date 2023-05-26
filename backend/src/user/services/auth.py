@@ -75,9 +75,9 @@ class JwtAuthService(IAuthService):
             raise ApiError.conflict("User with this email address already exists")
         if not email_validate(dto.email):
             raise ApiError.bad_request("Invalid email address")
-        if len(dto.password) < 8:
+        if not 8 <= len(dto.password) <= 100:
             raise ApiError.bad_request(
-                message="Password length must be at least 8 characters"
+                message="Password length must be between 8 and 100 characters"
             )
         user = UserBase(**await get_user_repository().create(dto))
 
@@ -90,7 +90,7 @@ class JwtAuthService(IAuthService):
 
     async def send_verification_code(self, dto: UserRequestCodeDTO):
         await get_user_repository().add_verification_code(dto.dict())
-        # TODO: убрать комментарий при деплое!!!
+        #TODO: убрать комментарий при деплое!!!
         # self.__user_service.mail_server.send_code(code=dto.code, target_email=dto.email)
 
     async def request_code(self, email: str, reason: str):
