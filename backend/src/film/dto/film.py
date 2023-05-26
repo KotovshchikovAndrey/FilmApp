@@ -193,7 +193,10 @@ class CreateFilmDTO(BaseModel):
         return value
 
     @validator("release_date", pre=True)
-    def validate_release_date(cls, value: str):
+    def validate_release_date(cls, value: str | date):
+        if isinstance(value, date):
+            return value
+
         try:
             year, month, day = map(int, value.split("-"))
             value = date(year, month, day)
