@@ -29,11 +29,7 @@ DELETE_ALL_REFRESH_TOKENS = """UPDATE "user"
 SET refresh_tokens = '{}'::text[]
 WHERE id = :id;
 """
-AUTHORISE_USER = (
-    """SELECT * FROM "user" WHERE email = :email and password = :password;"""
-)
-# TODO: сделать удаление токена
-# TODO: сделать удаление всех токенов
+
 UPDATE_REFRESH_TOKEN = """UPDATE "user"
 SET refresh_tokens = array_replace(refresh_tokens, :old_token, :new_token)
 WHERE id = :target_id;
@@ -42,6 +38,8 @@ CHECK_REFRESH_TOKEN = """SELECT *
 FROM "user"
 WHERE id = :target_id AND :refresh_token = ANY(refresh_tokens);
 """
+
+AUTHORISE_USER = """SELECT * FROM "user" WHERE email = :email and password = :password;"""
 
 ADD_FAVORITE_FILM_FOR_USER = """INSERT INTO "favorite_user_film"
 (user_id, film_id)
@@ -64,3 +62,7 @@ SET_AVATAR_FOR_USER = """UPDATE "user" SET
 avatar = :avatar
 WHERE id = :user_id
 RETURNING avatar as avatar_url;"""
+
+CHANGE_USER_EMAIL = """UPDATE "user" SET
+email = :new_email
+WHERE id = :user_id"""

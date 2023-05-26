@@ -18,6 +18,7 @@ from user.dto import (
 )
 
 IAuthService = user_services.IAuthService
+IUserService = user_services.IUserService
 
 
 class Registration(HTTPEndpoint):
@@ -66,22 +67,22 @@ class RequestCode(HTTPEndpoint):
         return Response(status_code=204)
 
 
-class RegistrationComplete(HTTPEndpoint):
+# Заменяем /register-complete на /verify-code
+class VerifyCode(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
+    __user_service: IUserService = container.resolve(IUserService)
 
     @requires(scopes="authenticated", status_code=401)
     async def put(self, request: Request):
-        await self.__auth_service.complete_register(
-            UserRequestCodeDTO(
-                email=request.user.instance.email,
-                reason="complete-register",
-                **dict(await request.json())
-            )
-        )
+        await self.__auth_service.verify_code(UserRequestCodeDTO(
+            email=request.user.instance.email,
+            **dict(await request.json())
+        ))
+        user = await self.__user_service.find_user_by_id(request.user.instance.id)
         response = Response(status_code=204)
         response.set_cookie(
             key="status",
-            value="active",
+            value=user.status,
             httponly=True,
             samesite="none",
             secure=True,
@@ -117,6 +118,7 @@ class Login(HTTPEndpoint):
 
 class TokenRefresh(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
+    __user_service: IUserService = container.resolve(IUserService)
 
     async def put(self, request: Request):
         access_token, refresh_token = await self.__auth_service.refresh_token(
@@ -125,6 +127,8 @@ class TokenRefresh(HTTPEndpoint):
                 refresh_token=get_refresh_token_from_cookie(request),
             ),
         )
+        payload = await self.__auth_service.decode_access_token(access_token)
+        user = await self.__user_service.find_user_by_id(payload["id"])
         output = {"access_token": access_token, "refresh_token": refresh_token}
         response = JSONResponse(status_code=200, content=output)
         response.set_cookie(
@@ -134,6 +138,13 @@ class TokenRefresh(HTTPEndpoint):
             samesite="none",
             secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
+        )
+        response.set_cookie(
+            key="status",
+            value=user.status,
+            httponly=True,
+            samesite="none",
+            secure=True,
         )
         return response
 

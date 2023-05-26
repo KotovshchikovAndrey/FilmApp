@@ -28,6 +28,10 @@ class ITokenService(ABC):
         ...
 
     @abstractmethod
+    async def decode_access_token(self, access_token: str) -> tp.Dict[str, tp.Any]:
+        ...
+
+    @abstractmethod
     async def decode_refresh_token(
             self, access_token: str, refresh_token: str
     ) -> tp.Dict[str, tp.Any]:
@@ -75,6 +79,10 @@ class TokenService(ITokenService):
             "HS256",
         )
         return token
+
+    def decode_access_token(self, access_token: str) -> tp.Dict[str, tp.Any]:
+        payload = jwt.decode(access_token, str(config.SECRET_KEY), ["HS256"])
+        return payload
 
     def decode_refresh_token(self, access_token: str, refresh_token: str):
         access_token_part = self.__get_access_token_part(access_token)

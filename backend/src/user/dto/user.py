@@ -5,7 +5,6 @@ import typing as tp
 from pydantic import BaseModel, Json, validator
 
 
-# Токены и коды восстановления не должны быть здесь - небезопасно
 class UserBase(BaseModel):
     id: int
     name: str
@@ -33,7 +32,7 @@ class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
     timestamp: int = int(datetime.datetime.now().timestamp())
-    reason: str
+    reason: tp.Literal["complete-register", "change-email"] = "UNKNOWN REASON"
 
 
 class UserChangingEmailDTO(UserRequestCodeDTO):
@@ -90,7 +89,7 @@ class UpdateProfileDTO(BaseModel):
 
     @validator("name", "surname")
     def validate_length(cls, value: str):
-        if len(value) > 255:
-            raise ValueError("The field must not exceed 255 characters!")
+        if len(value) > 30:
+            raise ValueError("The field must not exceed 30 characters!")
 
         return value

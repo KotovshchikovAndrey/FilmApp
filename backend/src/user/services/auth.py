@@ -32,7 +32,7 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def complete_register(self, dto: UserRequestCodeDTO) -> UserBase:
+    async def verify_code(self, dto: UserRequestCodeDTO) -> None:
         ...
 
     @abstractmethod
@@ -57,6 +57,10 @@ class IAuthService(ABC):
 
     @abstractmethod
     async def refresh_token(self, dto: UserRefreshTokenDTO) -> tp.Tuple[str, str]:
+        ...
+
+    @abstractmethod
+    async def decode_access_token(self, access_token: str) -> tp.Dict[str, tp.Any]:
         ...
 
 
@@ -100,23 +104,30 @@ class JwtAuthService(IAuthService):
             )
         )
 
-    async def complete_register(self, dto: UserRequestCodeDTO):
+    async def verify_code(self, dto: UserRequestCodeDTO):
         user = await get_user_repository().find_by_email_and_code(
             email=dto.email, code=dto.code
         )
         if user is None:
-            raise ApiError.forbidden(message="Wrong email or code")
+            raise ApiError.forbidden(message="Wrong code")
         code_info = json.loads(dict(user).get("value"))
-
-        if user["status"] != "not_verified":
-            raise ApiError.forbidden(message="Account already verified")
-
         if code_info["timestamp"] < int(datetime.now().timestamp()):
             raise ApiError.forbidden(message="Code has expired, request a new one")
-        if code_info["reason"] != "complete-register":
-            raise ApiError.forbidden(message="The code is for another process")
-        usr = await get_user_repository().verify_user(user["id"])
-        return UserBase(**usr)
+
+        match code_info["reason"]:
+            case "change-email":
+                is_email_available = await self.__user_service.check_user_exists(code_info["new_email"])
+                if not is_email_available:
+                    raise ApiError.conflict(message="This email address is already in use")
+                await get_user_repository().change_email(user["id"], code_info["new_email"])
+                if user["status"] == "not_verified":
+                    await get_user_repository().verify_user(user["id"])
+            case "complete-register":
+                if user["status"] != "not_verified":
+                    raise ApiError.forbidden(message="Account already verified")
+                await get_user_repository().verify_user(user["id"])
+            case _:
+                raise ApiError.internal("The code in the database has an unknown reason")
 
     async def login(self, dto: UserLoginDTO):
         user = await self.authenticate(dto)
@@ -148,3 +159,7 @@ class JwtAuthService(IAuthService):
     async def refresh_token(self, dto: UserRefreshTokenDTO):
         access_token, refresh_token = await self.__token_service.refresh_token(dto)
         return access_token, refresh_token
+
+    async def decode_access_token(self, access_token: str):
+        payload = await self.__token_service.decode_access_token(access_token)
+        return payload

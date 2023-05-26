@@ -27,7 +27,7 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def verify_user(self, id: int) -> tp.Mapping:
+    async def verify_user(self, id: int) -> None:
         ...
 
     @abstractmethod
@@ -46,6 +46,10 @@ class IUserRepository(ABC):
     async def update_profile_fields(
             self, user_id: int, profile_update: UpdateProfileDTO
     ) -> None:
+        ...
+
+    @abstractmethod
+    async def change_email(self, user_id: int, new_email: str) -> None:
         ...
 
     @abstractmethod
@@ -128,8 +132,6 @@ class UserPostgresRepository(IUserRepository):
             queries.VERIFY_USER,
             id=id,
         )
-        user = await self.find_by_id(id)
-        return user
 
     async def authorise_user(self, dto: UserLoginDTO):
         user = await db_connection.fetch_one(
@@ -155,6 +157,13 @@ class UserPostgresRepository(IUserRepository):
             queries.UPDATE_PROFILE_FIELDS,
             user_id=user_id,
             **profile_update.dict(),
+        )
+
+    async def change_email(self, user_id: int, new_email: str):
+        await db_connection.execute_query(
+            queries.CHANGE_USER_EMAIL,
+            user_id=user_id,
+            new_email=new_email,
         )
 
     async def set_avatar(self, user_id: int, avatar: str):
