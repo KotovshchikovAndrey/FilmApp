@@ -1,3 +1,4 @@
+import json
 import typing as tp
 from abc import ABC, abstractmethod
 
@@ -9,7 +10,6 @@ from user.dto import (
     UserAvatarDTO,
     UserLoginDTO,
     UserRegisterDTO,
-    UserVerificationData,
 )
 
 
@@ -35,7 +35,7 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def add_verification_code(self, dto: UserVerificationData) -> tp.Mapping:
+    async def add_verification_code(self, code_info: dict) -> tp.Mapping:
         ...
 
     @abstractmethod
@@ -44,7 +44,7 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def update_profile_fields(
-        self, user_id: int, profile_update: UpdateProfileDTO
+            self, user_id: int, profile_update: UpdateProfileDTO
     ) -> None:
         ...
 
@@ -86,7 +86,7 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def replace_refresh_token(
-        self, target_id: int, old_token: str, new_token: str
+            self, target_id: int, old_token: str, new_token: str
     ):
         ...
 
@@ -139,27 +139,17 @@ class UserPostgresRepository(IUserRepository):
         )
         return user
 
-    # Этот костыль здесь не просто так. По-другому запрос отказывался выполняться.
-    # Если есть непреодолимое желание исправить это, удачи. Мне лень.
-    async def add_verification_code(self, dto: UserVerificationData):
+    async def add_verification_code(self, code_info: dict):
         await db_connection.execute_query(
             queries.ADD_NEW_VERIFICATION_CODE.replace(
                 "PASTE_JSON_HERE",
-                '\'{"ip": "'
-                + dto.ip
-                + '", "code": "'
-                + dto.code
-                + '", "timestamp": '
-                + str(int(dto.timestamp))
-                + ', "reason": "'
-                + dto.reason
-                + "\"}'",
+                f"'{json.dumps(code_info)}'",
             ),
-            email=dto.email,
+            email=code_info["email"],
         )
 
     async def update_profile_fields(
-        self, user_id: int, profile_update: UpdateProfileDTO
+            self, user_id: int, profile_update: UpdateProfileDTO
     ):
         return await db_connection.execute_query(
             queries.UPDATE_PROFILE_FIELDS,
@@ -230,7 +220,7 @@ class UserPostgresRepository(IUserRepository):
         )
 
     async def replace_refresh_token(
-        self, target_id: int, old_token: str, new_token: str
+            self, target_id: int, old_token: str, new_token: str
     ):
         await db_connection.execute_query(
             queries.UPDATE_REFRESH_TOKEN,

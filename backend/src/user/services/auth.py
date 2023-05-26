@@ -12,7 +12,7 @@ from user.dto import (
     UserLogoutDTO,
     UserRefreshTokenDTO,
     UserRegisterDTO,
-    UserVerificationData,
+    UserRequestCodeDTO,
 )
 from user.services.token import ITokenService
 from user.services.user import IUserService
@@ -24,19 +24,19 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def send_verification_code(self, dto: UserVerificationData) -> None:
+    async def send_verification_code(self, dto: UserRequestCodeDTO) -> None:
         ...
 
     @abstractmethod
-    async def request_code(self, email: str, host: str, reason: str) -> None:
+    async def request_code(self, email: str, reason: str) -> None:
         ...
 
     @abstractmethod
-    async def complete_register(self, dto: UserVerificationData) -> UserBase:
+    async def complete_register(self, dto: UserRequestCodeDTO) -> UserBase:
         ...
 
     @abstractmethod
-    async def login(self, dto: UserLoginDTO) -> tp.Tuple[str, str]:
+    async def login(self, dto: UserLoginDTO) -> tp.Tuple[str, str, str]:
         ...
 
     @abstractmethod
@@ -77,30 +77,22 @@ class JwtAuthService(IAuthService):
             )
         user = UserBase(**await get_user_repository().create(dto))
 
-        token_payload = {
-            "id": user.id,
-            "email": user.email,
-        }
-        access_token = self.__token_service.generate_access_token(payload=token_payload)
-        refresh_token = self.__token_service.generate_refresh_token(
-            access_token=access_token, payload=token_payload
-        )
+        access_token, refresh_token = self.__token_service.generate_a_pair_of_tokens(user.id)
         await self.__user_service.add_refresh_token(
             user_id=user.id, refresh_token=refresh_token
         )
 
         return access_token, refresh_token
 
-    async def send_verification_code(self, dto: UserVerificationData):
-        await get_user_repository().add_verification_code(dto)
+    async def send_verification_code(self, dto: UserRequestCodeDTO):
+        await get_user_repository().add_verification_code(dto.dict())
         # TODO: убрать комментарий при деплое!!!
         # self.__user_service.mail_server.send_code(code=dto.code, target_email=dto.email)
 
-    async def request_code(self, email: str, host: str, reason: str):
+    async def request_code(self, email: str, reason: str):
         await self.__user_service.find_user_by_email(email)
         await self.send_verification_code(
-            UserVerificationData(
-                ip=host,
+            UserRequestCodeDTO(
                 code=generate_code(),
                 email=email,
                 timestamp=generate_expired_in(),
@@ -108,7 +100,7 @@ class JwtAuthService(IAuthService):
             )
         )
 
-    async def complete_register(self, dto: UserVerificationData):
+    async def complete_register(self, dto: UserRequestCodeDTO):
         user = await get_user_repository().find_by_email_and_code(
             email=dto.email, code=dto.code
         )
@@ -119,9 +111,7 @@ class JwtAuthService(IAuthService):
         if user["status"] != "not_verified":
             raise ApiError.forbidden(message="Account already verified")
 
-        if code_info["ip"] != dto.ip:
-            raise ApiError.forbidden(message="Code not sent for this device")
-        if int(code_info["timestamp"]) < int(datetime.now().timestamp()):
+        if code_info["timestamp"] < int(datetime.now().timestamp()):
             raise ApiError.forbidden(message="Code has expired, request a new one")
         if code_info["reason"] != "complete-register":
             raise ApiError.forbidden(message="The code is for another process")
@@ -131,19 +121,12 @@ class JwtAuthService(IAuthService):
     async def login(self, dto: UserLoginDTO):
         user = await self.authenticate(dto)
 
-        token_payload = {
-            "id": user.id,
-            "email": user.email,
-        }
-        access_token = self.__token_service.generate_access_token(payload=token_payload)
-        refresh_token = self.__token_service.generate_refresh_token(
-            access_token=access_token, payload=token_payload
-        )
+        access_token, refresh_token = self.__token_service.generate_a_pair_of_tokens(user.id)
         await self.__user_service.add_refresh_token(
             user_id=user.id, refresh_token=refresh_token
         )
 
-        return access_token, refresh_token
+        return access_token, refresh_token, user.status
 
     async def logout(self, dto: UserLogoutDTO):
         await get_user_repository().delete_refresh_token(dto.user.id, dto.refresh_token)

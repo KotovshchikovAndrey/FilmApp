@@ -3,7 +3,7 @@ import typing as tp
 from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse, Response
+from starlette.responses import JSONResponse, Response
 
 from app.api.middlewares.auth_backend import parse_token
 from app.core.ioc import container, user_services
@@ -14,7 +14,7 @@ from user.dto import (
     UserLogoutDTO,
     UserRefreshTokenDTO,
     UserRegisterDTO,
-    UserVerificationData,
+    UserRequestCodeDTO,
 )
 
 IAuthService = user_services.IAuthService
@@ -28,8 +28,7 @@ class Registration(HTTPEndpoint):
         access_token, refresh_token = await self.__auth_service.register(reg_data)
         output = {"access_token": access_token, "refresh_token": refresh_token}
         await self.__auth_service.send_verification_code(
-            UserVerificationData(
-                ip=request.client.host,
+            UserRequestCodeDTO(
                 code=generate_code(),
                 email=reg_data.email,
                 timestamp=generate_expired_in(),
@@ -45,6 +44,13 @@ class Registration(HTTPEndpoint):
             secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
         )
+        response.set_cookie(
+            key="status",
+            value="not_verified",
+            httponly=True,
+            samesite="none",
+            secure=True,
+        )
         return response
 
 
@@ -55,9 +61,9 @@ class RequestCode(HTTPEndpoint):
     async def post(self, request: Request):
         body = dict(await request.json())
         await self.__auth_service.request_code(
-            body.get("email"), request.client.host, body.get("reason")
+            body.get("email"), body.get("reason")
         )
-        return PlainTextResponse()
+        return Response(status_code=204)
 
 
 class RegistrationComplete(HTTPEndpoint):
@@ -65,14 +71,22 @@ class RegistrationComplete(HTTPEndpoint):
 
     @requires(scopes="authenticated", status_code=401)
     async def put(self, request: Request):
-        user = await self.__auth_service.complete_register(
-            UserVerificationData(
-                ip=request.client.host,
+        await self.__auth_service.complete_register(
+            UserRequestCodeDTO(
+                email=request.user.instance.email,
                 reason="complete-register",
                 **dict(await request.json())
             )
         )
-        return JSONResponse(status_code=200, content=user.dict())
+        response = Response(status_code=204)
+        response.set_cookie(
+            key="status",
+            value="active",
+            httponly=True,
+            samesite="none",
+            secure=True,
+        )
+        return response
 
 
 class Login(HTTPEndpoint):
@@ -80,7 +94,7 @@ class Login(HTTPEndpoint):
 
     async def post(self, request: Request):
         data = UserLoginDTO(**dict(await request.json()))
-        access_token, refresh_token = await self.__auth_service.login(data)
+        access_token, refresh_token, user_status = await self.__auth_service.login(data)
         output = {"access_token": access_token, "refresh_token": refresh_token}
         response = JSONResponse(status_code=200, content=output)
         response.set_cookie(
@@ -90,6 +104,13 @@ class Login(HTTPEndpoint):
             samesite="none",
             secure=True,
             max_age=3600 * 24 * 90,  # 90 дней
+        )
+        response.set_cookie(
+            key="status",
+            value=user_status,
+            httponly=True,
+            samesite="none",
+            secure=True,
         )
         return response
 
@@ -130,6 +151,7 @@ class Logout(HTTPEndpoint):
         )
         response = Response(status_code=204)
         response.delete_cookie("refresh_token")
+        response.delete_cookie("status")
         return response
 
 
@@ -141,6 +163,7 @@ class LogoutEverywhere(HTTPEndpoint):
         await self.__auth_service.logout_everywhere(request.user.instance)
         response = Response(status_code=204)
         response.delete_cookie("refresh_token")
+        response.delete_cookie("status")
         return response
 
 

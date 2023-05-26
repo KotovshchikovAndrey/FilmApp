@@ -14,7 +14,7 @@ def generate_code(length: int = 5):
 
 
 def generate_expired_in(live_ex: int = 10):
-    return datetime.datetime.now().timestamp() + 60 * live_ex
+    return int(datetime.datetime.now().timestamp() + 60 * live_ex)
 
 
 def get_password_hash(password: str):

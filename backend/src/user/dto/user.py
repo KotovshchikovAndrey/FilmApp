@@ -29,12 +29,15 @@ class UserRegisterDTO(BaseModel):
     password: str
 
 
-class UserVerificationData(BaseModel):
-    ip: str
+class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
-    timestamp: float = datetime.datetime.now().timestamp()
+    timestamp: int = int(datetime.datetime.now().timestamp())
     reason: str
+
+
+class UserChangingEmailDTO(UserRequestCodeDTO):
+    new_email: str
 
 
 class UserLoginDTO(BaseModel):

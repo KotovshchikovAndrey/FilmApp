@@ -23,14 +23,18 @@ class ITokenService(ABC):
 
     @abstractmethod
     def generate_refresh_token(
-        self, access_token: str, payload: tp.Dict[str, tp.Any]
+            self, access_token: str, payload: tp.Dict[str, tp.Any]
     ) -> str:
         ...
 
     @abstractmethod
     async def decode_refresh_token(
-        self, access_token: str, refresh_token: str
+            self, access_token: str, refresh_token: str
     ) -> tp.Dict[str, tp.Any]:
+        ...
+
+    @abstractmethod
+    def generate_a_pair_of_tokens(self, user_id: int) -> tp.Tuple[str, str]:
         ...
 
 
@@ -59,7 +63,7 @@ class TokenService(ITokenService):
         return token
 
     def generate_refresh_token(
-        self, access_token: str, payload: tp.Dict[str, tp.Any]
+            self, access_token: str, payload: tp.Dict[str, tp.Any]
     ) -> str:
         additional_payload = {
             "exp": int(datetime.datetime.now().timestamp()) + 3600 * 24 * 90
@@ -88,3 +92,13 @@ class TokenService(ITokenService):
         signature = token.split(".")[-1]
         signature_len = len(signature)
         return signature[signature_len // 4 : signature_len // 2]
+
+    def generate_a_pair_of_tokens(self, user_id: int) -> tp.Tuple[str, str]:
+        token_payload = {
+            "id": user_id,
+        }
+        access_token = self.generate_access_token(payload=token_payload)
+        refresh_token = self.generate_refresh_token(
+            access_token=access_token, payload=token_payload
+        )
+        return access_token, refresh_token
