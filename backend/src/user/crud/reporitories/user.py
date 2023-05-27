@@ -98,6 +98,14 @@ class IUserRepository(ABC):
     async def check_refresh_token(self, target_id: int, refresh_token: str) -> bool:
         ...
 
+    @abstractmethod
+    async def check_password(self, target_id: int, password: str) -> bool:
+        ...
+
+    @abstractmethod
+    async def change_password(self, target_id: int, password: str) -> None:
+        ...
+
 
 class UserPostgresRepository(IUserRepository):
     async def create(self, dto: UserRegisterDTO):
@@ -245,6 +253,21 @@ class UserPostgresRepository(IUserRepository):
             refresh_token=refresh_token,
         )
         return user is not None
+
+    async def check_password(self, target_id: int, password: str) -> bool:
+        user = await db_connection.fetch_one(
+            queries.CHECK_PASSWORD,
+            id=target_id,
+            password=get_password_hash(password),
+        )
+        return user is not None
+
+    async def change_password(self, target_id: int, password: str):
+        await db_connection.execute_query(
+            queries.CHANGE_USER_PASSWORD,
+            id=target_id,
+            password=get_password_hash(password),
+        )
 
 
 user_repository = UserPostgresRepository()

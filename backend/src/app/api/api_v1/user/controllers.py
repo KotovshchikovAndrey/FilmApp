@@ -12,7 +12,7 @@ from user.dto import (
     FileDTO,
     GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
-    UpdateProfileDTO,
+    UpdateProfileDTO, UserChangePassword,
 )
 
 IFilmService = film_services.IFilmService
@@ -158,6 +158,17 @@ class ProfileAvatar(HTTPEndpoint):
             status_code=status.HTTP_200_OK,
             content=user_avatar.dict(),
         )
+
+
+class ChangePassword(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    async def put(self, request: Request):
+        data = await request.json()
+        dto = UserChangePassword(user=request.user.instance, **data)
+        await self.__service.change_user_password(dto)
+        return Response(status_code=204)
 
 
 class BanUser(HTTPEndpoint):

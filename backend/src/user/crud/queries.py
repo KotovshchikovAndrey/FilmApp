@@ -34,10 +34,19 @@ UPDATE_REFRESH_TOKEN = """UPDATE "user"
 SET refresh_tokens = array_replace(refresh_tokens, :old_token, :new_token)
 WHERE id = :target_id;
 """
+
 CHECK_REFRESH_TOKEN = """SELECT *
 FROM "user"
 WHERE id = :target_id AND :refresh_token = ANY(refresh_tokens);
 """
+
+CHECK_PASSWORD = """SELECT *
+FROM "user"
+WHERE id = :id AND password = :password;"""
+
+CHANGE_USER_PASSWORD = """UPDATE "user"
+SET password = :password
+WHERE id = :id;"""
 
 AUTHORISE_USER = """SELECT * FROM "user" WHERE email = :email and password = :password;"""
 

@@ -93,3 +93,9 @@ class UpdateProfileDTO(BaseModel):
             raise ValueError("The field must not exceed 30 characters!")
 
         return value
+
+
+class UserChangePassword(BaseModel):
+    user: UserBase
+    old_password: str
+    new_password: str

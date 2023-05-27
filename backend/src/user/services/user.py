@@ -18,7 +18,7 @@ from user.dto import (
     UpdateProfileDTO,
     UserAvatarDTO,
     UserBase,
-    UserRegisterDTO,
+    UserRegisterDTO, UserChangePassword,
 )
 
 
@@ -51,6 +51,10 @@ class IUserService(ABC):
 
     @abstractmethod
     async def update_user_profile(self, user: UserBase, dto: UpdateProfileDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def change_user_password(self, dto: UserChangePassword) -> None:
         ...
 
     @abstractmethod
@@ -129,6 +133,16 @@ class UserService(IUserService):
         return await self.__repository.update_profile_fields(
             user_id=user.id, profile_update=dto
         )
+
+    async def change_user_password(self, dto: UserChangePassword) -> None:
+        is_old_password_correct = await self.__repository.check_password(dto.user.id, dto.old_password)
+        if not is_old_password_correct:
+            raise ApiError.unauthorized("Wrong old password")
+        if not 8 <= len(dto.new_password) <= 100:
+            raise ApiError.bad_request(
+                message="Password length must be between 8 and 100 characters"
+            )
+        await self.__repository.change_password(dto.user.id, dto.new_password)
 
     async def set_user_avatar(self, user: UserBase, dto: FileDTO):
         file_manager = FileManager(upload_dir=config.UPLOAD_DIR + "/avatars")
