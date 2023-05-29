@@ -12,7 +12,7 @@ from film.dto import (
     GetFilmsDTO,
     GetPosterDTO,
     SearchFilmDTO,
-    SetFilmRaitingDTO,
+    SetFilmRatingDTO,
     UpdateFilmDTO,
 )
 
@@ -116,9 +116,9 @@ class FilmRating(HTTPEndpoint):
 
     async def get(self, request: Request):
         film_id = request.path_params["film_id"]
-        film_raiting = await self.__service.calculate_film_raiting(film_id)
+        film_rating = await self.__service.calculate_film_rating(film_id)
 
-        return JSONResponse(status_code=status.HTTP_200_OK, content=film_raiting.dict())
+        return JSONResponse(status_code=status.HTTP_200_OK, content=film_rating.dict())
 
     @requires("authenticated", status_code=401)
     async def put(self, request: Request):
@@ -126,7 +126,7 @@ class FilmRating(HTTPEndpoint):
         film_id = request.path_params["film_id"]
         data = await request.json()
 
-        dto = SetFilmRaitingDTO(**data, film_id=film_id, user=user)
-        await self.__service.set_film_raiting(dto)
+        dto = SetFilmRatingDTO(**data, film_id=film_id, user=user)
+        await self.__service.set_film_rating(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)

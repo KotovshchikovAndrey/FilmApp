@@ -57,7 +57,7 @@ def create_film_table() -> None:
     )
 
 
-def create_raiting_table() -> None:
+def create_rating_table() -> None:
     op.create_table(
         "raiting",
         sa.Column("id", sa.Integer(), primary_key=True),
@@ -205,14 +205,14 @@ def upgrade() -> None:
     create_film_table()
     create_favorite_user_film_table()
     create_trigger_on_favorite_user_film_table()
-    create_raiting_table()
+    create_rating_table()
 
     load_csv_data()
     create_custom_types()
 
 
 def downgrade() -> None:
-    op.drop_table("raiting")
+    op.drop_table("rating")
     op.drop_table("favorite_user_film")
     op.drop_table("user")
     op.drop_table("film")

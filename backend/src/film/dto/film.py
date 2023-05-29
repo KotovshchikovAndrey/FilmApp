@@ -226,7 +226,7 @@ class UpdateFilmDTO(CreateFilmDTO):
     }
 
 
-class SetFilmRaitingDTO(BaseModel):
+class SetFilmRatingDTO(BaseModel):
     user: UserBase
     film_id: int
     value: int
@@ -234,11 +234,11 @@ class SetFilmRaitingDTO(BaseModel):
     @validator("value")
     def validate_value(cls, value: int):
         if not (0 <= value <= 5):
-            raise ValueError("Raiting value must be between 0 and 5!")
+            raise ValueError("Rating value must be between 0 and 5!")
 
         return value
 
 
-class FilmRaitingDTO(BaseModel):
+class FilmRatingDTO(BaseModel):
     film_id: int
-    raiting: float
+    rating: float

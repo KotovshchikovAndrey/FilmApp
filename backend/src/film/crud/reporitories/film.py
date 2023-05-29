@@ -7,7 +7,7 @@ from film.dto import (
     CreateFilmDTO,
     FilmDTO,
     FilmPrimaryKeyDTO,
-    FilmRaitingDTO,
+    FilmRatingDTO,
     FilmsDTO,
     GenresDTO,
     ProductionCountriesDTO,
@@ -61,11 +61,11 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def agregate_raiting(self, film_id: int) -> FilmRaitingDTO:
+    async def aggregate_rating(self, film_id: int) -> FilmRatingDTO:
         ...
 
     @abstractmethod
-    async def set_raiting(self, user_id: int, film_id: int, value: int) -> None:
+    async def set_rating(self, user_id: int, film_id: int, value: int) -> None:
         ...
 
 
@@ -147,16 +147,16 @@ class FilmPostgresRepository(IFilmReporitory):
 
         return FilmsDTO(films=films)
 
-    async def agregate_raiting(self, film_id: int):
-        raiting = await db_connection.fetch_one(
-            queries.AGREGATE_AVG_FILM_RAITING, film_id=film_id
+    async def aggregate_rating(self, film_id: int):
+        rating = await db_connection.fetch_one(
+            queries.AGGREGATE_AVG_FILM_RATING, film_id=film_id
         )
 
-        return FilmRaitingDTO(**raiting)
+        return FilmRatingDTO(**rating)
 
-    async def set_raiting(self, user_id: int, film_id: int, value: int):
+    async def set_rating(self, user_id: int, film_id: int, value: int):
         return await db_connection.execute_query(
-            queries.SET_FILM_RAITING,
+            queries.SET_FILM_RATING,
             user_id=user_id,
             film_id=film_id,
             value=value,

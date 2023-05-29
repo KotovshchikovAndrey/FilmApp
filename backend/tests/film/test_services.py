@@ -4,7 +4,7 @@ from datetime import date
 
 from app.core.ioc import container, film_services
 from app.utils.fakers import user_faker
-from film.dto import GetFilmsDTO, CreateFilmDTO, UpdateFilmDTO, SetFilmRaitingDTO
+from film.dto import GetFilmsDTO, CreateFilmDTO, UpdateFilmDTO, SetFilmRatingDTO
 
 IFilmService = film_services.IFilmService
 
@@ -118,10 +118,10 @@ class TestFilmService:
         test_cases = (
             (
                 (
-                    SetFilmRaitingDTO(user=fake_users[0], film_id=1, value=5),
-                    SetFilmRaitingDTO(user=fake_users[1], film_id=1, value=3),
-                    SetFilmRaitingDTO(user=fake_users[2], film_id=1, value=2),
-                    SetFilmRaitingDTO(user=fake_users[3], film_id=1, value=1),
+                    SetFilmRatingDTO(user=fake_users[0], film_id=1, value=5),
+                    SetFilmRatingDTO(user=fake_users[1], film_id=1, value=3),
+                    SetFilmRatingDTO(user=fake_users[2], film_id=1, value=2),
+                    SetFilmRatingDTO(user=fake_users[3], film_id=1, value=1),
                 ),
                 2.75,
             ),
@@ -130,7 +130,7 @@ class TestFilmService:
         for case in test_cases:
             set_raitings, avg_raiting = case
             for raiting in set_raitings:
-                await service.set_film_raiting(raiting)
+                await service.set_film_rating(raiting)
 
-            avg_film_raiting = await service.calculate_film_raiting(film_id=1)
-            assert avg_film_raiting.raiting == avg_raiting
+            avg_film_raiting = await service.calculate_film_rating(film_id=1)
+            assert avg_film_raiting.rating == avg_raiting

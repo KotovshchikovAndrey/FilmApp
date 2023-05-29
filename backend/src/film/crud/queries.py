@@ -107,11 +107,11 @@ WHERE user_film.user_id = :user_id
 ORDER BY 
 """
 
-AGREGATE_AVG_FILM_RAITING = """SELECT film_id, AVG(value)::float as raiting FROM "raiting"
+AGGREGATE_AVG_FILM_RATING = """SELECT film_id, AVG(value)::float as raiting FROM "raiting"
 WHERE film_id = :film_id
 GROUP BY film_id;"""
 
-SET_FILM_RAITING = """INSERT INTO "raiting" (user_id, film_id, value)
+SET_FILM_RATING = """INSERT INTO "raiting" (user_id, film_id, value)
 VALUES (:user_id, :film_id, :value) ON CONFLICT (user_id, film_id) DO
 UPDATE SET value = EXCLUDED.value;"""
 
