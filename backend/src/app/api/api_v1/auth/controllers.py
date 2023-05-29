@@ -60,9 +60,8 @@ class RequestCode(HTTPEndpoint):
 
     @requires(scopes="authenticated", status_code=401)
     async def post(self, request: Request):
-        body = dict(await request.json())
         await self.__auth_service.request_code(
-            body.get("email"), body.get("reason")
+            request.user.instance.email, "complete-register"
         )
         return Response(status_code=204)
 

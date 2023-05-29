@@ -94,7 +94,9 @@ class JwtAuthService(IAuthService):
         # self.__user_service.mail_server.send_code(code=dto.code, target_email=dto.email)
 
     async def request_code(self, email: str, reason: str):
-        await self.__user_service.find_user_by_email(email)
+        user = await self.__user_service.find_user_by_email(email)
+        if user.status != "not-verified":
+            raise ApiError.forbidden(message="Account already verified")
         await self.send_verification_code(
             UserRequestCodeDTO(
                 code=generate_code(),
