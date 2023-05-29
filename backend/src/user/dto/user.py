@@ -4,6 +4,8 @@ import typing as tp
 
 from pydantic import BaseModel, Json, validator
 
+from app.utils.OtherUtils import email_validate
+
 
 class UserBase(BaseModel):
     id: int
@@ -99,3 +101,22 @@ class UserChangePassword(BaseModel):
     user: UserBase
     old_password: str
     new_password: str
+
+    @validator("new_password")
+    def validate_length(cls, value: str):
+        if not 8 <= len(value) <= 100:
+            raise ValueError("Password length must be between 8 and 100 characters")
+        return value
+
+
+class UserChangeEmail(BaseModel):
+    user: UserBase
+    new_email: str
+
+    @validator("new_email")
+    def validate_length(cls, value: str):
+        if len(value) > 50:
+            raise ValueError("Email length must not exceed 50 characters")
+        if not email_validate(value):
+            raise ValueError("Invalid email address")
+        return value

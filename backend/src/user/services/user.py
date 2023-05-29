@@ -18,7 +18,7 @@ from user.dto import (
     UpdateProfileDTO,
     UserAvatarDTO,
     UserBase,
-    UserRegisterDTO, UserChangePassword,
+    UserRegisterDTO, UserChangePassword, UserChangeEmail,
 )
 
 
@@ -51,6 +51,10 @@ class IUserService(ABC):
 
     @abstractmethod
     async def update_user_profile(self, user: UserBase, dto: UpdateProfileDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def request_change_email(self, dto: UserChangeEmail) -> None:
         ...
 
     @abstractmethod
@@ -133,6 +137,20 @@ class UserService(IUserService):
         return await self.__repository.update_profile_fields(
             user_id=user.id, profile_update=dto
         )
+
+    async def request_change_email(self, dto: UserChangeEmail) -> None:
+        is_email_assigned = await self.check_user_exists(dto.new_email)
+        if is_email_assigned:
+            raise ApiError.conflict("User with this email already exists")
+        if not email_validate(dto.new_email):
+            raise ApiError.bad_request("Invalid email address")
+        code_info = {
+            "code": generate_code(),
+            "email": dto.new_email,
+            "reason": "change-email",
+            "timestamp": generate_expired_in(),
+        }
+        await self.__repository.add_verification_code(code_info)
 
     async def change_user_password(self, dto: UserChangePassword) -> None:
         is_old_password_correct = await self.__repository.check_password(dto.user.id, dto.old_password)

@@ -11,4 +11,5 @@ routes = [
     Route("/{user_id:int}/ban", controllers.BanUser),
     Route("/{user_id:int}/unban", controllers.UnbanUser),
     Route("/change-password", controllers.ChangePassword),
+    Route("/change-email", controllers.ChangeEmail)
 ]

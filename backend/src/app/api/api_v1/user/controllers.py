@@ -12,7 +12,7 @@ from user.dto import (
     FileDTO,
     GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
-    UpdateProfileDTO, UserChangePassword,
+    UpdateProfileDTO, UserChangePassword, UserChangeEmail,
 )
 
 IFilmService = film_services.IFilmService
@@ -158,6 +158,17 @@ class ProfileAvatar(HTTPEndpoint):
             status_code=status.HTTP_200_OK,
             content=user_avatar.dict(),
         )
+
+
+class ChangeEmail(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    async def post(self, request: Request):
+        data = await request.json()
+        dto = UserChangeEmail(user=request.user.instance, **data)
+        await self.__service.request_change_email(dto)
+        return Response(status_code=204)
 
 
 class ChangePassword(HTTPEndpoint):

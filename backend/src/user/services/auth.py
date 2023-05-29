@@ -116,10 +116,10 @@ class JwtAuthService(IAuthService):
 
         match code_info["reason"]:
             case "change-email":
-                is_email_available = await self.__user_service.check_user_exists(code_info["new_email"])
-                if not is_email_available:
+                is_email_assigned = await self.__user_service.check_user_exists(code_info["email"])
+                if is_email_assigned:
                     raise ApiError.conflict(message="This email address is already in use")
-                await get_user_repository().change_email(user["id"], code_info["new_email"])
+                await get_user_repository().change_email(user["id"], code_info["email"])
                 if user["status"] == "not_verified":
                     await get_user_repository().verify_user(user["id"])
             case "complete-register":
