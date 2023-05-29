@@ -66,14 +66,13 @@ class RequestCode(HTTPEndpoint):
         return Response(status_code=204)
 
 
-# Заменяем /register-complete на /verify-code
-class VerifyCode(HTTPEndpoint):
+class RedeemCode(HTTPEndpoint):
     __auth_service: IAuthService = container.resolve(IAuthService)
     __user_service: IUserService = container.resolve(IUserService)
 
     @requires(scopes="authenticated", status_code=401)
     async def put(self, request: Request):
-        await self.__auth_service.verify_code(UserRequestCodeDTO(
+        await self.__auth_service.redeem_code(UserRequestCodeDTO(
             email=request.user.instance.email,
             **dict(await request.json())
         ))

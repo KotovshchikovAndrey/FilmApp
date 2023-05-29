@@ -32,7 +32,7 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def verify_code(self, dto: UserRequestCodeDTO) -> None:
+    async def redeem_code(self, dto: UserRequestCodeDTO) -> None:
         ...
 
     @abstractmethod
@@ -106,7 +106,7 @@ class JwtAuthService(IAuthService):
             )
         )
 
-    async def verify_code(self, dto: UserRequestCodeDTO):
+    async def redeem_code(self, dto: UserRequestCodeDTO):
         user = await get_user_repository().find_by_email_and_code(
             email=dto.email, code=dto.code
         )
