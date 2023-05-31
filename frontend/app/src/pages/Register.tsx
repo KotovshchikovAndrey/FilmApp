@@ -16,6 +16,7 @@ import {IRegisterRequest} from "../core/entities";
 import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../store";
 import {registerUser} from "../store/actionCreators";
+import ArrowHeader from "../components/shared/Header/ArrowHeader";
 
 const Register: FC = () => {
     const navigate = useNavigate()
@@ -41,6 +42,7 @@ const Register: FC = () => {
 
     return (
         <React.Fragment>
+            <ArrowHeader/>
             <Container maxWidth="xs">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={3} mt={10} useFlexGap>

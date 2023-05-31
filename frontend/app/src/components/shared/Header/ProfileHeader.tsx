@@ -1,12 +1,11 @@
-import {AppBar, Button, Skeleton, Stack, Toolbar} from "@mui/material";
+import {AppBar, Button, Stack, Toolbar} from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import {Link} from "react-router-dom";
 import {AccountCircle} from "@mui/icons-material";
-import {useSelector} from "react-redux";
-import {IRootState, useAppSelector} from "../../store";
-import React, {useEffect} from "react";
+import {useAppSelector} from "../../../store";
+import React from "react";
 
-export default function Header() {
+export default function ProfileHeader() {
     const isLoggedIn = useAppSelector(state => !!state.auth.authData.accessToken)
     const userName = useAppSelector(state => state.auth.profileData.profile?.name)
     return (

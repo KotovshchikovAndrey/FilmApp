@@ -1,13 +1,13 @@
-import React, {FC, useContext, useEffect, useState} from "react";
+import React, {FC, useEffect} from "react";
 import {Alert, Box, Button, CircularProgress, Container, Skeleton, Stack, TextField, Typography} from "@mui/material";
 import {loginSchema} from "../helpers/validators"
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {ILoginRequest} from "../core/entities";
 import {loginUser} from "../store/actionCreators";
-import {IRootState, store, useAppDispatch, useAppSelector} from "../store";
-import {useNavigate, redirect} from "react-router-dom";
-import {useSelector} from "react-redux";
+import { useAppDispatch, useAppSelector} from "../store";
+import {useNavigate} from "react-router-dom";
+import ArrowHeader from "../components/shared/Header/ArrowHeader";
 
 
 const Login: FC = () => {
@@ -37,6 +37,7 @@ const Login: FC = () => {
     }
     return (
         <React.Fragment>
+            <ArrowHeader/>
             <Container maxWidth="xs">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={3} mt={10} useFlexGap>

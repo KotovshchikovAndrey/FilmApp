@@ -17,10 +17,12 @@ export interface IFilm {
 
 export interface IUser {
     id: string;
-    isActivated: boolean;
-    email: string;
     name: string;
     surname: string;
+    email: string;
+    status: string;
+    role: string;
+    films: IFilm[];
 }
 
 

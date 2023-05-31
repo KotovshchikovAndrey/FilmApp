@@ -28,10 +28,10 @@ export const loginUser = (data: ILoginRequest) =>
 export const logoutUser = () =>
     async (dispatch: Dispatch): Promise<void> => {
         try {
+            redirect("/")
             await api.auth.logout()
             localStorage.removeItem('token')
             dispatch(logoutSuccess())
-            redirect("/")
         } catch (e: any) {
             console.error(e.message)
         }
