@@ -14,7 +14,7 @@ from user.dto import (
     UserLogoutDTO,
     UserRefreshTokenDTO,
     UserRegisterDTO,
-    UserRequestCodeDTO,
+    UserRequestCodeDTO, UserRequestResetPasswordDTO, UserResetPasswordDTO,
 )
 
 IAuthService = user_services.IAuthService
@@ -72,12 +72,15 @@ class RedeemCode(HTTPEndpoint):
 
     @requires(scopes="authenticated", status_code=401)
     async def put(self, request: Request):
-        await self.__auth_service.redeem_code(UserRequestCodeDTO(
+        work = await self.__auth_service.redeem_code(UserRequestCodeDTO(
             email=request.user.instance.email,
             **dict(await request.json())
         ))
         user = await self.__user_service.find_user_by_id(request.user.instance.id)
-        response = Response(status_code=204)
+        if work is None:
+            response = Response(status_code=204)
+        else:
+            response = JSONResponse(status_code=200, content={"token": work})
         response.set_cookie(
             key="status",
             value=user.status,
@@ -173,6 +176,55 @@ class LogoutEverywhere(HTTPEndpoint):
         response = Response(status_code=204)
         response.delete_cookie("refresh_token")
         response.delete_cookie("status")
+        return response
+
+
+class ResetPassword(HTTPEndpoint):
+    __auth_service: IAuthService = container.resolve(IAuthService)
+    __user_service: IUserService = container.resolve(IUserService)
+
+    async def post(self, request: Request):
+        data = UserRequestResetPasswordDTO(**await request.json())
+        dto = UserRequestCodeDTO(
+            code=generate_code(),
+            reason="reset-password",
+            email=data.email,
+            timestamp=generate_expired_in()
+        )
+        await self.__auth_service.request_reset_password(dto)
+        return Response(status_code=204)
+
+    async def patch(self, request: Request):
+        work = await self.__auth_service.redeem_code(UserRequestCodeDTO(**dict(await request.json())))
+        return JSONResponse(status_code=200, content={"token": work})
+
+    async def put(self, request: Request):
+        data = await request.json()
+        dto = UserResetPasswordDTO(token=request.query_params["token"], **data)
+        email = await self.__auth_service.reset_password(dto)
+
+        access_token, refresh_token, user_status = await self.__auth_service.login(
+            UserLoginDTO(
+                email=email,
+                password=data["password"])
+        )
+        output = {"access_token": access_token, "refresh_token": refresh_token}
+        response = JSONResponse(status_code=200, content=output)
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            samesite="none",
+            secure=True,
+            max_age=3600 * 24 * 90,  # 90 дней
+        )
+        response.set_cookie(
+            key="status",
+            value=user_status,
+            httponly=True,
+            samesite="none",
+            secure=True,
+        )
         return response
 
 

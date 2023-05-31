@@ -14,7 +14,11 @@ WHERE email = :email
 AND rc->>'code' = :code;
 """
 VERIFY_USER = """UPDATE "user"
-SET status = 'active', reset_codes = '[]'::jsonb
+SET status = 'active'
+WHERE id = :id;
+"""
+CLEAR_CODES = """UPDATE "user"
+SET reset_codes = '[]'::jsonb
 WHERE id = :id;
 """
 ADD_REFRESH_TOKEN = """UPDATE "user"

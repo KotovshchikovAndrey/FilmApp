@@ -151,6 +151,7 @@ class UserService(IUserService):
             "timestamp": generate_expired_in(),
         }
         await self.__repository.add_verification_code(code_info)
+        # await self.mail_server.send_code(code_info["code"], dto.new_email)
 
     async def change_user_password(self, dto: UserChangePassword) -> None:
         is_old_password_correct = await self.__repository.check_password(dto.user.id, dto.old_password)

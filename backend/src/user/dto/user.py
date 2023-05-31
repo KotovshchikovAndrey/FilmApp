@@ -34,7 +34,7 @@ class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
     timestamp: int = int(datetime.datetime.now().timestamp())
-    reason: tp.Literal["complete-register", "change-email"] = "UNKNOWN REASON"
+    reason: tp.Literal["complete-register", "change-email", "reset-password"] = "UNKNOWN REASON"
 
 
 class UserChangingEmailDTO(UserRequestCodeDTO):
@@ -120,3 +120,12 @@ class UserChangeEmail(BaseModel):
         if not email_validate(value):
             raise ValueError("Invalid email address")
         return value
+
+
+class UserRequestResetPasswordDTO(BaseModel):
+    email: str
+
+
+class UserResetPasswordDTO(BaseModel):
+    token: str
+    password: str

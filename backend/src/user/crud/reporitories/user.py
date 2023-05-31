@@ -31,6 +31,10 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def clear_codes(self, id: int) -> None:
+        ...
+
+    @abstractmethod
     async def authorise_user(self, dto: UserLoginDTO) -> tp.Mapping:
         ...
 
@@ -138,6 +142,12 @@ class UserPostgresRepository(IUserRepository):
     async def verify_user(self, id: int):
         await db_connection.execute_query(
             queries.VERIFY_USER,
+            id=id,
+        )
+
+    async def clear_codes(self, id: int):
+        await db_connection.execute_query(
+            queries.CLEAR_CODES,
             id=id,
         )
 

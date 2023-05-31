@@ -12,7 +12,7 @@ from user.dto import (
     UserLogoutDTO,
     UserRefreshTokenDTO,
     UserRegisterDTO,
-    UserRequestCodeDTO,
+    UserRequestCodeDTO, UserResetPasswordDTO,
 )
 from user.services.token import ITokenService
 from user.services.user import IUserService
@@ -32,7 +32,7 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def redeem_code(self, dto: UserRequestCodeDTO) -> None:
+    async def redeem_code(self, dto: UserRequestCodeDTO) -> None | str:
         ...
 
     @abstractmethod
@@ -52,7 +52,11 @@ class IAuthService(ABC):
         ...
 
     @abstractmethod
-    async def reset_password(self, dto: ...) -> None:
+    async def request_reset_password(self, dto: UserRequestCodeDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def reset_password(self, dto: UserResetPasswordDTO) -> str:
         ...
 
     @abstractmethod
@@ -95,7 +99,7 @@ class JwtAuthService(IAuthService):
 
     async def request_code(self, email: str, reason: str):
         user = await self.__user_service.find_user_by_email(email)
-        if user.status != "not-verified":
+        if user.status != "not_verified":
             raise ApiError.forbidden(message="Account already verified")
         await self.send_verification_code(
             UserRequestCodeDTO(
@@ -124,10 +128,19 @@ class JwtAuthService(IAuthService):
                 await get_user_repository().change_email(user["id"], code_info["email"])
                 if user["status"] == "not_verified":
                     await get_user_repository().verify_user(user["id"])
+                await get_user_repository().clear_codes(user["id"])
+                return None
             case "complete-register":
                 if user["status"] != "not_verified":
                     raise ApiError.forbidden(message="Account already verified")
                 await get_user_repository().verify_user(user["id"])
+                await get_user_repository().clear_codes(user["id"])
+                return None
+            case "reset-password":
+                payload = {"email": code_info["email"], "action": "reset-password"}
+                token = self.__token_service.generate_access_token(payload)
+                await get_user_repository().clear_codes(user["id"])
+                return token
             case _:
                 raise ApiError.internal("The code in the database has an unknown reason")
 
@@ -155,8 +168,21 @@ class JwtAuthService(IAuthService):
             raise ApiError.forbidden(message="Your account has been banned")
         return UserBase(**user)
 
-    async def reset_password(self, dto: ...):
-        ...
+    async def request_reset_password(self, dto: UserRequestCodeDTO):
+        is_user_exist = await self.__user_service.check_user_exists(dto.email)
+        if not is_user_exist:
+            return
+        await self.send_verification_code(dto)
+
+    async def reset_password(self, dto: UserResetPasswordDTO):
+        payload = self.__token_service.decode_access_token(dto.token)
+        user = await self.__user_service.find_user_by_email(payload["email"])
+        if not 8 <= len(dto.password) <= 100:
+            raise ApiError.bad_request(
+                message="Password length must be between 8 and 100 characters"
+            )
+        await get_user_repository().change_password(user.id, dto.password)
+        return user.email
 
     async def refresh_token(self, dto: UserRefreshTokenDTO):
         access_token, refresh_token = await self.__token_service.refresh_token(dto)

@@ -10,4 +10,5 @@ routes = [
     Route("/refresh-token", controllers.TokenRefresh),
     Route("/logout", controllers.Logout),
     Route("/logout-everywhere", controllers.LogoutEverywhere),
+    Route("/reset-password", controllers.ResetPassword),
 ]
