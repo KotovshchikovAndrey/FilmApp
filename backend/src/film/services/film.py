@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from app.core import config
 from app.exceptions.api import ApiError
+from app.utils.ai_models.smart_search import SmartSearch
 from app.utils.file_manager import FileManager
 from film.crud.reporitories import IFilmReporitory
 from film.dto import (
@@ -34,6 +35,10 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
+        ...
+
+    @abstractmethod
+    async def giga_search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
         ...
 
     @abstractmethod
@@ -138,6 +143,12 @@ class FilmService(IFilmService):
     async def search_film(self, dto: SearchFilmDTO):
         films = await self.__repository.find_by_title(title=dto.title)
         return films
+
+    async def giga_search_film(self, dto: SearchFilmDTO):
+        gigasearch = SmartSearch()
+        result = gigasearch.work(dto.title)
+        print(result)
+        return result
 
     async def create_new_film(self, dto: CreateFilmDTO):
         created_film = await self.__repository.create(dto)
