@@ -68,6 +68,10 @@ class IFilmReporitory(ABC):
     async def set_rating(self, user_id: int, film_id: int, value: int) -> None:
         ...
 
+    @abstractmethod
+    async def reset_rating(self, user_id: int, film_id: int) -> None:
+        ...
+
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
@@ -151,7 +155,8 @@ class FilmPostgresRepository(IFilmReporitory):
         rating = await db_connection.fetch_one(
             queries.AGGREGATE_AVG_FILM_RATING, film_id=film_id
         )
-
+        if rating is None:
+            return FilmRatingDTO(film_id=film_id, rating=-1)
         return FilmRatingDTO(**rating)
 
     async def set_rating(self, user_id: int, film_id: int, value: int):
@@ -160,4 +165,11 @@ class FilmPostgresRepository(IFilmReporitory):
             user_id=user_id,
             film_id=film_id,
             value=value,
+        )
+
+    async def reset_rating(self, user_id: int, film_id: int):
+        await db_connection.execute_query(
+            queries.RESET_FILM_RATING,
+            user_id=user_id,
+            film_id=film_id,
         )

@@ -233,8 +233,8 @@ class SetFilmRatingDTO(BaseModel):
 
     @validator("value")
     def validate_value(cls, value: int):
-        if not (0 <= value <= 5):
-            raise ValueError("Rating value must be between 0 and 5!")
+        if not (0 <= value <= 9):
+            raise ValueError("Rating value must be between 0 and 9!")
 
         return value
 

@@ -130,3 +130,12 @@ class FilmRating(HTTPEndpoint):
         await self.__service.set_film_rating(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @requires("authenticated", status_code=401)
+    async def delete(self, request: Request):
+        user = request.user.instance
+        film_id = request.path_params["film_id"]
+        dto = SetFilmRatingDTO(user=user, film_id=film_id, value=0)
+        await self.__service.reset_film_rating(dto)
+
+        return Response(status_code=204)

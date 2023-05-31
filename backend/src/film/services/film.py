@@ -54,7 +54,7 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def update_film_info(
-        self, film_id: int, dto: UpdateFilmDTO
+            self, film_id: int, dto: UpdateFilmDTO
     ) -> tp.Optional[int]:
         ...
 
@@ -72,6 +72,10 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def set_film_rating(self, dto: SetFilmRatingDTO) -> None:
+        ...
+
+    @abstractmethod
+    async def reset_film_rating(self, dto: SetFilmRatingDTO) -> None:
         ...
 
 
@@ -163,3 +167,6 @@ class FilmService(IFilmService):
 
     async def set_film_rating(self, dto: SetFilmRatingDTO):
         return await self.__repository.set_rating(user_id=dto.user.id, film_id=dto.film_id, value=dto.value)
+
+    async def reset_film_rating(self, dto: SetFilmRatingDTO):
+        await self.__repository.reset_rating(user_id=dto.user.id, film_id=dto.film_id)
