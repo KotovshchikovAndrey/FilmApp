@@ -1,7 +1,7 @@
-import json
 import typing as tp
-from datetime import date
 
+import json
+from datetime import date
 from pydantic import BaseModel, validator
 
 from user.dto import UserBase
@@ -27,23 +27,9 @@ class GenreDTO(BaseModel):
     name: str
 
 
-class GenresDTO(BaseModel):
-    genres: tp.List[GenreDTO]
-
-    @validator("genres")
-    def validate_genres(cls, values_list: tp.List[tp.Mapping[str, str]]):
-        return list(
-            map(lambda value: GenreDTO(**json.loads(value["genre"])), values_list)
-        )
-
-
 class ProductionCountryDTO(BaseModel):
     name: str
     iso_3166_1: str
-
-
-class ProductionCountriesDTO(BaseModel):
-    production_countries: tp.List[ProductionCountryDTO]
 
 
 class FilmFiltersDTO(BaseModel):
@@ -233,8 +219,8 @@ class SetFilmRatingDTO(BaseModel):
 
     @validator("value")
     def validate_value(cls, value: int):
-        if not (0 <= value <= 5):
-            raise ValueError("Rating value must be between 0 and 5!")
+        if not (0 <= value <= 9):
+            raise ValueError("Rating value must be between 0 and 9!")
 
         return value
 

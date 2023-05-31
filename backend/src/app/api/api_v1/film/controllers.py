@@ -91,6 +91,16 @@ class FilmSearch(HTTPEndpoint):
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
 
+class FilmGigaSearch(HTTPEndpoint):
+    __service: IFilmService = container.resolve(IFilmService)
+
+    async def get(self, request: Request):
+        dto = SearchFilmDTO(**request.query_params)
+        film = await self.__service.giga_search_film(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=film.dict())
+
+
 class Poster(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
@@ -130,3 +140,12 @@ class FilmRating(HTTPEndpoint):
         await self.__service.set_film_rating(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @requires("authenticated", status_code=401)
+    async def delete(self, request: Request):
+        user = request.user.instance
+        film_id = request.path_params["film_id"]
+        dto = SetFilmRatingDTO(user=user, film_id=film_id, value=0)
+        await self.__service.reset_film_rating(dto)
+
+        return Response(status_code=204)

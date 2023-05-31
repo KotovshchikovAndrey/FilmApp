@@ -26,13 +26,14 @@ production_countries
 FROM "film" WHERE id = :id;"""
 
 GET_ALL_PRODUCTION_COUNTRIES = """SELECT
-production_country -> 'iso_3166_1' as iso_3166_1, 
-production_country -> 'name' as name 
+production_country ->> 'iso_3166_1' as iso_3166_1, 
+production_country ->> 'name' as name 
 FROM (SELECT DISTINCT JSONB_ARRAY_ELEMENTS(production_countries) as production_country FROM "film") as production_countries;"""
 
-GET_ALL_GENRES = (
-    """SELECT DISTINCT JSONB_ARRAY_ELEMENTS(genres) as genre FROM "film";"""
-)
+GET_ALL_GENRES = """SELECT 
+genre ->> 'id' as id,
+genre ->> 'name' as name
+FROM (SELECT DISTINCT JSONB_ARRAY_ELEMENTS(genres) as genre FROM "film") as genres;"""
 
 GET_IMDB_ID = """SELECT imdb_id FROM "film" WHERE id = :film_id;"""
 
@@ -107,13 +108,16 @@ WHERE user_film.user_id = :user_id
 ORDER BY 
 """
 
-AGGREGATE_AVG_FILM_RATING = """SELECT film_id, AVG(value)::float as raiting FROM "raiting"
+AGGREGATE_AVG_FILM_RATING = """SELECT film_id, AVG(value)::float as rating FROM "rating"
 WHERE film_id = :film_id
 GROUP BY film_id;"""
 
-SET_FILM_RATING = """INSERT INTO "raiting" (user_id, film_id, value)
+SET_FILM_RATING = """INSERT INTO "rating" (user_id, film_id, value)
 VALUES (:user_id, :film_id, :value) ON CONFLICT (user_id, film_id) DO
 UPDATE SET value = EXCLUDED.value;"""
+
+RESET_FILM_RATING = """DELETE FROM "rating"
+WHERE user_id = :user_id AND film_id = :film_id;"""
 
 
 # Архив душевнобольного, не обращайте внимания :)
