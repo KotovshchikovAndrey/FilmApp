@@ -26,13 +26,14 @@ production_countries
 FROM "film" WHERE id = :id;"""
 
 GET_ALL_PRODUCTION_COUNTRIES = """SELECT
-production_country -> 'iso_3166_1' as iso_3166_1, 
-production_country -> 'name' as name 
+production_country ->> 'iso_3166_1' as iso_3166_1, 
+production_country ->> 'name' as name 
 FROM (SELECT DISTINCT JSONB_ARRAY_ELEMENTS(production_countries) as production_country FROM "film") as production_countries;"""
 
-GET_ALL_GENRES = (
-    """SELECT DISTINCT JSONB_ARRAY_ELEMENTS(genres) as genre FROM "film";"""
-)
+GET_ALL_GENRES = """SELECT 
+genre ->> 'id' as id,
+genre ->> 'name' as name
+FROM (SELECT DISTINCT JSONB_ARRAY_ELEMENTS(genres) as genre FROM "film") as genres;"""
 
 GET_IMDB_ID = """SELECT imdb_id FROM "film" WHERE id = :film_id;"""
 

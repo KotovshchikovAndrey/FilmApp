@@ -11,4 +11,5 @@ routes = [
     Route("/{film_id:int}/rating", controllers.FilmRating),
     Route("/filters", controllers.FilmFilter),
     Route("/search", controllers.FilmSearch),
+    Route("/gigasearch", controllers.FilmGigaSearch)
 ]

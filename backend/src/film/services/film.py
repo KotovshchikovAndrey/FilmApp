@@ -1,8 +1,12 @@
+from concurrent.futures import ThreadPoolExecutor
 import typing as tp
+import asyncio
 from abc import ABC, abstractmethod
 
 from app.core import config
 from app.exceptions.api import ApiError
+
+from app.utils.ai_models.smart_search import search_films
 from app.utils.file_manager import FileManager
 from film.crud.reporitories import IFilmReporitory
 from film.dto import (
@@ -34,6 +38,10 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
+        ...
+
+    @abstractmethod
+    async def giga_search_film(self, dto: SearchFilmDTO) -> FilmDTO:
         ...
 
     @abstractmethod
@@ -104,10 +112,7 @@ class FilmService(IFilmService):
         film_genres = await self.__repository.get_all_genres()
         film_countries = await self.__repository.get_all_production_countries()
 
-        return FilmFiltersDTO(
-            genres=film_genres.genres,
-            countries=film_countries.production_countries,
-        )
+        return FilmFiltersDTO(genres=film_genres, countries=film_countries)
 
     async def get_poster_for_film(self, dto: GetPosterDTO):
         film = await self.__repository.find_by_id(dto.film_id)
@@ -142,6 +147,14 @@ class FilmService(IFilmService):
     async def search_film(self, dto: SearchFilmDTO):
         films = await self.__repository.find_by_title(title=dto.title)
         return films
+
+    async def giga_search_film(self, dto: SearchFilmDTO):
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            event_loop = asyncio.get_running_loop()
+            film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
+
+        film = await self.__repository.find_by_id(film_id)
+        return film
 
     async def create_new_film(self, dto: CreateFilmDTO):
         created_film = await self.__repository.create(dto)

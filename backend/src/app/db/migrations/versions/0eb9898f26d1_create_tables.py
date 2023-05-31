@@ -59,7 +59,7 @@ def create_film_table() -> None:
 
 def create_rating_table() -> None:
     op.create_table(
-        "raiting",
+        "rating",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("value", sa.NUMERIC(1, 0), nullable=False, server_default="0"),
         sa.Column(
@@ -76,7 +76,7 @@ def create_rating_table() -> None:
         ),
     )
 
-    op.execute("""create unique index unique_raiting on raiting (user_id, film_id);""")
+    op.execute("""create unique index unique_rating on rating (user_id, film_id);""")
 
 
 def create_favorite_user_film_table() -> None:
@@ -96,6 +96,49 @@ def create_favorite_user_film_table() -> None:
             nullable=False,
         ),
         sa.Column("added_date", sa.TIMESTAMP(), nullable=False),
+    )
+
+
+def create_watchstatus_user_film_table() -> None:
+    op.create_table(
+        "watchstatus_user_film",
+        sa.Column("id", sa.Integer(), primary_key=True),
+        sa.Column(
+            "user_id",
+            sa.Integer(),
+            sa.ForeignKey("user.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "film_id",
+            sa.Integer(),
+            sa.ForeignKey("film.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column("status", sa.String(30), nullable=False),
+        sa.Column("updated_date", sa.TIMESTAMP(), nullable=True),
+    )
+
+
+def create_trigger_on_watchstatus_user_film_table() -> None:
+    op.execute(
+        """
+    CREATE FUNCTION set_updated_date()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.status != OLD.status THEN
+    NEW.updated_date := (SELECT NOW()::timestamp);
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_updated_date
+BEFORE UPDATE
+ON watchstatus_user_film
+FOR EACH ROW
+EXECUTE PROCEDURE set_updated_date();"""
     )
 
 
@@ -193,10 +236,13 @@ def create_custom_types() -> None:
     op.execute(
         """CREATE TYPE user_role AS ENUM('user', 'admin', 'owner');
 CREATE TYPE user_status AS ENUM('active', 'not_verified', 'banned', 'muted');
+CREATE TYPE watch_status AS ENUM('not_watching', 'watching', 'in_plans', 'scheduled', 'watched', 'postponed', 'abandoned');
 
 
 ALTER TABLE "user" ALTER COLUMN role TYPE user_role USING role::user_role;
-ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;"""
+ALTER TABLE "user" ALTER COLUMN status TYPE user_status USING status::user_status;
+
+ALTER TABLE "watchstatus_user_film" ALTER COLUMN status TYPE watch_status USING status::watch_status;"""
     )
 
 
@@ -206,6 +252,8 @@ def upgrade() -> None:
     create_favorite_user_film_table()
     create_trigger_on_favorite_user_film_table()
     create_rating_table()
+    create_watchstatus_user_film_table()
+    create_trigger_on_watchstatus_user_film_table()
 
     load_csv_data()
     create_custom_types()
@@ -214,8 +262,12 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table("rating")
     op.drop_table("favorite_user_film")
+    op.drop_table("watchstatus_user_film")
     op.drop_table("user")
     op.drop_table("film")
 
-    op.execute("""DROP TYPE "user_role"; DROP TYPE user_status;""")
+    op.execute(
+        """DROP TYPE "user_role"; DROP TYPE user_status; DROP TYPE watch_status;"""
+    )
     op.execute("""drop function set_added_date() cascade;""")
+    op.execute("""drop function set_updated_date() cascade;""")

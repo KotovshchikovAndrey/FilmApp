@@ -91,6 +91,16 @@ class FilmSearch(HTTPEndpoint):
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
 
+class FilmGigaSearch(HTTPEndpoint):
+    __service: IFilmService = container.resolve(IFilmService)
+
+    async def get(self, request: Request):
+        dto = SearchFilmDTO(**request.query_params)
+        film = await self.__service.giga_search_film(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=film.dict())
+
+
 class Poster(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
