@@ -2,7 +2,6 @@ backend/venv
 backend/.env
 backend/test.py
 backend/alembic.ini
-backend/src/app/media
 **/__pycache__/**
 
 frontend/app/.env
