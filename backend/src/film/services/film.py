@@ -1,9 +1,12 @@
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import typing as tp
+import asyncio
 from abc import ABC, abstractmethod
 
 from app.core import config
 from app.exceptions.api import ApiError
-from app.utils.ai_models.smart_search import SmartSearch
+
+# from app.utils.ai_models.smart_search import search_films
 from app.utils.file_manager import FileManager
 from film.crud.reporitories import IFilmReporitory
 from film.dto import (
@@ -37,9 +40,9 @@ class IFilmService(ABC):
     async def search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
         ...
 
-    @abstractmethod
-    async def giga_search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
-        ...
+    # @abstractmethod
+    # async def giga_search_film(self, dto: SearchFilmDTO) -> FilmDTO:
+    #     ...
 
     @abstractmethod
     async def get_film_filters(self) -> FilmFiltersDTO:
@@ -105,10 +108,7 @@ class FilmService(IFilmService):
         film_genres = await self.__repository.get_all_genres()
         film_countries = await self.__repository.get_all_production_countries()
 
-        return FilmFiltersDTO(
-            genres=film_genres.genres,
-            countries=film_countries.production_countries,
-        )
+        return FilmFiltersDTO(genres=film_genres, countries=film_countries)
 
     async def get_poster_for_film(self, dto: GetPosterDTO):
         film = await self.__repository.find_by_id(dto.film_id)
@@ -144,11 +144,13 @@ class FilmService(IFilmService):
         films = await self.__repository.find_by_title(title=dto.title)
         return films
 
-    async def giga_search_film(self, dto: SearchFilmDTO):
-        gigasearch = SmartSearch()
-        result = gigasearch.work(dto.title)
-        print(result)
-        return result
+    # async def giga_search_film(self, dto: SearchFilmDTO):
+    #     with ThreadPoolExecutor(max_workers=4) as pool:
+    #         event_loop = asyncio.get_running_loop()
+    #         film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
+
+    #     film = await self.__repository.find_by_id(film_id)
+    #     return film
 
     async def create_new_film(self, dto: CreateFilmDTO):
         created_film = await self.__repository.create(dto)
@@ -173,4 +175,6 @@ class FilmService(IFilmService):
         return rating
 
     async def set_film_rating(self, dto: SetFilmRatingDTO):
-        return await self.__repository.set_rating(user_id=dto.user.id, film_id=dto.film_id, value=dto.value)
+        return await self.__repository.set_rating(
+            user_id=dto.user.id, film_id=dto.film_id, value=dto.value
+        )

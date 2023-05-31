@@ -96,9 +96,9 @@ class FilmGigaSearch(HTTPEndpoint):
 
     async def get(self, request: Request):
         dto = SearchFilmDTO(**request.query_params)
-        await self.__service.giga_search_film(dto)
-        return Response(status_code=204)
-        #return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
+        film = await self.__service.giga_search_film(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=film.dict())
 
 
 class Poster(HTTPEndpoint):

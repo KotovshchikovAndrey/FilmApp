@@ -9,8 +9,8 @@ from film.dto import (
     FilmPrimaryKeyDTO,
     FilmRatingDTO,
     FilmsDTO,
-    GenresDTO,
-    ProductionCountriesDTO,
+    GenreDTO,
+    ProductionCountryDTO,
     UpdateFilmDTO,
 )
 
@@ -35,11 +35,11 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def get_all_genres(self) -> GenresDTO:
+    async def get_all_genres(self) -> tp.List[GenreDTO]:
         ...
 
     @abstractmethod
-    async def get_all_production_countries(self) -> ProductionCountriesDTO:
+    async def get_all_production_countries(self) -> tp.List[ProductionCountryDTO]:
         ...
 
     @abstractmethod
@@ -108,14 +108,17 @@ class FilmPostgresRepository(IFilmReporitory):
 
     async def get_all_genres(self):
         genres = await db_connection.fetch_all(queries.GET_ALL_GENRES)
-        return GenresDTO(genres=genres)
+        return [GenreDTO(**genre) for genre in genres]
 
     async def get_all_production_countries(self):
         production_countries = await db_connection.fetch_all(
             queries.GET_ALL_PRODUCTION_COUNTRIES
         )
 
-        return ProductionCountriesDTO(production_countries=production_countries)
+        return [
+            ProductionCountryDTO(**production_country)
+            for production_country in production_countries
+        ]
 
     async def create(self, film_create: CreateFilmDTO):
         created_film = await db_connection.fetch_one(

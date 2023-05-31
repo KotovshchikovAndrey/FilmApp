@@ -111,7 +111,7 @@ class TestFilmService:
             assert film_after_update.language == film_before_update.language
 
     @pytest.mark.asyncio
-    async def test_film_raiting(self, client: AsyncClient) -> None:
+    async def test_film_rating(self, client: AsyncClient) -> None:
         service: IFilmService = container.resolve(IFilmService)
 
         fake_users = await user_faker.create_fake_users(count=4)
@@ -128,9 +128,9 @@ class TestFilmService:
         )
 
         for case in test_cases:
-            set_raitings, avg_raiting = case
-            for raiting in set_raitings:
-                await service.set_film_rating(raiting)
+            set_ratings, avg_rating = case
+            for rating in set_ratings:
+                await service.set_film_rating(rating)
 
-            avg_film_raiting = await service.calculate_film_rating(film_id=1)
-            assert avg_film_raiting.rating == avg_raiting
+            avg_film_rating = await service.calculate_film_rating(film_id=1)
+            assert avg_film_rating.rating == avg_rating
