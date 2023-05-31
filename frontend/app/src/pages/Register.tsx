@@ -11,32 +11,20 @@ import Grid from "@mui/material/Unstable_Grid2";
 import {useForm, Controller} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {registerSchema} from "../helpers/validators"
-import {Link} from "react-router-dom";
-import {FC, useContext, useState} from "react";
-import {IRegistration} from "../core/entities";
-import {Context} from "../index";
-
-
-const defaultValues: IRegistration = {
-    name: "",
-    surname: "",
-    email: "",
-    password: "",
-}
+import {FC, useState} from "react";
+import {IRegisterRequest} from "../core/entities";
 
 const Register: FC = () => {
-    const {store} = useContext(Context)
     const {
         handleSubmit,
         formState: {errors},
         control,
-    } = useForm<IRegistration>({
+    } = useForm<IRegisterRequest>({
         resolver: zodResolver(registerSchema),
-        defaultValues: defaultValues,
     })
-    const onSubmit = async (data: IRegistration) => {
-        await store.register(data)
-        setSubmitError(store.errors.registerError)
+    const onSubmit = async (data: IRegisterRequest) => {
+        // await store.register(data)
+        // setSubmitError(store.errors.registerError)
     }
     const [submitError, setSubmitError] = useState("")
 
