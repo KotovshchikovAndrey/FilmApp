@@ -163,5 +163,5 @@ class JwtAuthService(IAuthService):
         return access_token, refresh_token
 
     async def decode_access_token(self, access_token: str):
-        payload = await self.__token_service.decode_access_token(access_token)
+        payload = self.__token_service.decode_access_token(access_token)
         return payload

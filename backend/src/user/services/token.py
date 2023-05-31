@@ -28,11 +28,11 @@ class ITokenService(ABC):
         ...
 
     @abstractmethod
-    async def decode_access_token(self, access_token: str) -> tp.Dict[str, tp.Any]:
+    def decode_access_token(self, access_token: str) -> tp.Dict[str, tp.Any]:
         ...
 
     @abstractmethod
-    async def decode_refresh_token(
+    def decode_refresh_token(
             self, access_token: str, refresh_token: str
     ) -> tp.Dict[str, tp.Any]:
         ...
