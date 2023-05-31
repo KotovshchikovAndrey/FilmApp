@@ -1,34 +1,40 @@
-import React, {FC, useContext, useState} from "react";
-import {Alert, Button, Container, Stack, TextField, Typography} from "@mui/material";
+import React, {FC, useContext, useEffect, useState} from "react";
+import {Alert, Box, Button, CircularProgress, Container, Skeleton, Stack, TextField, Typography} from "@mui/material";
 import {loginSchema} from "../helpers/validators"
 import {Controller, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {Context} from "../index";
-import {ILogin} from "../core/entities";
-
-const defaultValues: ILogin = {
-    email: "",
-    password: "",
-}
+import {ILoginRequest} from "../core/entities";
+import {loginUser} from "../store/actionCreators";
+import {IRootState, store, useAppDispatch, useAppSelector} from "../store";
+import {useNavigate, redirect} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 
 const Login: FC = () => {
-    const {store} = useContext(Context)
+    const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+    const loginStatus = useAppSelector(state => state.auth.authData.status)
+    const loadProfileStatus = useAppSelector(state => state.auth.profileData.status)
+    const loginError = useAppSelector(state => state.auth.authData.error)
     const {
         handleSubmit,
         formState: {errors},
         control,
-    } = useForm({
+    } = useForm<ILoginRequest>({
         resolver: zodResolver(loginSchema),
-        defaultValues: defaultValues
+        defaultValues: {
+            email: "",
+            password: ""
+        }
     })
-    const onSubmit = async (data: ILogin) => {
-        await store.login(data)
-        setSubmitError(store.errors.loginError)
+    useEffect(() => {
+        if (loginStatus === 'succeeded' && loadProfileStatus === 'succeeded') {
+            navigate('/')
+        }
+    }, [loginStatus, loadProfileStatus])
+    const onSubmit = (data: ILoginRequest) => {
+        dispatch(loginUser(data))
     }
-
-    const [submitError, setSubmitError] = useState("")
-
     return (
         <React.Fragment>
             <Container maxWidth="xs">
@@ -71,8 +77,10 @@ const Login: FC = () => {
                         <Button type="submit" variant="contained">
                             Log in
                         </Button>
-                        {submitError &&
-                            <Alert severity="error">{submitError}</Alert>}
+                        {loginStatus === 'failed' &&
+                            <Alert severity="error">{loginError}</Alert>}
+                        {(loginStatus === 'loading' || loadProfileStatus === 'loading') &&
+                            <Box display='flex' justifyContent="center"><CircularProgress size={60}/></Box>}
                     </Stack>
                 </form>
             </Container>

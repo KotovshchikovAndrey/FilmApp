@@ -19,7 +19,7 @@ export default function FilmCardItem(props: FilmCardItemProps) {
             <Tilt tiltReverse>
                 <Card elevation={0}>
                     <Link
-                        to={`/${Math.ceil(Math.random() * 100)}`} // Потом добавим id с бэка (динамику)*/
+                        to={`/film/${Math.ceil(Math.random() * 100)}`} // Потом добавим id с бэка (динамику)*/
                     >
                         <CardActionArea>
                             <AspectRatio ratio={2 / 3}>
