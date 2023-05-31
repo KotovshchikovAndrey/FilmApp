@@ -13,7 +13,7 @@ import {IRootState, useAppDispatch, useAppSelector} from "./store";
 import Profile from "./pages/Profile";
 import {selectIsLoggedIn} from "./store/authReducer";
 import {useEffect} from "react";
-import {logoutUser} from "./store/actionCreators";
+import {logoutUser, refreshToken} from "./store/actionCreators";
 
 const router = createBrowserRouter([
     {
@@ -52,11 +52,11 @@ const router = createBrowserRouter([
 function App() {
     const dispatch = useAppDispatch()
     const isLoggedIn = useAppSelector(selectIsLoggedIn)
-    // useEffect(() => {
-    //     if (!isLoggedIn) {
-    //         dispatch(logoutUser())
-    //     }
-    // }, [])
+    useEffect(() => {
+        if (isLoggedIn) {
+            dispatch(refreshToken())
+        }
+    }, [])
     return (
         <React.Fragment>
             <RouterProvider router={router}/>

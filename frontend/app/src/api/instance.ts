@@ -2,7 +2,7 @@ import axios, {AxiosError} from 'axios'
 import {API_URL} from "../core/config";
 import Endpoints from "./endpoints";
 import {store, useAppSelector} from "../store";
-import {getAccessToken, logoutUser, refreshToken} from "../store/actionCreators";
+import {logoutUser, refreshToken} from "../store/actionCreators";
 import api from "./index";
 
 export const axiosInstance = axios.create({
@@ -12,12 +12,12 @@ export const axiosInstance = axios.create({
 
 const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REGISTER, Endpoints.AUTH.REFRESH_TOKEN]
 
-axiosInstance.interceptors.request.use(async (config) => {
+axiosInstance.interceptors.request.use((config) => {
     if (config.url && urlsSkipAuth.includes(config.url)) {
         return config
     }
 
-    const accessToken = await store.dispatch(getAccessToken())
+    const accessToken = localStorage.getItem('token')
     if (accessToken) {
         config.headers.Authorization = `${accessToken}`
     }
@@ -35,6 +35,7 @@ axiosInstance.interceptors.response.use(
                 return axiosInstance.request(originalRequest)
             } catch (e) {
                 console.log('не авторизован')
+                store.dispatch(logoutUser())
             }
 
         }
@@ -55,10 +56,9 @@ axiosInstance.interceptors.response.use(
 //     }
 // )
 
-axiosInstance.interceptors.request.use(async (config) => {
+axiosInstance.interceptors.request.use((config) => {
     if (config.url === Endpoints.AUTH.REFRESH_TOKEN) {
-        console.log('refredhing...')
-        const accessToken = await store.dispatch(getAccessToken())
+        const accessToken = localStorage.getItem('token')
         config.headers['old_access'] = accessToken
     }
     return config

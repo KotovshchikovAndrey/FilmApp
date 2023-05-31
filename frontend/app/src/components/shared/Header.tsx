@@ -1,21 +1,14 @@
-import {AppBar, Button, Stack, Toolbar} from "@mui/material";
+import {AppBar, Button, Skeleton, Stack, Toolbar} from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import {Link} from "react-router-dom";
 import {AccountCircle} from "@mui/icons-material";
 import {useSelector} from "react-redux";
 import {IRootState, useAppSelector} from "../../store";
-import React from "react";
+import React, {useEffect} from "react";
 
 export default function Header() {
     const isLoggedIn = useAppSelector(state => !!state.auth.authData.accessToken)
     const userName = useAppSelector(state => state.auth.profileData.profile?.name)
-    // const userName = useAppSelector(state => {
-    //     if (state.auth.profileData.profile === null) {
-    //         return 'Unknown Name'
-    //     } else {
-    //         return state.auth.profileData.profile.name
-    //     }
-    // })
     return (
         <React.Fragment>
             <AppBar position="static" color="transparent" elevation={0}>

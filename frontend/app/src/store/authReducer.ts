@@ -50,7 +50,7 @@ export const authSlice = createSlice({
         //         isLoading: true,
         //     }
         // }),
-        loginStart: (state) => {
+        authStart: (state) => {
             state.authData.status = 'loading'
         },
         // loginSuccess: (state, action: PayloadAction<string>): AuthState => ({
@@ -62,7 +62,7 @@ export const authSlice = createSlice({
         //         error: null,
         //     },
         // }),
-        loginSuccess: (state, action: PayloadAction<string>) => {
+        authSuccess: (state, action: PayloadAction<string>) => {
             state.authData.status = 'succeeded'
             state.authData.accessToken = action.payload
             state.authData.error = null
@@ -75,7 +75,7 @@ export const authSlice = createSlice({
         //         error: action.payload,
         //     }
         // }),
-        loginFailure: (state, action: PayloadAction<string>) => {
+        authFailure: (state, action: PayloadAction<string>) => {
             state.authData.status = 'failed'
             state.authData.error = action.payload
         },
@@ -136,15 +136,16 @@ export const authSlice = createSlice({
 })
 
 export const {
-    loginStart,
-    loginSuccess,
-    loginFailure,
+    authStart,
+    authSuccess,
+    authFailure,
     logoutSuccess,
     loadProfileStart,
     loadProfileSuccess,
     loadProfileFailure,
 } = authSlice.actions
 
-export const selectIsLoggedIn = (state: IRootState) => !!state.auth.authData.accessToken
+export const selectIsLoggedIn = (state: IRootState) => !!localStorage.getItem('token')
+// export const selectIsLoggedIn = (state: IRootState) => !!state.auth.authData.accessToken
 
 export default authSlice.reducer

@@ -13,9 +13,9 @@ import {useSelector} from "react-redux";
 const Login: FC = () => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
-    const loginStatus = useAppSelector(state => state.auth.authData.status)
+    const authStatus = useAppSelector(state => state.auth.authData.status)
     const loadProfileStatus = useAppSelector(state => state.auth.profileData.status)
-    const loginError = useAppSelector(state => state.auth.authData.error)
+    const authError = useAppSelector(state => state.auth.authData.error)
     const {
         handleSubmit,
         formState: {errors},
@@ -28,10 +28,10 @@ const Login: FC = () => {
         }
     })
     useEffect(() => {
-        if (loginStatus === 'succeeded' && loadProfileStatus === 'succeeded') {
+        if (authStatus === 'succeeded' && loadProfileStatus === 'succeeded') {
             navigate('/')
         }
-    }, [loginStatus, loadProfileStatus])
+    }, [authStatus, loadProfileStatus])
     const onSubmit = (data: ILoginRequest) => {
         dispatch(loginUser(data))
     }
@@ -77,9 +77,9 @@ const Login: FC = () => {
                         <Button type="submit" variant="contained">
                             Log in
                         </Button>
-                        {loginStatus === 'failed' &&
-                            <Alert severity="error">{loginError}</Alert>}
-                        {(loginStatus === 'loading' || loadProfileStatus === 'loading') &&
+                        {authStatus === 'failed' &&
+                            <Alert severity="error">{authError}</Alert>}
+                        {(authStatus === 'loading' || loadProfileStatus === 'loading') &&
                             <Box display='flex' justifyContent="center"><CircularProgress size={60}/></Box>}
                     </Stack>
                 </form>
