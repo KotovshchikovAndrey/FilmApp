@@ -5,15 +5,13 @@ import Login from "./pages/Login";
 import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import Register from "./pages/Register";
 import {VerifyEmail} from "./pages/VerifyEmail";
-import Header from "./components/shared/Header"
 import Root from "./pages/Root";
 import Error from "./pages/Error";
-import {useDispatch, useSelector} from "react-redux";
-import {IRootState, useAppDispatch, useAppSelector} from "./store";
+import {useAppDispatch, useAppSelector} from "./store";
 import Profile from "./pages/Profile";
 import {selectIsLoggedIn} from "./store/authReducer";
 import {useEffect} from "react";
-import {logoutUser} from "./store/actionCreators";
+import {refreshToken} from "./store/actionCreators";
 
 const router = createBrowserRouter([
     {
@@ -52,11 +50,11 @@ const router = createBrowserRouter([
 function App() {
     const dispatch = useAppDispatch()
     const isLoggedIn = useAppSelector(selectIsLoggedIn)
-    // useEffect(() => {
-    //     if (!isLoggedIn) {
-    //         dispatch(logoutUser())
-    //     }
-    // }, [])
+    useEffect(() => {
+        if (isLoggedIn) {
+            dispatch(refreshToken())
+        }
+    }, [])
     return (
         <React.Fragment>
             <RouterProvider router={router}/>

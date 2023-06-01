@@ -12,7 +12,7 @@
 
 import {axiosInstance} from "./instance";
 import {AxiosPromise} from "axios";
-import {ILoginRequest, ILoginResponse} from "../core/entities";
+import {IAuthResponse, ILoginRequest, IRegisterRequest} from "../core/entities";
 import Endpoints from "./endpoints";
 
 // export default class Auth {
@@ -36,12 +36,16 @@ import Endpoints from "./endpoints";
 
 // }
 
-export const login = (data: ILoginRequest): AxiosPromise<ILoginResponse> => {
-    return axiosInstance.post<ILoginResponse>(Endpoints.AUTH.LOGIN, data)
+export const login = (data: ILoginRequest): AxiosPromise<IAuthResponse> => {
+    return axiosInstance.post<IAuthResponse>(Endpoints.AUTH.LOGIN, data)
 }
 export const logout = (): AxiosPromise => {
     return axiosInstance.delete(Endpoints.AUTH.LOGOUT)
 }
-export const refreshToken = (): AxiosPromise<ILoginResponse> => {
+export const refreshToken = (): AxiosPromise<IAuthResponse> => {
     return axiosInstance.put(Endpoints.AUTH.REFRESH_TOKEN)
+}
+
+export const register = (data: IRegisterRequest): AxiosPromise<IAuthResponse> => {
+    return axiosInstance.post<IAuthResponse>(Endpoints.AUTH.REGISTER, data)
 }

@@ -1,7 +1,7 @@
 import * as React from "react"
 import {
-    Alert,
-    Button,
+    Alert, Box,
+    Button, CircularProgress,
     Container,
     Stack,
     TextField,
@@ -11,10 +11,19 @@ import Grid from "@mui/material/Unstable_Grid2";
 import {useForm, Controller} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {registerSchema} from "../helpers/validators"
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {IRegisterRequest} from "../core/entities";
+import {useNavigate} from "react-router-dom";
+import {useAppDispatch, useAppSelector} from "../store";
+import {registerUser} from "../store/actionCreators";
+import ArrowHeader from "../components/shared/Header/ArrowHeader";
 
 const Register: FC = () => {
+    const navigate = useNavigate()
+    const dispatch = useAppDispatch()
+    const authStatus = useAppSelector(state => state.auth.authData.status)
+    const loadProfileStatus = useAppSelector(state => state.auth.profileData.status)
+    const authError = useAppSelector(state => state.auth.authData.error)
     const {
         handleSubmit,
         formState: {errors},
@@ -22,14 +31,18 @@ const Register: FC = () => {
     } = useForm<IRegisterRequest>({
         resolver: zodResolver(registerSchema),
     })
+    useEffect(() => {
+        if (authStatus === 'succeeded' && loadProfileStatus === 'succeeded') {
+            navigate('/')
+        }
+    }, [authStatus, loadProfileStatus])
     const onSubmit = async (data: IRegisterRequest) => {
-        // await store.register(data)
-        // setSubmitError(store.errors.registerError)
+        dispatch(registerUser(data))
     }
-    const [submitError, setSubmitError] = useState("")
 
     return (
         <React.Fragment>
+            <ArrowHeader/>
             <Container maxWidth="xs">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Stack spacing={3} mt={10} useFlexGap>
@@ -109,8 +122,10 @@ const Register: FC = () => {
                         </Button>
                         <Typography variant="body2">🍪 This site uses cookie. By continuing your browsing after being presented with the
                             cookie information you consent to such use.</Typography>
-                        {submitError &&
-                        <Alert severity="error">{submitError}</Alert>}
+                        {authStatus === 'failed' &&
+                            <Alert severity="error">{authError}</Alert>}
+                        {(authStatus === 'loading' || loadProfileStatus === 'loading') &&
+                            <Box display='flex' justifyContent="center"><CircularProgress size={60}/></Box>}
                     </Stack>
                 </form>
             </Container>

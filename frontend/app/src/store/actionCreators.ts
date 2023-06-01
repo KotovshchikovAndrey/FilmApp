@@ -1,11 +1,11 @@
-import {ILoginRequest} from "../core/entities";
+import {ILoginRequest, IRegisterRequest} from "../core/entities";
 import {Dispatch} from "@reduxjs/toolkit";
 import {
     loadProfileFailure,
     loadProfileStart, loadProfileSuccess,
-    loginFailure,
-    loginStart,
-    loginSuccess,
+    authFailure,
+    authStart,
+    authSuccess,
     logoutSuccess,
 } from "./authReducer";
 import api from "../api";
@@ -15,21 +15,23 @@ import {store} from "./index";
 export const loginUser = (data: ILoginRequest) =>
     async (dispatch: Dispatch<any>): Promise<void> => {
         try {
-            dispatch(loginStart())
+            dispatch(authStart())
             const response = await api.auth.login(data)
-            dispatch(loginSuccess(response.data.access_token))
             dispatch(getMyProfile())
+            localStorage.setItem('token', response.data.access_token)
+            dispatch(authSuccess(response.data.access_token))
         } catch (e: any) {
             console.error(e.message)
-            dispatch(loginFailure(e.response.data.message))
+            dispatch(authFailure(e.response.data.message))
         }
     }
 export const logoutUser = () =>
     async (dispatch: Dispatch): Promise<void> => {
         try {
-            await api.auth.logout()
-            dispatch(logoutSuccess())
             redirect("/")
+            await api.auth.logout()
+            localStorage.removeItem('token')
+            dispatch(logoutSuccess())
         } catch (e: any) {
             console.error(e.message)
         }
@@ -45,22 +47,39 @@ export const getMyProfile = () =>
             dispatch(loadProfileFailure(e.message))
         }
     }
-export const getAccessToken = () =>
-    async (dispatch: Dispatch): Promise<string | null> => {
+// export const getAccessToken = () =>
+//     async (dispatch: Dispatch): Promise<string | null> => {
+//         try {
+//             const accessToken = store.getState().auth.authData.accessToken
+//             return accessToken
+//         } catch (e: any) {
+//             console.error(e.message)
+//             return null
+//         }
+//     }
+export const refreshToken = () =>
+    async (dispatch: Dispatch<any>): Promise<void> => {
         try {
-            const accessToken = store.getState().auth.authData.accessToken
-            return accessToken
+            dispatch(authStart())
+            const response = await api.auth.refreshToken()
+            localStorage.setItem('token', response.data.access_token)
+            dispatch(getMyProfile())
+            dispatch(authSuccess(response.data.access_token))
         } catch (e: any) {
             console.error(e.message)
-            return null
+            dispatch(authFailure(e.message))
         }
     }
-export const refreshToken = () =>
-    async (dispatch: Dispatch): Promise<void> => {
+export const registerUser = (data: IRegisterRequest) =>
+    async (dispatch: Dispatch<any>): Promise<void> => {
         try {
-            const response = await api.auth.refreshToken()
-            dispatch(loginSuccess(response.data.access_token))
+            dispatch(authStart())
+            const response = await api.auth.register(data)
+            localStorage.setItem('token', response.data.access_token)
+            dispatch(getMyProfile())
+            dispatch(authSuccess(response.data.access_token))
         } catch (e: any) {
-            console.error(e.message)
+            console.log(e.message)
+            dispatch(authFailure(e.response.data.message))
         }
     }

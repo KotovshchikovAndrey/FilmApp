@@ -17,10 +17,12 @@ export interface IFilm {
 
 export interface IUser {
     id: string;
-    isActivated: boolean;
-    email: string;
     name: string;
     surname: string;
+    email: string;
+    status: string;
+    role: string;
+    films: IFilm[];
 }
 
 
@@ -29,7 +31,7 @@ export interface ILoginRequest {
     password: string;
 }
 
-export interface ILoginResponse {
+export interface IAuthResponse {
     access_token: string;
     refresh_token: string;
 }
@@ -39,9 +41,4 @@ export interface IRegisterRequest {
     surname: string;
     email: string;
     password: string;
-}
-
-export interface IRegisterResponse {
-    access_token: string;
-    refresh_token: string;
 }

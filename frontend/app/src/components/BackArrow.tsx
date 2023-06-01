@@ -6,7 +6,7 @@ import {IconButton} from "@mui/material";
 export default function BackArrow() {
     return (
         <React.Fragment>
-            <Link to={".."} style={{textDecoration: "none", alignSelf: "flex-start", color: "black"}}>
+            <Link to={".."} style={{marginTop: 10}}>
                 <IconButton aria-label="back arrow">
                     <ArrowBackIcon/>
                 </IconButton>
