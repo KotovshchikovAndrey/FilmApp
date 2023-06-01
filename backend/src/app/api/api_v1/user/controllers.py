@@ -92,7 +92,7 @@ class MyWatchStatus(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     async def get(self, request: Request):
         user = request.user.instance
-        dto = GetUserWatchStatusFilmsDTO(user=user, **request.query_params)
+        dto = GetUserWatchStatusFilmsDTO(user=user, watch_status=request.query_params["q"], **request.query_params)
         films = await self.__service.get_watch_status_films(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
