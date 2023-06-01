@@ -7,9 +7,8 @@ import AspectRatio from '@mui/joy/AspectRatio';
 import Tilt from 'react-parallax-tilt';
 
 interface FilmCardItemProps {
+    id: number
     title: string
-    description?: string
-    isAdult: boolean
     posterUrl?: string
 }
 
@@ -19,13 +18,13 @@ export default function FilmCardItem(props: FilmCardItemProps) {
             <Tilt tiltReverse>
                 <Card elevation={0}>
                     <Link
-                        to={`/film/${Math.ceil(Math.random() * 100)}`} // Потом добавим id с бэка (динамику)*/
+                        to={`/film/${props.id}`}
                     >
                         <CardActionArea>
                             <AspectRatio ratio={2 / 3}>
                                 <CardMedia
                                     component="img"
-                                    image="https://i.ytimg.com/vi/9wOiUI6FGEo/maxresdefault.jpg" // Потом заменим на свою
+                                    image={props.posterUrl}
                                     alt={props.title}
                                 />
                             </AspectRatio>

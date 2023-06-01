@@ -7,6 +7,10 @@ const Endpoints = {
     },
     USERS: {
         MY_PROFILE: '/users/profile/me'
+    },
+    FILMS: {
+        GET_FILMS: '/films',
+        GET_POSTER: (filmId: number) => `/films/${filmId}/poster`
     }
 }
 

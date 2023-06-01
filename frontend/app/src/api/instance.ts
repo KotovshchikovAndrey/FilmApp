@@ -10,7 +10,7 @@ export const axiosInstance = axios.create({
     baseURL: API_URL,
 })
 
-const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REGISTER, Endpoints.AUTH.REFRESH_TOKEN]
+const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REGISTER, Endpoints.AUTH.REFRESH_TOKEN, Endpoints.FILMS.GET_FILMS, Endpoints.FILMS.GET_POSTER]
 
 axiosInstance.interceptors.request.use((config) => {
     if (config.url && urlsSkipAuth.includes(config.url)) {
