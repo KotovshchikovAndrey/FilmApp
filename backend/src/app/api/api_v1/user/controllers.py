@@ -92,14 +92,11 @@ class MyWatchStatus(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     async def get(self, request: Request):
         user = request.user.instance
-        dto = GetUserWatchStatusFilmsDTO(user=user, watch_status=request.query_params["q"], **request.query_params)
+        watch_status = "watching" if "q" not in request.query_params.keys() else request.query_params["q"]
+        dto = GetUserWatchStatusFilmsDTO(user=user, watch_status=watch_status, **request.query_params)
         films = await self.__service.get_watch_status_films(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
-
-
-class SetMyWatchStatus(HTTPEndpoint):
-    __service: IUserService = container.resolve(IUserService)
 
     @requires("authenticated", status_code=401)
     @requires("active", status_code=403)
@@ -114,7 +111,7 @@ class SetMyWatchStatus(HTTPEndpoint):
     @requires("active", status_code=403)
     async def delete(self, request: Request):
         data = await request.json()
-        dto = ManageWatchStatusFilmDTO(user_id=request.user.instance.id, status="not_watching", **data)
+        dto = ManageWatchStatusFilmDTO(user_id=request.user.instance.id, watch_status="not_watching", **data)
         await self.__service.change_watch_status(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)

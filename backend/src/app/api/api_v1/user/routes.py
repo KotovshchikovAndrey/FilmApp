@@ -6,7 +6,6 @@ routes = [
     Route("/profile/{user_id:int}", controllers.Profile),
     Route("/favorite/{user_id:int}", controllers.UserFavorite),
     Route("/watch-status", controllers.MyWatchStatus),
-    Route("/watch-status/{film_id:int}", controllers.SetMyWatchStatus),
     Route("/profile/me", controllers.MyProfile),
     Route("/profile/me/avatar", controllers.ProfileAvatar),
     Route("/favorite/me", controllers.MyFavorite),
