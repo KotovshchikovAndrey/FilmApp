@@ -108,6 +108,17 @@ WHERE user_film.user_id = :user_id
 ORDER BY 
 """
 
+GET_USER_WATCH_STATUS_FILMS = """SELECT 
+film.id,
+title,
+is_adult,
+tagline
+FROM "film" as film JOIN "watchstatus_user_film" as user_film
+ON film.id = user_film.film_id 
+WHERE user_film.user_id = :user_id AND user_film.status = :status
+ORDER BY 
+"""
+
 AGGREGATE_AVG_FILM_RATING = """SELECT film_id, AVG(value)::float as rating FROM "rating"
 WHERE film_id = :film_id
 GROUP BY film_id;"""

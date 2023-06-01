@@ -66,6 +66,7 @@ class GetFilmsDTO(BaseModel):
     offset: int = 0
     genre: tp.Optional[str] = None
     country: tp.Optional[str] = None
+    random: bool = False
 
 
 class FilmsDTO(BaseModel):

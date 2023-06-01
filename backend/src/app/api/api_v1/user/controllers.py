@@ -12,7 +12,7 @@ from user.dto import (
     FileDTO,
     GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
-    UpdateProfileDTO, UserChangePassword, UserChangeEmail,
+    UpdateProfileDTO, UserChangePassword, UserChangeEmail, ManageWatchStatusFilmDTO, GetUserWatchStatusFilmsDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -83,6 +83,40 @@ class UserFavorite(HTTPEndpoint):
             dto.user_id
         )  # Если пользователь не существует, будет ошибка
         await self.__service.delete_from_favorite(dto)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+class MyWatchStatus(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    async def get(self, request: Request):
+        user = request.user.instance
+        dto = GetUserWatchStatusFilmsDTO(user=user, **request.query_params)
+        films = await self.__service.get_watch_status_films(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
+
+
+class SetMyWatchStatus(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
+    async def post(self, request: Request):
+        data = await request.json()
+        dto = ManageWatchStatusFilmDTO(user_id=request.user.instance.id, **data)
+        await self.__service.change_watch_status(dto)
+
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
+    async def delete(self, request: Request):
+        data = await request.json()
+        dto = ManageWatchStatusFilmDTO(user_id=request.user.instance.id, status="not_watching", **data)
+        await self.__service.change_watch_status(dto)
+
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

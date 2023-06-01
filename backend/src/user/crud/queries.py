@@ -54,6 +54,12 @@ WHERE id = :id;"""
 
 AUTHORISE_USER = """SELECT * FROM "user" WHERE email = :email and password = :password;"""
 
+CHANGE_WATCH_STATUS = """INSERT INTO watchstatus_user_film(user_id, film_id, status)
+VALUES (:user_id, :film_id, :watch_status)
+ON CONFLICT (user_id, film_id)
+DO UPDATE SET status = EXCLUDED.status;
+"""
+
 ADD_FAVORITE_FILM_FOR_USER = """INSERT INTO "favorite_user_film"
 (user_id, film_id)
 SELECT :user_id, :film_id WHERE NOT EXISTS 

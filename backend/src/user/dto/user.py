@@ -46,9 +46,36 @@ class UserLoginDTO(BaseModel):
     password: str
 
 
-class AddFavoriteFilmDTO(BaseModel):
+class GetUserWatchStatusFilmsDTO(BaseModel):
+    class OrderUserFilmsEnum(str, enum.Enum):
+        id = "id"
+        date = "updated_date"
+
     user: UserBase
+    watch_status: tp.Literal[
+        "not_watching",
+        "watching",
+        "in_plans",
+        "scheduled",
+        "watched",
+        "postponed",
+        "abandoned"
+    ] = "watching"
+    order_by: OrderUserFilmsEnum = OrderUserFilmsEnum.date
+
+
+class ManageWatchStatusFilmDTO(BaseModel):
+    user_id: int
     film_id: int
+    watch_status: tp.Literal[
+        "not_watching",
+        "watching",
+        "in_plans",
+        "scheduled",
+        "watched",
+        "postponed",
+        "abandoned"
+    ]
 
 
 class GetUserFavoriteFilmsDTO(BaseModel):

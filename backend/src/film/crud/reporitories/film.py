@@ -23,6 +23,7 @@ class IFilmReporitory(ABC):
         offset: int,
         genre: tp.Optional[str] = None,
         country: tp.Optional[str] = None,
+        random: bool = False,
     ) -> FilmsDTO:
         ...
 
@@ -61,6 +62,10 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
+    async def get_watch_status_films(self, target_id: int, status: str, order_by: str) -> FilmsDTO:
+        ...
+
+    @abstractmethod
     async def aggregate_rating(self, film_id: int) -> FilmRatingDTO:
         ...
 
@@ -80,6 +85,7 @@ class FilmPostgresRepository(IFilmReporitory):
         offset: int,
         genre: tp.Optional[str] = None,
         country: tp.Optional[str] = None,
+        random: bool = False
     ):
         params = {"limit": limit, "offset": offset}
         query = queries.GET_MANY_FILMS
@@ -94,7 +100,9 @@ class FilmPostgresRepository(IFilmReporitory):
                 params["country"] = country
 
             query += "AND".join(conditions) + "OFFSET :offset LIMIT :limit;"
-
+        if random:
+            query = query.replace("OFFSET", "ORDER BY RANDOM() OFFSET")
+        print(query)
         films = await db_connection.fetch_all(query, **params)
         return FilmsDTO(films=films)
 
@@ -152,6 +160,14 @@ class FilmPostgresRepository(IFilmReporitory):
             queries.GET_USER_FAVORITE_FILMS + order_by, user_id=target_id
         )
 
+        return FilmsDTO(films=films)
+
+    async def get_watch_status_films(self, target_id: int, status: str, order_by: str):
+        films = await db_connection.fetch_all(
+            queries.GET_USER_WATCH_STATUS_FILMS + order_by + " DESC",
+            user_id=target_id,
+            status=status,
+        )
         return FilmsDTO(films=films)
 
     async def aggregate_rating(self, film_id: int):

@@ -73,6 +73,10 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def change_watch_status(self, user_id: int, film_id: int, watch_status: str):
+        ...
+
+    @abstractmethod
     async def add_to_favorite(self, user_id: int, film_id: int):
         ...
 
@@ -210,6 +214,14 @@ class UserPostgresRepository(IUserRepository):
             queries.CHANGE_USER_STATUS,
             status="active",
             id=target_id,
+        )
+
+    async def change_watch_status(self, user_id: int, film_id: int, watch_status: str):
+        await db_connection.execute_query(
+            queries.CHANGE_WATCH_STATUS,
+            user_id=user_id,
+            film_id=film_id,
+            watch_status=watch_status,
         )
 
     async def add_to_favorite(self, user_id: int, film_id: int):

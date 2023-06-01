@@ -75,6 +75,10 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
+    async def get_user_watch_status_films(self, target_id: int, status: str, order_by: str) -> FilmsDTO:
+        ...
+
+    @abstractmethod
     async def calculate_film_rating(self, film_id: int) -> FilmRatingDTO:
         ...
 
@@ -97,6 +101,7 @@ class FilmService(IFilmService):
             offset=dto.offset,
             genre=dto.genre,
             country=dto.country,
+            random=dto.random,
         )
 
         return films
@@ -172,6 +177,10 @@ class FilmService(IFilmService):
 
     async def get_user_favorite_films(self, target_id: int, order_by: str):
         films = await self.__repository.get_favorite_films(target_id, order_by)
+        return films
+
+    async def get_user_watch_status_films(self, target_id: int, status: str, order_by: str):
+        films = await self.__repository.get_watch_status_films(target_id, status, order_by)
         return films
 
     async def calculate_film_rating(self, film_id: int):

@@ -18,7 +18,7 @@ from user.dto import (
     UpdateProfileDTO,
     UserAvatarDTO,
     UserBase,
-    UserRegisterDTO, UserChangePassword, UserChangeEmail,
+    UserRegisterDTO, UserChangePassword, UserChangeEmail, ManageWatchStatusFilmDTO, GetUserWatchStatusFilmsDTO,
 )
 
 
@@ -82,6 +82,10 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO) -> None:
+        ...
+
+    @abstractmethod
     async def add_to_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
         ...
 
@@ -91,6 +95,10 @@ class IUserService(ABC):
 
     @abstractmethod
     async def get_favorites(self, dto: GetUserFavoriteFilmsDTO) -> FilmsDTO:
+        ...
+
+    @abstractmethod
+    async def get_watch_status_films(self, dto: GetUserWatchStatusFilmsDTO) -> FilmsDTO:
         ...
 
 
@@ -175,6 +183,10 @@ class UserService(IUserService):
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         await self.__repository.add_refresh_token(user_id, refresh_token)
 
+    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.change_watch_status(dto.user_id, film.id, dto.watch_status)
+
     async def add_to_favorite(self, dto: ManageFavoriteFilmDTO):
         film = await self.__film_service.get_film_info(dto.film_id)
         await self.__repository.add_to_favorite(user_id=dto.user_id, film_id=film.id)
@@ -189,6 +201,13 @@ class UserService(IUserService):
         user, order_by = dto.user, dto.order_by.value
         films = await self.__film_service.get_user_favorite_films(
             target_id=user.id, order_by=order_by
+        )
+
+        return films
+
+    async def get_watch_status_films(self, dto: GetUserWatchStatusFilmsDTO):
+        films = await self.__film_service.get_user_watch_status_films(
+            target_id=dto.user.id, status=dto.watch_status, order_by=dto.order_by
         )
 
         return films
