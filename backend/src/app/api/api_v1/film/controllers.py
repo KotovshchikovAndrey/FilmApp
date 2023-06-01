@@ -14,6 +14,7 @@ from film.dto import (
     SearchFilmDTO,
     SetFilmRatingDTO,
     UpdateFilmDTO,
+    ResetFilmRaitingDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -145,7 +146,8 @@ class FilmRating(HTTPEndpoint):
     async def delete(self, request: Request):
         user = request.user.instance
         film_id = request.path_params["film_id"]
-        dto = SetFilmRatingDTO(user=user, film_id=film_id, value=0)
+
+        dto = ResetFilmRaitingDTO(user=user, film_id=film_id)
         await self.__service.reset_film_rating(dto)
 
         return Response(status_code=204)

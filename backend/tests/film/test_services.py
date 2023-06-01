@@ -1,10 +1,20 @@
+# Если ты решил почитать этот код, то ты весьма отчаянный)
+# Все это говно нужно переписывать и рефакторить!
+
+
 import pytest
 from httpx import AsyncClient
 from datetime import date
 
 from app.core.ioc import container, film_services
 from app.utils.fakers import user_faker
-from film.dto import GetFilmsDTO, CreateFilmDTO, UpdateFilmDTO, SetFilmRatingDTO
+from film.dto import (
+    GetFilmsDTO,
+    CreateFilmDTO,
+    UpdateFilmDTO,
+    SetFilmRatingDTO,
+    ResetFilmRaitingDTO,
+)
 
 IFilmService = film_services.IFilmService
 
@@ -124,13 +134,30 @@ class TestFilmService:
                     SetFilmRatingDTO(user=fake_users[3], film_id=1, value=1),
                 ),
                 2.75,
+                2,
             ),
         )
 
         for case in test_cases:
-            set_ratings, avg_rating = case
+            set_ratings, avg_rating, avg_rating_before_reset = case
             for rating in set_ratings:
                 await service.set_film_rating(rating)
 
             avg_film_rating = await service.calculate_film_rating(film_id=1)
             assert avg_film_rating.rating == avg_rating
+
+            dto = ResetFilmRaitingDTO(user=fake_users[0], film_id=1)
+            await service.reset_film_rating(dto)
+
+            film_rating_before_reset = await service.calculate_film_rating(film_id=1)
+            assert film_rating_before_reset.rating == avg_rating_before_reset
+
+    @pytest.mark.asyncio
+    async def test_empty_film_rating(self, client: AsyncClient) -> None:
+        service: IFilmService = container.resolve(IFilmService)
+
+        film_id = 2
+        film_raiting = await service.calculate_film_rating(film_id=film_id)
+
+        assert film_raiting.rating == 0
+        assert film_raiting.film_id == film_id

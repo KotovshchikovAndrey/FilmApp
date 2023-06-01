@@ -1,4 +1,5 @@
-GET_MANY_FILMS = """SELECT id, title, imdb_id, is_adult, tagline FROM "film" OFFSET :offset LIMIT :limit;"""
+GET_MANY_FILMS = """SELECT id, title, imdb_id, is_adult, tagline FROM "film" 
+ORDER BY RANDOM() OFFSET :offset LIMIT :limit;"""
 
 FILTER_FILMS_BY_CONDITIONS = """SELECT id, title, is_adult, tagline FROM 
 (SELECT 

@@ -98,6 +98,10 @@ def create_favorite_user_film_table() -> None:
         sa.Column("added_date", sa.TIMESTAMP(), nullable=False),
     )
 
+    op.execute(
+        """create unique index unique_favorite_film on favorite_user_film (user_id, film_id);"""
+    )
+
 
 def create_watchstatus_user_film_table() -> None:
     op.create_table(
@@ -117,6 +121,10 @@ def create_watchstatus_user_film_table() -> None:
         ),
         sa.Column("status", sa.String(30), nullable=False),
         sa.Column("updated_date", sa.TIMESTAMP(), nullable=True),
+    )
+
+    op.execute(
+        """create unique index unique_watchstatus on watchstatus_user_film (user_id, film_id);"""
     )
 
 

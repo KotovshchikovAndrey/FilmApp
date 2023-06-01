@@ -21,6 +21,7 @@ from film.dto import (
     SearchFilmDTO,
     SetFilmRatingDTO,
     UpdateFilmDTO,
+    ResetFilmRaitingDTO,
 )
 from film.services import imdb
 
@@ -75,7 +76,9 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_user_watch_status_films(self, target_id: int, status: str, order_by: str) -> FilmsDTO:
+    async def get_user_watch_status_films(
+        self, target_id: int, status: str, order_by: str
+    ) -> FilmsDTO:
         ...
 
     @abstractmethod
@@ -87,7 +90,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def reset_film_rating(self, dto: SetFilmRatingDTO) -> None:
+    async def reset_film_rating(self, dto: ResetFilmRaitingDTO) -> None:
         ...
 
 
@@ -101,7 +104,6 @@ class FilmService(IFilmService):
             offset=dto.offset,
             genre=dto.genre,
             country=dto.country,
-            random=dto.random,
         )
 
         return films
@@ -179,18 +181,27 @@ class FilmService(IFilmService):
         films = await self.__repository.get_favorite_films(target_id, order_by)
         return films
 
-    async def get_user_watch_status_films(self, target_id: int, status: str, order_by: str):
-        films = await self.__repository.get_watch_status_films(target_id, status, order_by)
+    async def get_user_watch_status_films(
+        self, target_id: int, status: str, order_by: str
+    ):
+        films = await self.__repository.get_watch_status_films(
+            target_id, status, order_by
+        )
         return films
 
     async def calculate_film_rating(self, film_id: int):
-        rating = await self.__repository.aggregate_rating(film_id)
-        return rating
+        film_rating = await self.__repository.aggregate_rating(film_id)
+        if film_rating is not None:
+            return film_rating
+
+        return FilmRatingDTO(rating=0, film_id=film_id)
 
     async def set_film_rating(self, dto: SetFilmRatingDTO):
         return await self.__repository.set_rating(
             user_id=dto.user.id, film_id=dto.film_id, value=dto.value
         )
 
-    async def reset_film_rating(self, dto: SetFilmRatingDTO):
-        await self.__repository.reset_rating(user_id=dto.user.id, film_id=dto.film_id)
+    async def reset_film_rating(self, dto: ResetFilmRaitingDTO):
+        return await self.__repository.reset_rating(
+            user_id=dto.user.id, film_id=dto.film_id
+        )

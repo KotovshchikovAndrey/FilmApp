@@ -1,4 +1,3 @@
-import os
 import typing as tp
 
 import pytest
@@ -10,7 +9,6 @@ from src.app.utils.commands import drop_tables, run_migrations
 
 @pytest.fixture(scope="session")
 def prepare_database():
-    os.environ["IS_TESTING"] = "True"
     run_migrations()
     yield
     drop_tables()

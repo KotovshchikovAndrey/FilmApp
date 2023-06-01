@@ -66,7 +66,6 @@ class GetFilmsDTO(BaseModel):
     offset: int = 0
     genre: tp.Optional[str] = None
     country: tp.Optional[str] = None
-    random: bool = False
 
 
 class FilmsDTO(BaseModel):
@@ -224,6 +223,11 @@ class SetFilmRatingDTO(BaseModel):
             raise ValueError("Rating value must be between 0 and 9!")
 
         return value
+
+
+class ResetFilmRaitingDTO(BaseModel):
+    user: UserBase
+    film_id: int
 
 
 class FilmRatingDTO(BaseModel):
