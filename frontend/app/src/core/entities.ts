@@ -3,16 +3,35 @@ export interface IGenre {
     name: string
 }
 
+export interface ICompany {
+    id: number
+    name: string
+}
+
+export interface ICountry {
+    name: string
+    iso_3166_1: number
+}
+
+export interface ITrailer {
+    key: string
+    site: string
+}
+
 export interface IFilm {
     id: number
     title: string
-    description?: string
     isAdult: boolean
-    genres: IGenre[] | null
+    description?: string
+    language?: string
     budget: number
-    time: number
+    release_date?: string
+    time?: number
+    genres: IGenre[] | null
+    productionCompanies?: ICompany[] | null
+    productionCountries?: ICountry[] | null
     posterUrl?: string
-    backdropUrl?: string
+    trailerUrl?: string
 }
 
 export interface IUser {

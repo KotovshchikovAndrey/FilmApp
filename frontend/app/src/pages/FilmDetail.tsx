@@ -6,41 +6,36 @@ import {Chip} from "@mui/material";
 import {Add} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import ArrowHeader from "../components/shared/Header/ArrowHeader";
+import {useFilms} from "../hooks/films";
+import {useFilmDetail} from "../hooks/filmDetail";
+import {IGenre} from "../core/entities";
 
 export default function FilmDetail() {
-    const {filmId} = useParams()
-
+    const {id} = useParams()
+    const filmId = parseInt(id!)
+    const {film, loading, err} = useFilmDetail(filmId)
     return (
         <React.Fragment>
             <ArrowHeader/>
             <Grid container spacing={5}>
                 <Grid xs={12} sm={6}>
                     <img style={{maxWidth: "100%"}}
-                         src="https://avatars.mds.yandex.net/get-kinopoisk-image/1900788/41daf06f-3187-4913-98aa-f72f77544d8f/orig"
-                         alt="aboba"
+                         src={film?.posterUrl}
+                         alt={film?.title}
                     />
                 </Grid>
                 <Grid xs={12} sm={6}>
                     <Stack spacing={2}>
                         <Typography variant="h4" component="h1">
-                            Название фильма #{filmId}
+                            {film.title}
                         </Typography>
                         <Typography variant="subtitle1">
-                            1999, США, 3ч 9мин 18+
+                            {film.release_date}, {film.time} мин, {film.isAdult ? '18+' : '0+'}
                         </Typography>
                         <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                            <Chip label="Драма"/>
-                            <Chip label="Комедия"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
-                            <Chip label="Криминал"/>
+                            {film.genres?.map((genre: IGenre) => (
+                                <Chip label={genre.name}/>
+                            ))}
                         </Stack>
                         <Button variant="outlined" startIcon={<Add/>}>
                             Add to collection
@@ -49,17 +44,15 @@ export default function FilmDetail() {
                             Description
                         </Typography>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti vero impedit
-                            dignissimos itaque nam expedita? Inventore tempora praesentium maxime, nesciunt nemo
-                            repudiandae soluta doloribus vero explicabo aliquid quod, nam ullam.
+                            {film.description}
                         </Typography>
                         <Typography variant="h5">
                             Trailer
                         </Typography>
                         <AspectRatio>
                             <iframe
-                                src="https://www.youtube.com/embed/wyO8xy7fnBg" // Своя ссылка
-                                title="YouTube video player" // Свое название
+                                src={film.trailerUrl}
+                                title={film.title}
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 allowFullScreen
                             />

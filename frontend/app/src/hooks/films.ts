@@ -2,7 +2,6 @@ import {useEffect, useState} from "react";
 import {IFilm} from "../core/entities";
 import {IGetFilmsParams} from "../api/films";
 import api from "../api";
-import {map} from "zod";
 import {API_URL} from "../core/config";
 import Endpoints from "../api/endpoints";
 
@@ -35,7 +34,7 @@ export const useFilms = () => {
 
 
     useEffect(() => {
-        fetchFilms({limit: 20, offset: Math.floor(Math.random() * (45000 - 0 + 1)) + 0})
+        fetchFilms({limit: 20, random: false})
     }, [])
 
 

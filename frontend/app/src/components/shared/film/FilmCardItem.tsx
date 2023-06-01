@@ -24,7 +24,7 @@ export default function FilmCardItem(props: FilmCardItemProps) {
                             <AspectRatio ratio={2 / 3}>
                                 <CardMedia
                                     component="img"
-                                    image={props.posterUrl}
+                                    image={props.posterUrl} 
                                     alt={props.title}
                                 />
                             </AspectRatio>

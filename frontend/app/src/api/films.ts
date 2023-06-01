@@ -1,11 +1,12 @@
-import {IAuthResponse, IFilm, ILoginRequest} from "../core/entities";
+import {IAuthResponse, IFilm, ILoginRequest, ITrailer} from "../core/entities";
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "./instance";
 import Endpoints from "./endpoints";
 
 export interface IGetFilmsParams {
     limit: number;
-    offset: number;
+    random: boolean;
+    offset?: number;
     genre?: string;
     country?: string;
 }
@@ -22,7 +23,16 @@ export const getFilms = (data: IGetFilmsParams): AxiosPromise<IFilmsResponse> =>
                     limit: data.limit,
                     offset: data.offset,
                     genre: data.genre,
-                    county: data.country
+                    county: data.country,
+                    random: data.random,
                 }
         })
+}
+export const getFilmDetail = (filmId: number): AxiosPromise<IFilm> => {
+    return axiosInstance.get<IFilm>(Endpoints.FILMS.GET_FILM_DETAIL(filmId))
+
+}
+export const getFilmTrailer = (filmId: number): AxiosPromise<ITrailer> => {
+    return axiosInstance.get<ITrailer>(Endpoints.FILMS.GET_FILM_TRAILER(filmId))
+
 }

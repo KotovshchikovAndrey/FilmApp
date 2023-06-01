@@ -10,19 +10,17 @@ export const axiosInstance = axios.create({
     baseURL: API_URL,
 })
 
-const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REGISTER, Endpoints.AUTH.REFRESH_TOKEN, Endpoints.FILMS.GET_FILMS, Endpoints.FILMS.GET_POSTER]
+const urlsAuth = [Endpoints.AUTH.LOGOUT]
 
 axiosInstance.interceptors.request.use((config) => {
-    if (config.url && urlsSkipAuth.includes(config.url)) {
+    if (config.url && urlsAuth.includes(config.url)) {
+        const accessToken = localStorage.getItem('token')
+        if (accessToken) {
+            config.headers.Authorization = `${accessToken}`
+        }
         return config
     }
-
-    const accessToken = localStorage.getItem('token')
-    if (accessToken) {
-        config.headers.Authorization = `${accessToken}`
-    }
     return config
-
 })
 axiosInstance.interceptors.response.use(
     (config) => config,
