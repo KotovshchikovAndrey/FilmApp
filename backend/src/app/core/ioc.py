@@ -12,6 +12,12 @@ container = punq.Container()
 
 # Repositories
 container.register(
+    film_repositories.ICommentRepository,
+    film_repositories.CommentPostgresRepository,
+    scope=punq.Scope.singleton,
+)
+
+container.register(
     film_repositories.IFilmReporitory,
     film_repositories.FilmPostgresRepository,
     scope=punq.Scope.singleton,
@@ -26,6 +32,12 @@ container.register(
 
 
 # Services
+container.register(
+    film_services.ICommentService,
+    film_services.CommentService,
+    scope=punq.Scope.singleton,
+)
+
 container.register(
     film_services.IFilmService,
     film_services.FilmService,

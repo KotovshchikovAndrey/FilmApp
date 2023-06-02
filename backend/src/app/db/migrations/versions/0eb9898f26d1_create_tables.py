@@ -128,6 +128,31 @@ def create_watchstatus_user_film_table() -> None:
     )
 
 
+def create_comment_table() -> None:
+    op.create_table(
+        "comment",
+        sa.Column("id", sa.Integer(), primary_key=True),
+        sa.Column(
+            "user_id",
+            sa.Integer(),
+            sa.ForeignKey("user.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "film_id",
+            sa.Integer(),
+            sa.ForeignKey("film.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "parent_comment",
+            sa.ForeignKey("comment.id", ondelete="CASCADE"),
+            nullable=True,
+        ),
+        sa.Column("text", sa.TEXT(), nullable=False),
+    )
+
+
 def create_trigger_on_watchstatus_user_film_table() -> None:
     op.execute(
         """
@@ -257,6 +282,7 @@ ALTER TABLE "watchstatus_user_film" ALTER COLUMN status TYPE watch_status USING 
 def upgrade() -> None:
     create_user_table()
     create_film_table()
+    create_comment_table()
     create_favorite_user_film_table()
     create_trigger_on_favorite_user_film_table()
     create_rating_table()
@@ -271,6 +297,7 @@ def downgrade() -> None:
     op.drop_table("rating")
     op.drop_table("favorite_user_film")
     op.drop_table("watchstatus_user_film")
+    op.drop_table("comment")
     op.drop_table("user")
     op.drop_table("film")
 

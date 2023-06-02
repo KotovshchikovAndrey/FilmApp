@@ -131,8 +131,60 @@ UPDATE SET value = EXCLUDED.value;"""
 RESET_FILM_RATING = """DELETE FROM "rating"
 WHERE user_id = :user_id AND film_id = :film_id;"""
 
+GET_ALL_PARENT_COMMENTS_FOR_FILM = """SELECT
+"comment".id as comment_id,
+"comment".text as text,
+"user".avatar as avatar,
+"user".name as name,
+"user".surname as surname
+FROM "comment" 
+JOIN "user" ON "user".id = "comment".user_id
+WHERE film_id = :film_id AND parent_comment IS NULL;"""
+
+GET_ALL_CHILD_COMMENTS_FOR_COMMENT = """SELECT
+"comment".id as comment_id,
+"comment".text as text,
+"user".avatar as avatar,
+"user".name as name,
+"user".surname as surname
+FROM "comment" 
+JOIN "user" ON "user".id = "comment".user_id
+WHERE parent_comment = :comment_id;"""
+
+CREATE_FILM_COMMENT = """INSERT INTO "comment" (user_id, film_id, text, parent_comment)
+VALUES (:user_id, :film_id, :text, :parent_comment) RETURNING "comment".id as comment_id;"""
+
+UPDATE_FILM_COMMENT = """UPDATE "comment"
+SET text = :text
+WHERE id = :comment_id RETURNING "comment".id as comment_id;"""
+
+DELETE_FILM_COMMENT = """DELETE FROM "comment"
+WHERE id = :comment_id RETURNING "comment".id as comment_id;"""
+
+ADD_CHILD_COMMENT = """UPDATE "comment"
+SET parent_comment = :parent_comment
+WHERE id = :film_id;"""
+
+GET_COMMENT_BY_ID = """SELECT * FROM "comment" 
+WHERE id = :comment_id;"""
 
 # Архив душевнобольного, не обращайте внимания :)
+
+
+# -- SELECT * FROM "user";
+
+# -- INSERT INTO "comment" (user_id, film_id, text)
+# -- VALUES (1, 2, 1, 'Tegvhhbbd');
+
+# -- SELECT * FROM "comment";
+# -- UPDATE "comment"
+# -- SET text = 'TEST'
+# -- WHERE id = 2 RETURNING "comment".text;
+
+# -- SELECT * FROM "comment";
+
+# SELECT * FROM "comment" JOIN
+
 
 # UPDATE_FILM = """UPDATE "film" SET
 # title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,
