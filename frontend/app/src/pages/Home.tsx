@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react"
-import {Stack, Typography} from "@mui/material"
+import {Box, CircularProgress, Stack, Typography} from "@mui/material"
 import FilmSearchInput from "../components/shared/film/FilmSearchInput"
 import FilmCardList from "../components/shared/film/FilmCardList"
 import FilmFilters from "../components/shared/film/FilmFilters"
@@ -21,7 +21,8 @@ export default function Home() {
             <Stack spacing={3} mb={10} useFlexGap>
                 <Typography variant="h5" component="h2">Коллекция</Typography>
                 <FilmFilters/>
-                <FilmCardList films={films}/>
+                {loading ? <Box mt={10} display='flex' justifyContent="center"><CircularProgress size={100}/></Box>:
+                <FilmCardList films={films}/>}
             </Stack>
         </React.Fragment>
     )
