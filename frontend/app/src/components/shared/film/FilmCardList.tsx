@@ -13,7 +13,7 @@ export default function FilmCardList({films} : FilmCardListProps) {
         <React.Fragment>
             <Grid container spacing={2}>
                 {films.map((film: IFilm) => (
-                    <Grid xs={6} sm={4} md={3} key={film.id}>
+                    <Grid xs={6} sm={4} md={3}>
                         <FilmCardItem
                             id={film.id}
                             title={film.title}
