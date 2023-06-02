@@ -19,8 +19,11 @@ export default function Home() {
                 <FilmSearchInput/>
             </Stack>
             <Stack spacing={3} mb={10} useFlexGap>
+                 {/*TODO объединить заголовок, фильтры, тупой поиск и фильмы в один компонент*/}
+                 {/*TODO заголовок списка фильмов в пропс, чтобы он был изменяемым*/}
                 <Typography variant="h5" component="h2">Коллекция</Typography>
                 <FilmFilters/>
+                {/*TODO перенести loading в film card list 1:23:00*/}
                 {loading ? <Box mt={10} display='flex' justifyContent="center"><CircularProgress size={100}/></Box>:
                 <FilmCardList films={films}/>}
             </Stack>
