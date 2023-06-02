@@ -10,7 +10,7 @@ export const axiosInstance = axios.create({
     baseURL: API_URL,
 })
 
-const urlsAuth = [Endpoints.AUTH.LOGOUT]
+const urlsAuth = [Endpoints.AUTH.LOGOUT, Endpoints.USERS.MY_PROFILE]
 
 axiosInstance.interceptors.request.use((config) => {
     if (config.url && urlsAuth.includes(config.url)) {
