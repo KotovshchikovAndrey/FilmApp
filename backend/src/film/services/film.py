@@ -6,9 +6,12 @@ from abc import ABC, abstractmethod
 from app.core import config
 from app.exceptions.api import ApiError
 
-from app.utils.ai_models.smart_search import search_films
+# from app.utils.ai_models.smart_search import search_films
 from app.utils.file_manager import FileManager
 from film.crud.reporitories import IFilmReporitory
+from film.services import imdb, ICommentService
+
+from user.dto import UserBase
 from film.dto import (
     CreateFilmDTO,
     FilmDTO,
@@ -22,12 +25,15 @@ from film.dto import (
     SetFilmRatingDTO,
     UpdateFilmDTO,
     ResetFilmRaitingDTO,
+    AddCommentDTO,
+    UpdateCommentDTO,
+    FilmCommentsDTO,
 )
-from film.services import imdb
 
 
 class IFilmService(ABC):
     __repository: IFilmReporitory
+    __comment_service: ICommentService
 
     @abstractmethod
     async def get_films_assortment(self, dto: GetFilmsDTO) -> FilmsDTO:
@@ -93,10 +99,27 @@ class IFilmService(ABC):
     async def reset_film_rating(self, dto: ResetFilmRaitingDTO) -> None:
         ...
 
+    @abstractmethod
+    async def get_film_comments(self, film_id: int) -> FilmCommentsDTO:
+        ...
+
+    @abstractmethod
+    async def add_comment_to_film(self, dto: AddCommentDTO) -> int:
+        ...
+
+    @abstractmethod
+    async def update_film_comment(self, dto: UpdateCommentDTO) -> int:
+        ...
+
+    @abstractmethod
+    async def delete_film_comment(self, comment_id: int, user: UserBase) -> int:
+        ...
+
 
 class FilmService(IFilmService):
-    def __init__(self, repository: IFilmReporitory):
+    def __init__(self, repository: IFilmReporitory, comment_service: ICommentService):
         self.__repository = repository
+        self.__comment_service = comment_service
 
     async def get_films_assortment(self, dto: GetFilmsDTO):
         films = await self.__repository.get_many(
@@ -158,10 +181,10 @@ class FilmService(IFilmService):
     async def giga_search_film(self, dto: SearchFilmDTO):
         with ThreadPoolExecutor(max_workers=4) as pool:
             event_loop = asyncio.get_running_loop()
-            film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
+            # film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
 
-        film = await self.__repository.find_by_id(film_id)
-        return film
+        # film = await self.__repository.find_by_id(film_id)
+        # return film
 
     async def create_new_film(self, dto: CreateFilmDTO):
         created_film = await self.__repository.create(dto)
@@ -205,3 +228,55 @@ class FilmService(IFilmService):
         return await self.__repository.reset_rating(
             user_id=dto.user.id, film_id=dto.film_id
         )
+
+    async def get_film_comments(self, film_id: int):
+        comments = await self.__comment_service.get_film_comments(film_id)
+        film_comments = FilmCommentsDTO(comments=comments)
+
+        return film_comments
+
+    async def add_comment_to_film(self, dto: AddCommentDTO):
+        if dto.parent_comment is not None:
+            comment = await self.__comment_service.find_comment_by_id(
+                comment_id=dto.parent_comment
+            )
+
+            if comment is None:
+                raise ApiError.not_found(message="Parent comment does not exists!")
+
+            # Максимальная вложенность комментариев друг в друга - 1
+            # ( У комментария есть вложенные комментарии,
+            # но у вложенных комментариев нет вложенности )
+            if comment.parent_comment is not None:
+                raise ApiError.bad_request(message="Maximum nesting exceeded!")
+
+        new_comment = await self.__comment_service.create_film_comment(dto)
+        return new_comment.comment_id
+
+    async def update_film_comment(self, dto: UpdateCommentDTO):
+        comment_in_db = await self.__comment_service.find_comment_by_id(dto.comment_id)
+        if comment_in_db is None:
+            raise ApiError.not_found(message="Comment not found!")
+
+        # Пользователь может редактировать только свои комментарии
+        if comment_in_db.user_id != dto.user.id:
+            raise ApiError.forbidden(message="Forbidden to update!")
+
+        updated_comment = await self.__comment_service.update_film_comment(
+            comment_id=dto.comment_id,
+            new_text=dto.text,
+        )
+
+        return updated_comment.comment_id
+
+    async def delete_film_comment(self, comment_id: int, user: UserBase):
+        comment_in_db = await self.__comment_service.find_comment_by_id(comment_id)
+        if comment_in_db is None:
+            raise ApiError.not_found(message="Comment does not exists!")
+
+        # Пользователь может удалять только свои комментарии
+        if comment_in_db.user_id != user.id:
+            raise ApiError.forbidden(message="Forbidden to delete!")
+
+        deleted_comment = await self.__comment_service.delete_film_comment(comment_id)
+        return deleted_comment.comment_id

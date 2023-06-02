@@ -15,16 +15,24 @@ from film.dto import (
     SetFilmRatingDTO,
     UpdateFilmDTO,
     ResetFilmRaitingDTO,
+    AddCommentDTO,
+    UpdateCommentDTO,
 )
 
 IFilmService = film_services.IFilmService
 
 
-# class Test(HTTPEndpoint):
-#     async def get(self, request: Request):
-#         poster_url = await fetch_poster_url_by_imdb_id(imdb_id="tt0022151")
-#         # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "OK"})
-#         return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": poster_url})
+class Test(HTTPEndpoint):
+    async def get(self, request: Request):
+        from app.utils.fakers import user_faker
+
+        await user_faker.create_fake_users(4)
+
+        return Response(status_code=200)
+
+        # poster_url = await fetch_poster_url_by_imdb_id(imdb_id="tt0022151")
+        # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "OK"})
+        # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": poster_url})
 
 
 class Film(HTTPEndpoint):
@@ -151,3 +159,53 @@ class FilmRating(HTTPEndpoint):
         await self.__service.reset_film_rating(dto)
 
         return Response(status_code=204)
+
+
+class FilmComment(HTTPEndpoint):
+    __service: IFilmService = container.resolve(IFilmService)
+
+    async def get(self, request: Request):
+        film_id = request.path_params["film_id"]
+        film_comments = await self.__service.get_film_comments(film_id)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=film_comments.dict(),
+        )
+
+    @requires("authenticated", status_code=401)
+    async def post(self, request: Request):
+        user = request.user.instance
+        film_id = request.path_params["film_id"]
+
+        data = await request.json()
+        dto = AddCommentDTO(**data, user=user, film_id=film_id)
+        added_comment = await self.__service.add_comment_to_film(dto)
+
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=added_comment)
+
+
+class FilmCommentDetail(HTTPEndpoint):
+    __service: IFilmService = container.resolve(IFilmService)
+
+    @requires("authenticated", status_code=401)
+    async def patch(self, request: Request):
+        user = request.user.instance
+        comment_id = request.path_params["comment_id"]
+
+        data = await request.json()
+        dto = UpdateCommentDTO(**data, user=user, comment_id=comment_id)
+        updated_comment = await self.__service.update_film_comment(dto)
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=updated_comment)
+
+    @requires("authenticated", status_code=401)
+    async def delete(self, request: Request):
+        user = request.user.instance
+        comment_id = request.path_params["comment_id"]
+
+        deleted_comment = await self.__service.delete_film_comment(
+            comment_id=comment_id, user=user
+        )
+
+        return JSONResponse(status_code=status.HTTP_200_OK, content=deleted_comment)
