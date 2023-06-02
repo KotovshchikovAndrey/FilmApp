@@ -1,4 +1,4 @@
-import {Button, Stack, Typography} from "@mui/material"
+import {Box, Button, CircularProgress, Stack, Typography} from "@mui/material"
 import * as React from "react"
 import {useParams} from "react-router-dom"
 import Grid from "@mui/material/Unstable_Grid2";
@@ -17,6 +17,7 @@ export default function FilmDetail() {
     return (
         <React.Fragment>
             <ArrowHeader/>
+            {loading ? <Box mt={20} display='flex' justifyContent="center"><CircularProgress size={100}/></Box> :
             <Grid container spacing={5}>
                 <Grid xs={12} sm={6}>
                     <img style={{maxWidth: "100%"}}
@@ -59,7 +60,7 @@ export default function FilmDetail() {
                         </AspectRatio>
                     </Stack>
                 </Grid>
-            </Grid>
+            </Grid>}
         </React.Fragment>
     )
 }
