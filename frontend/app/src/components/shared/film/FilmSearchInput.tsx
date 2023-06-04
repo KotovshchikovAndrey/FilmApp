@@ -4,13 +4,26 @@ import { TextField, Box, InputAdornment } from "@mui/material"
 import MicIcon from "@mui/icons-material/Mic"
 import SearchIcon from "@mui/icons-material/Search"
 
+import { IFilm } from "../../../core/entities"
+import api from "../../../api"
+import { title } from "process"
+
 export default function FilmSearchInput() {
+  const [searchResult, setSearchResult] = React.useState<IFilm | null>(null)
+
   const [inputValue, setInputValue] = React.useState<string>("")
   const { listening, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition({
     clearTranscriptOnListen: true,
   })
 
   React.useEffect(() => setInputValue(finalTranscript), [finalTranscript])
+
+  const fetchSearchFilm = async () => {
+    if (inputValue) {
+      const response = await api.films.searchFilmSmart(inputValue)
+      setSearchResult(response.data)
+    }
+  }
 
   return (
     <React.Fragment>
@@ -25,11 +38,13 @@ export default function FilmSearchInput() {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              <SearchIcon
-                sx={{
-                  cursor: "pointer",
-                }}
-              />
+              <Box onClick={() => fetchSearchFilm()}>
+                <SearchIcon
+                  sx={{
+                    cursor: "pointer",
+                  }}
+                />
+              </Box>
               {browserSupportsSpeechRecognition && (
                 <Box
                   onClick={() =>
