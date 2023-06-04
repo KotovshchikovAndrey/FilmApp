@@ -16,7 +16,6 @@ export interface AuthState {
         status: 'idle' | 'loading' | 'succeeded' | 'failed';
         error: string | null,
     }
-    isFilmFetched: boolean;
 }
 
 const initialState: AuthState = {
@@ -29,8 +28,7 @@ const initialState: AuthState = {
         profile: null,
         status: 'idle',
         error: null,
-    },
-    isFilmFetched: false,
+    }
 }
 
 // export const fetchLogin = createAsyncThunk(
@@ -120,9 +118,6 @@ export const authSlice = createSlice({
             state.profileData.status = 'failed'
             state.profileData.error = action.payload
         },
-        setFilmFetchState: (state, action: PayloadAction<boolean>) => {
-            state.isFilmFetched = action.payload
-        }
     },
     // extraReducers(builder) {
     //     builder
@@ -138,7 +133,6 @@ export const authSlice = createSlice({
     //             state.authData.error = action.error.message
     //         })
     // }
-
 })
 
 export const {
@@ -149,7 +143,6 @@ export const {
     loadProfileStart,
     loadProfileSuccess,
     loadProfileFailure,
-    setFilmFetchState,
 } = authSlice.actions
 
 export const selectIsLoggedIn = (state: IRootState) => !!localStorage.getItem('token')

@@ -1,7 +1,7 @@
 import {Autocomplete, TextField} from "@mui/material"
 import React from "react"
 import Grid from "@mui/material/Unstable_Grid2";
-// TODO пропсы filter, set filter 1:20:00
+
 export default function FilmFilters() {
     return (
         <React.Fragment>
