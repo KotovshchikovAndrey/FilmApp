@@ -1,5 +1,6 @@
 import typing as tp
 
+from loguru import logger
 from starlette.authentication import requires
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
@@ -14,7 +15,9 @@ from user.dto import (
     UserLogoutDTO,
     UserRefreshTokenDTO,
     UserRegisterDTO,
-    UserRequestCodeDTO, UserRequestResetPasswordDTO, UserResetPasswordDTO,
+    UserRequestCodeDTO,
+    UserRequestResetPasswordDTO,
+    UserResetPasswordDTO,
 )
 
 IAuthService = user_services.IAuthService
@@ -52,6 +55,11 @@ class Registration(HTTPEndpoint):
             samesite="none",
             secure=True,
         )
+
+        logger.info(
+            f"user email={reg_data.email} ip={request.client.host} was register"
+        )
+
         return response
 
 
@@ -72,10 +80,11 @@ class RedeemCode(HTTPEndpoint):
 
     @requires(scopes="authenticated", status_code=401)
     async def put(self, request: Request):
-        work = await self.__auth_service.redeem_code(UserRequestCodeDTO(
-            email=request.user.instance.email,
-            **dict(await request.json())
-        ))
+        work = await self.__auth_service.redeem_code(
+            UserRequestCodeDTO(
+                email=request.user.instance.email, **dict(await request.json())
+            )
+        )
         user = await self.__user_service.find_user_by_id(request.user.instance.id)
         if work is None:
             response = Response(status_code=204)
@@ -114,6 +123,8 @@ class Login(HTTPEndpoint):
             samesite="none",
             secure=True,
         )
+
+        logger.info(f"user email={data.email} ip={request.client.host} was login")
         return response
 
 
@@ -189,13 +200,21 @@ class ResetPassword(HTTPEndpoint):
             code=generate_code(),
             reason="reset-password",
             email=data.email,
-            timestamp=generate_expired_in()
+            timestamp=generate_expired_in(),
         )
         await self.__auth_service.request_reset_password(dto)
+
+        logger.info(
+            f"user email={data.email} ip={request.client.host} send reset password request"
+        )
+
         return Response(status_code=204)
 
     async def patch(self, request: Request):
-        work = await self.__auth_service.redeem_code(UserRequestCodeDTO(**dict(await request.json())))
+        work = await self.__auth_service.redeem_code(
+            UserRequestCodeDTO(**dict(await request.json()))
+        )
+
         return JSONResponse(status_code=200, content={"token": work})
 
     async def put(self, request: Request):
@@ -204,9 +223,7 @@ class ResetPassword(HTTPEndpoint):
         email = await self.__auth_service.reset_password(dto)
 
         access_token, refresh_token, user_status = await self.__auth_service.login(
-            UserLoginDTO(
-                email=email,
-                password=data["password"])
+            UserLoginDTO(email=email, password=data["password"])
         )
         output = {"access_token": access_token, "refresh_token": refresh_token}
         response = JSONResponse(status_code=200, content=output)
@@ -225,6 +242,11 @@ class ResetPassword(HTTPEndpoint):
             samesite="none",
             secure=True,
         )
+
+        logger.info(
+            f"user email={email} ip={request.client.host} send changed password"
+        )
+
         return response
 
 

@@ -1,4 +1,5 @@
 import typing as tp
+from loguru import logger
 
 from starlette import status
 from starlette.authentication import requires
@@ -24,15 +25,7 @@ IFilmService = film_services.IFilmService
 
 class Test(HTTPEndpoint):
     async def get(self, request: Request):
-        from app.utils.fakers import user_faker
-
-        await user_faker.create_fake_users(4)
-
-        return Response(status_code=200)
-
-        # poster_url = await fetch_poster_url_by_imdb_id(imdb_id="tt0022151")
-        # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": "OK"})
-        # return JSONResponse(status_code=status.HTTP_200_OK, content={"msg": poster_url})
+        ...
 
 
 class Film(HTTPEndpoint):
@@ -69,6 +62,7 @@ class FilmDetail(HTTPEndpoint):
     async def patch(self, request: Request):
         film_id = request.path_params["film_id"]
         data = await request.json()
+
         dto = UpdateFilmDTO(**data)
         updated_film = await self.__service.update_film_info(film_id, dto)
 
@@ -148,6 +142,10 @@ class FilmRating(HTTPEndpoint):
         dto = SetFilmRatingDTO(**data, film_id=film_id, user=user)
         await self.__service.set_film_rating(dto)
 
+        logger.info(
+            f"user email={user.email} ip={request.client.host} set raiting to film id={film_id}"
+        )
+
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @requires("authenticated", status_code=401)
@@ -157,6 +155,10 @@ class FilmRating(HTTPEndpoint):
 
         dto = ResetFilmRaitingDTO(user=user, film_id=film_id)
         await self.__service.reset_film_rating(dto)
+
+        logger.info(
+            f"user email={user.email} ip={request.client.host} drop raiting to film id={film_id}"
+        )
 
         return Response(status_code=204)
 
@@ -182,6 +184,10 @@ class FilmComment(HTTPEndpoint):
         dto = AddCommentDTO(**data, user=user, film_id=film_id)
         added_comment = await self.__service.add_comment_to_film(dto)
 
+        logger.info(
+            f"user email={user.email} ip={request.client.host} create comment to film id={film_id}"
+        )
+
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=added_comment)
 
 
@@ -197,6 +203,10 @@ class FilmCommentDetail(HTTPEndpoint):
         dto = UpdateCommentDTO(**data, user=user, comment_id=comment_id)
         updated_comment = await self.__service.update_film_comment(dto)
 
+        logger.info(
+            f"user email={user.email} ip={request.client.host} update comment id={comment_id}"
+        )
+
         return JSONResponse(status_code=status.HTTP_200_OK, content=updated_comment)
 
     @requires("authenticated", status_code=401)
@@ -206,6 +216,10 @@ class FilmCommentDetail(HTTPEndpoint):
 
         deleted_comment = await self.__service.delete_film_comment(
             comment_id=comment_id, user=user
+        )
+
+        logger.info(
+            f"user email={user.email} ip={request.client.host} drop comment id={comment_id}"
         )
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=deleted_comment)

@@ -15,6 +15,14 @@ def prepare_database():
 
 
 @pytest.fixture
+async def test_users():
+    from app.utils.fakers import user_faker
+
+    users = await user_faker.create_fake_users(count=5)
+    return users
+
+
+@pytest.fixture
 async def client(prepare_database: None) -> AsyncClient:
     from src.main import app
 

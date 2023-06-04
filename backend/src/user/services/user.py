@@ -18,7 +18,11 @@ from user.dto import (
     UpdateProfileDTO,
     UserAvatarDTO,
     UserBase,
-    UserRegisterDTO, UserChangePassword, UserChangeEmail, ManageWatchStatusFilmDTO, GetUserWatchStatusFilmsDTO,
+    UserRegisterDTO,
+    UserChangePassword,
+    UserChangeEmail,
+    ManageWatchStatusFilmDTO,
+    GetUserWatchStatusFilmsDTO,
 )
 
 
@@ -82,23 +86,23 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
-    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO) -> None:
+    async def get_favorites_films(self, dto: GetUserFavoriteFilmsDTO) -> FilmsDTO:
         ...
 
     @abstractmethod
-    async def add_to_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
+    async def add_film_to_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
         ...
 
     @abstractmethod
-    async def delete_from_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
-        ...
-
-    @abstractmethod
-    async def get_favorites(self, dto: GetUserFavoriteFilmsDTO) -> FilmsDTO:
+    async def delete_film_from_favorite(self, dto: ManageFavoriteFilmDTO) -> None:
         ...
 
     @abstractmethod
     async def get_watch_status_films(self, dto: GetUserWatchStatusFilmsDTO) -> FilmsDTO:
+        ...
+
+    @abstractmethod
+    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO) -> None:
         ...
 
 
@@ -162,7 +166,9 @@ class UserService(IUserService):
         # await self.mail_server.send_code(code_info["code"], dto.new_email)
 
     async def change_user_password(self, dto: UserChangePassword) -> None:
-        is_old_password_correct = await self.__repository.check_password(dto.user.id, dto.old_password)
+        is_old_password_correct = await self.__repository.check_password(
+            dto.user.id, dto.old_password
+        )
         if not is_old_password_correct:
             raise ApiError.unauthorized("Wrong old password")
         if not 8 <= len(dto.new_password) <= 100:
@@ -183,21 +189,7 @@ class UserService(IUserService):
     async def add_refresh_token(self, user_id: int, refresh_token: str):
         await self.__repository.add_refresh_token(user_id, refresh_token)
 
-    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO):
-        film = await self.__film_service.get_film_info(dto.film_id)
-        await self.__repository.change_watch_status(dto.user_id, film.id, dto.watch_status)
-
-    async def add_to_favorite(self, dto: ManageFavoriteFilmDTO):
-        film = await self.__film_service.get_film_info(dto.film_id)
-        await self.__repository.add_to_favorite(user_id=dto.user_id, film_id=film.id)
-
-    async def delete_from_favorite(self, dto: ManageFavoriteFilmDTO):
-        film = await self.__film_service.get_film_info(dto.film_id)
-        await self.__repository.delete_from_favorite(
-            user_id=dto.user_id, film_id=film.id
-        )
-
-    async def get_favorites(self, dto: GetUserFavoriteFilmsDTO):
+    async def get_favorites_films(self, dto: GetUserFavoriteFilmsDTO):
         user, order_by = dto.user, dto.order_by.value
         films = await self.__film_service.get_user_favorite_films(
             target_id=user.id, order_by=order_by
@@ -205,12 +197,28 @@ class UserService(IUserService):
 
         return films
 
+    async def add_film_to_favorite(self, dto: ManageFavoriteFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.add_to_favorite(user_id=dto.user_id, film_id=film.id)
+
+    async def delete_film_from_favorite(self, dto: ManageFavoriteFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.delete_from_favorite(
+            user_id=dto.user_id, film_id=film.id
+        )
+
     async def get_watch_status_films(self, dto: GetUserWatchStatusFilmsDTO):
         films = await self.__film_service.get_user_watch_status_films(
             target_id=dto.user.id, status=dto.watch_status, order_by=dto.order_by
         )
 
         return films
+
+    async def change_watch_status(self, dto: ManageWatchStatusFilmDTO):
+        film = await self.__film_service.get_film_info(dto.film_id)
+        await self.__repository.change_watch_status(
+            dto.user_id, film.id, dto.watch_status
+        )
 
     async def ban_user(self, target_id: int):
         user = await self.find_user_by_id(target_id)
@@ -223,6 +231,3 @@ class UserService(IUserService):
         if user.role == "admin":
             raise ApiError.conflict(message="You can't unban admin")
         await self.__repository.unban_user(target_id)
-
-    async def __generate_reset_token(self, token: str) -> str:
-        ...

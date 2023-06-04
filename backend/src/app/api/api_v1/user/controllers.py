@@ -12,7 +12,11 @@ from user.dto import (
     FileDTO,
     GetUserFavoriteFilmsDTO,
     ManageFavoriteFilmDTO,
-    UpdateProfileDTO, UserChangePassword, UserChangeEmail, ManageWatchStatusFilmDTO, GetUserWatchStatusFilmsDTO,
+    UpdateProfileDTO,
+    UserChangePassword,
+    UserChangeEmail,
+    ManageWatchStatusFilmDTO,
+    GetUserWatchStatusFilmsDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -26,16 +30,16 @@ class MyFavorite(HTTPEndpoint):
     async def get(self, request: Request):
         user = request.user.instance
         dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
-        films = await self.__service.get_favorites(dto)
+        films = await self.__service.get_favorites_films(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
     @requires("authenticated", status_code=401)
-    # @requires("active", status_code=403)
+    @requires("active", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
-        await self.__service.add_to_favorite(dto)
+        await self.__service.add_film_to_favorite(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -44,7 +48,7 @@ class MyFavorite(HTTPEndpoint):
     async def delete(self, request: Request):
         data = await request.json()
         dto = ManageFavoriteFilmDTO(user_id=request.user.instance.id, **data)
-        await self.__service.delete_from_favorite(dto)
+        await self.__service.delete_film_from_favorite(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -59,7 +63,7 @@ class UserFavorite(HTTPEndpoint):
         user = await self.__service.find_user_by_id(user_id)
 
         dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
-        films = await self.__service.get_favorites(dto)
+        films = await self.__service.get_favorites_films(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
@@ -71,7 +75,7 @@ class UserFavorite(HTTPEndpoint):
         await self.__service.find_user_by_id(
             dto.user_id
         )  # Если пользователь не существует, будет ошибка
-        await self.__service.add_to_favorite(dto)
+        await self.__service.add_film_to_favorite(dto)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @requires("authenticated", status_code=401)
@@ -82,7 +86,7 @@ class UserFavorite(HTTPEndpoint):
         await self.__service.find_user_by_id(
             dto.user_id
         )  # Если пользователь не существует, будет ошибка
-        await self.__service.delete_from_favorite(dto)
+        await self.__service.delete_film_from_favorite(dto)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -92,8 +96,14 @@ class MyWatchStatus(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     async def get(self, request: Request):
         user = request.user.instance
-        watch_status = "watching" if "q" not in request.query_params.keys() else request.query_params["q"]
-        dto = GetUserWatchStatusFilmsDTO(user=user, watch_status=watch_status, **request.query_params)
+        watch_status = (
+            "watching"
+            if "q" not in request.query_params.keys()
+            else request.query_params["q"]
+        )
+        dto = GetUserWatchStatusFilmsDTO(
+            user=user, watch_status=watch_status, **request.query_params
+        )
         films = await self.__service.get_watch_status_films(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
@@ -111,7 +121,9 @@ class MyWatchStatus(HTTPEndpoint):
     @requires("active", status_code=403)
     async def delete(self, request: Request):
         data = await request.json()
-        dto = ManageWatchStatusFilmDTO(user_id=request.user.instance.id, watch_status="not_watching", **data)
+        dto = ManageWatchStatusFilmDTO(
+            user_id=request.user.instance.id, watch_status="not_watching", **data
+        )
         await self.__service.change_watch_status(dto)
 
         return Response(status_code=status.HTTP_204_NO_CONTENT)

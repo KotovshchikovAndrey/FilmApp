@@ -2,6 +2,16 @@ import pathlib
 
 from starlette.config import Config
 from starlette.datastructures import Secret
+from loguru import logger
+
+logger.add(
+    pathlib.Path("logs.log"),
+    format="{time:DD-MM-YYYY HH:mm} | {level} | {message}",
+    enqueue=True,
+    colorize=True,
+    level="INFO",
+    retention="3 days",
+)
 
 env_config = Config(".env")
 
