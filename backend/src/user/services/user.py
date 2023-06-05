@@ -70,6 +70,10 @@ class IUserService(ABC):
         ...
 
     @abstractmethod
+    async def toggle_profile_visibility(self, user: UserBase) -> bool:
+        ...
+
+    @abstractmethod
     async def delete_user(self, dto: ...) -> None:
         ...
 
@@ -182,6 +186,10 @@ class UserService(IUserService):
         avatar = await file_manager.upload(filename=dto.filename, file=dto.content)
 
         return await self.__repository.set_avatar(user_id=user.id, avatar=avatar)
+
+    async def toggle_profile_visibility(self, user: UserBase):
+        await self.__repository.toggle_profile_visibility(user.id, user.is_public)
+        return not user.is_public
 
     async def delete_user(self, dto: ...):
         ...

@@ -22,6 +22,7 @@ def create_user_table() -> None:
         sa.Column("avatar", sa.String(255), nullable=True),
         sa.Column("status", sa.String(15), nullable=False),
         sa.Column("role", sa.String(5), nullable=False),
+        sa.Column("is_public", sa.Boolean(), nullable=False, default=False),
         sa.Column(
             "refresh_tokens",
             sa.ARRAY(sa.TEXT()),

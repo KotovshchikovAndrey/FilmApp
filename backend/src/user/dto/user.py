@@ -15,6 +15,14 @@ class UserBase(BaseModel):
     avatar: tp.Optional[str] = None
     status: str
     role: str
+    is_public: bool
+
+
+class UserPublicDTO(BaseModel):
+    id: int
+    name: str
+    surname: str
+    avatar: tp.Optional[str] = None
 
 
 class UserFullDTO(UserBase):

@@ -61,6 +61,10 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
+    async def toggle_profile_visibility(self, user_id: int, current_visible: bool) -> None:
+        ...
+
+    @abstractmethod
     async def delete(self, user_id: int) -> None:
         ...
 
@@ -194,6 +198,13 @@ class UserPostgresRepository(IUserRepository):
         )
 
         return UserAvatarDTO(**avatar_url)
+
+    async def toggle_profile_visibility(self, user_id: int, current_visible: bool):
+        await db_connection.execute_query(
+            queries.TOGGLE_USER_VISIBILITY,
+            user_id=user_id,
+            visible=not current_visible,
+        )
 
     async def delete(self, user_id: int):
         ...

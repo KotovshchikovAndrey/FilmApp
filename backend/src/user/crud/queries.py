@@ -82,6 +82,10 @@ avatar = :avatar
 WHERE id = :user_id
 RETURNING avatar as avatar_url;"""
 
+TOGGLE_USER_VISIBILITY = """UPDATE "user"
+SET is_public = :visible
+WHERE id = :user_id;"""
+
 CHANGE_USER_EMAIL = """UPDATE "user" SET
 email = :new_email
 WHERE id = :user_id"""

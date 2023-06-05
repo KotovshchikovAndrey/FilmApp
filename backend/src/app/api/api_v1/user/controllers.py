@@ -16,7 +16,7 @@ from user.dto import (
     UserChangePassword,
     UserChangeEmail,
     ManageWatchStatusFilmDTO,
-    GetUserWatchStatusFilmsDTO,
+    GetUserWatchStatusFilmsDTO, UserBase, UserPublicDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -137,7 +137,7 @@ class MyProfile(HTTPEndpoint):
     async def get(self, request: Request):
         user = request.user.instance
         dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
-        films = await self.__service.get_favorites(dto)
+        films = await self.__service.get_favorites_films(dto)
 
         return JSONResponse(content=user.dict() | films.dict())
 
@@ -159,14 +159,18 @@ class MyProfile(HTTPEndpoint):
 class Profile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    @requires("authenticated", status_code=401)
-    @requires("admin", status_code=403)
+    # @requires("authenticated", status_code=401)
+    # @requires("admin", status_code=403)
     async def get(self, request: Request):
         user_id = request.path_params["user_id"]
         user = await self.__service.find_user_by_id(user_id)
-
+        is_full_info_available = check_is_full_profile_info_available(user, request)
+        if not user.is_public and not is_full_info_available:
+            raise ApiError.forbidden("Profile is private")
         dto = GetUserFavoriteFilmsDTO(**request.query_params, user=user)
-        films = await self.__service.get_favorites(dto)
+        films = await self.__service.get_favorites_films(dto)
+        if not is_full_info_available:
+            user = UserPublicDTO(**user.dict())
 
         return JSONResponse(content=user.dict() | films.dict())
 
@@ -200,6 +204,34 @@ class ProfileAvatar(HTTPEndpoint):
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=user_avatar.dict(),
+        )
+
+
+class MyProfileVisibility(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    async def put(self, request: Request):
+        user = request.user.instance
+        new_visibility = await self.__service.toggle_profile_visibility(user)
+        return JSONResponse(
+            status_code=200,
+            content={"is_public": new_visibility}
+        )
+
+
+class ProfileVisibility(HTTPEndpoint):
+    __service: IUserService = container.resolve(IUserService)
+
+    @requires("authenticated", status_code=401)
+    @requires("admin", status_code=403)
+    async def put(self, request: Request):
+        user_id = request.path_params["user_id"]
+        user = await self.__service.find_user_by_id(user_id)
+        new_visibility = await self.__service.toggle_profile_visibility(user)
+        return JSONResponse(
+            status_code=200,
+            content={"is_public": new_visibility}
         )
 
 
@@ -243,3 +275,8 @@ class UnbanUser(HTTPEndpoint):
     async def put(self, request: Request):
         await self.__service.unban_user(request.path_params["user_id"])
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+def check_is_full_profile_info_available(user: UserBase, request: Request) -> bool:
+    scopes = request.scope["auth"].scopes
+    return "admin" in scopes or ("authenticated" in scopes and request.user.instance.id == user.id)
