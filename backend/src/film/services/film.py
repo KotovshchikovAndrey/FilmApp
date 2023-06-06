@@ -172,7 +172,7 @@ class FilmService(IFilmService):
             if trailer_url is not None:
                 return trailer_url
 
-        raise ApiError.not_found(message="Trailer not found!")
+        return FilmTrailerDTO(key="dQw4w9WgXcQ", site="YouTube")  # пасхалка :D
 
     async def search_film(self, dto: SearchFilmDTO):
         films = await self.__repository.find_by_title(title=dto.title)
