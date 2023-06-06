@@ -56,7 +56,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def get_poster_for_film(self, dto: GetPosterDTO) -> bytes:
+    async def get_poster_for_film(self, dto: GetPosterDTO) -> tp.Tuple[bytes, bool]:
         ...
 
     @abstractmethod
@@ -154,12 +154,12 @@ class FilmService(IFilmService):
             poster_url = await imdb.fetch_poster_url_by_imdb_id(imdb_id)
             if poster_url is not None:
                 poster = await imdb.fetch_poster_binary_file(poster_url, dto.size)
-                return poster
+                return poster, True
 
         file_manager = FileManager(upload_dir=config.UPLOAD_DIR + "/posters")
         poster = await file_manager.read("default_poster.jpg")
 
-        return poster
+        return poster, False
 
     async def get_trailer_for_film(self, film_id: int):
         film = await self.__repository.find_by_id(film_id)

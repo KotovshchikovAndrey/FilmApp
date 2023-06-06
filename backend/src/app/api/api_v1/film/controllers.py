@@ -110,10 +110,11 @@ class Poster(HTTPEndpoint):
 
     async def get(self, request: Request):
         dto = GetPosterDTO(**request.query_params, **request.path_params)
-        poster = await self.__service.get_poster_for_film(dto)
+        poster, is_found = await self.__service.get_poster_for_film(dto)
 
         response = Response(content=poster, media_type="image/jpeg")
-        response.headers["Cache-Control"] = "public, max-age=86400"
+        if is_found:
+            response.headers["Cache-Control"] = "public, max-age=86400"
         return response
 
 
@@ -125,7 +126,8 @@ class Trailer(HTTPEndpoint):
         trailer = await self.__service.get_trailer_for_film(film_id)
 
         response = JSONResponse(status_code=status.HTTP_200_OK, content=trailer.dict())
-        response.headers["Cache-Control"] = "public, max-age=86400"
+        if trailer.key != "dQw4w9WgXcQ":
+            response.headers["Cache-Control"] = "public, max-age=86400"
         return response
 
 
