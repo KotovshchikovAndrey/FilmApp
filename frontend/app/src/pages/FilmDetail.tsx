@@ -6,13 +6,14 @@ import {Chip} from "@mui/material";
 import {Add} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import ArrowHeader from "../components/shared/Header/ArrowHeader";
-import {useFilms} from "../hooks/films";
+import {useFilms} from "../hooks/useFilms";
 import {useFilmDetail} from "../hooks/filmDetail";
 import {IGenre} from "../core/entities";
 
 export default function FilmDetail() {
     const {id} = useParams()
     const filmId = parseInt(id!)
+    // TODO разделить фетч фильма и трейлера на 2 useFetching
     const {film, loading, err} = useFilmDetail(filmId)
     return (
         <React.Fragment>
@@ -20,6 +21,7 @@ export default function FilmDetail() {
             {loading ? <Box mt={20} display='flex' justifyContent="center"><CircularProgress size={100}/></Box> :
             <Grid container spacing={5}>
                 <Grid xs={12} sm={6}>
+                    {/*TODO Размер фото*/}
                     <img style={{maxWidth: "100%"}}
                          src={film?.posterUrl}
                          alt={film?.title}

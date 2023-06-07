@@ -5,24 +5,22 @@ import Endpoints from "./endpoints"
 
 export interface IGetFilmsParams {
   limit: number
-  random: boolean
   offset?: number
-  genre?: string
-  country?: string
+  genre?: string | null
+  country?: string | null
 }
 
 interface IFilmsResponse {
   films: IFilm[]
 }
-
+//TODO значения параметров по умолчанию
 export const getFilms = (data: IGetFilmsParams): AxiosPromise<IFilmsResponse> => {
   return axiosInstance.get<IFilmsResponse>(Endpoints.FILMS.GET_FILMS, {
     params: {
       limit: data.limit,
       offset: data.offset,
       genre: data.genre,
-      county: data.country,
-      random: data.random,
+      country: data.country,
     },
   })
 }
