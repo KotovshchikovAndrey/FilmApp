@@ -1,76 +1,53 @@
-import axios, {AxiosError} from 'axios'
-import {API_URL} from "../core/config";
-import Endpoints from "./endpoints";
-import {store, useAppSelector} from "../store";
-import {logoutUser, refreshToken} from "../store/actionCreators";
-import api from "./index";
+import axios from "axios"
+import { API_URL } from "../core/config"
+import Endpoints from "./endpoints"
+import { store } from "../store"
+import { refreshToken } from "../store/actionCreators"
+
+import jwt_decode from "jwt-decode"
 
 export const axiosInstance = axios.create({
-    withCredentials: true,
-    baseURL: API_URL,
+  withCredentials: true,
+  baseURL: API_URL,
 })
 
-const urlsAuth = [Endpoints.AUTH.LOGOUT, Endpoints.USERS.MY_PROFILE]
+const urlsAuth = [Endpoints.AUTH.LOGOUT, Endpoints.USERS.MY_PROFILE, Endpoints.AUTH.REDEEM_CODE]
+
+interface ITokenPayload {
+  id: number
+  exp: number
+}
+
+axiosInstance.interceptors.request.use(async (request) => {
+  if (request.url && urlsAuth.includes(request.url)) {
+    let accessToken = localStorage.getItem("token")
+    if (accessToken) {
+      const payload: ITokenPayload = jwt_decode(accessToken)
+
+      const expiration = new Date(payload.exp * 1000)
+      const nowDate = new Date()
+
+      const isTokenExpire = expiration.getTime() - nowDate.getTime() < 0
+      if (!isTokenExpire) {
+        request.headers.Authorization = `${accessToken}`
+        return request
+      }
+    }
+
+    await store.dispatch(refreshToken())
+    accessToken = localStorage.getItem("token")
+    request.headers.Authorization = `${accessToken}`
+
+    return request
+  }
+
+  return request
+})
 
 axiosInstance.interceptors.request.use((config) => {
-    if (config.url && urlsAuth.includes(config.url)) {
-        const accessToken = localStorage.getItem('token')
-        if (accessToken) {
-            config.headers.Authorization = `${accessToken}`
-        }
-        return config
-    }
-    return config
+  if (config.url === Endpoints.AUTH.REFRESH_TOKEN) {
+    const accessToken = localStorage.getItem("token")
+    config.headers["old_access"] = accessToken
+  }
+  return config
 })
-axiosInstance.interceptors.response.use(
-    (config) => config,
-    async (error) => {
-        const originalRequest = error.config
-        if (error.response?.status == 401 && error.config && !originalRequest.isRetry) {
-            originalRequest.isRetry = true
-            try {
-                await store.dispatch(refreshToken())
-                return axiosInstance.request(originalRequest)
-            } catch (e) {
-                console.log('не авторизован')
-                store.dispatch(logoutUser())
-            }
-
-        }
-        throw error
-    })
-
-// axiosInstance.interceptors.response.use(
-//     (response) => response,
-//     (error: AxiosError) => {
-//         console.log('trying to refresh...')
-//         // const isLoggedIn = !!store.getState().auth.authData.accessToken
-//         //
-//         // if ((error.response?.status === 401) && isLoggedIn && error.request.url !== Endpoints.AUTH.LOGOUT) {
-//         //     store.dispatch(logoutUser())
-//         // }
-//         //
-//         // throw error
-//     }
-// )
-
-axiosInstance.interceptors.request.use((config) => {
-    if (config.url === Endpoints.AUTH.REFRESH_TOKEN) {
-        const accessToken = localStorage.getItem('token')
-        config.headers['old_access'] = accessToken
-    }
-    return config
-})
-//
-// axiosInstance.interceptors.response.use(
-//     (response) => response,
-//     (error: AxiosError) => {
-//         const isLoggedIn = !!store.getState().auth.authData.accessToken
-//
-//         if ((error.response?.status === 401) && isLoggedIn && error.request.url !== Endpoints.AUTH.LOGOUT) {
-//             store.dispatch(logoutUser())
-//         }
-//
-//         throw error
-//     }
-// )

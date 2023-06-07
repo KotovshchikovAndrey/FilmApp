@@ -1,85 +1,98 @@
-import {ILoginRequest, IRegisterRequest} from "../core/entities";
-import {Dispatch} from "@reduxjs/toolkit";
-import {
-    loadProfileFailure,
-    loadProfileStart, loadProfileSuccess,
-    authFailure,
-    authStart,
-    authSuccess,
-    logoutSuccess,
-} from "./authReducer";
-import api from "../api";
-import {redirect} from "react-router-dom";
-import {store} from "./index";
+import { AxiosError } from "axios"
+import api from "../api"
+import { ILoginRequest, IRegisterRequest } from "../core/entities"
+import { authActions } from "./authReducer"
+import { Dispatch } from "@reduxjs/toolkit"
 
-export const loginUser = (data: ILoginRequest) =>
-    async (dispatch: Dispatch<any>): Promise<void> => {
-        try {
-            dispatch(authStart())
-            const response = await api.auth.login(data)
-            dispatch(getMyProfile())
-            localStorage.setItem('token', response.data.access_token)
-            dispatch(authSuccess(response.data.access_token))
-        } catch (e: any) {
-            console.error(e.message)
-            dispatch(authFailure(e.response.data.message))
+export const registerUser = (data: IRegisterRequest) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+
+    try {
+      const response = await api.auth.register(data)
+      const accessToken = response.data.access_token
+      localStorage.setItem("token", accessToken)
+
+      dispatch(authActions.setIsAuth(true))
+      dispatch(authActions.setLoading(false))
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        const errorResponse = err.response
+        if (errorResponse) {
+          dispatch(authActions.setErrorMessage(errorResponse.data.message))
+          dispatch(authActions.setLoading(false))
+
+          return
         }
+
+        dispatch(authActions.setErrorMessage("Internal error! Try again later"))
+        dispatch(authActions.setLoading(false))
+      }
     }
-export const logoutUser = () =>
-    async (dispatch: Dispatch): Promise<void> => {
-        try {
-            redirect("/")
-            await api.auth.logout()
-            localStorage.removeItem('token')
-            dispatch(logoutSuccess())
-        } catch (e: any) {
-            console.error(e.message)
+  }
+}
+
+export const loginUser = (data: ILoginRequest) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+
+    try {
+      const response = await api.auth.login(data)
+      const accessToken = response.data.access_token
+      localStorage.setItem("token", accessToken)
+
+      dispatch(authActions.setIsAuth(true))
+      dispatch(authActions.setLoading(false))
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        const errorResponse = err.response
+        if (errorResponse) {
+          dispatch(authActions.setErrorMessage(errorResponse.data.message))
+          dispatch(authActions.setLoading(false))
+
+          return
         }
+
+        dispatch(authActions.setErrorMessage("Internal error! Try again later"))
+        dispatch(authActions.setLoading(false))
+      }
     }
-export const getMyProfile = () =>
-    async (dispatch: Dispatch<any>): Promise<void> => {
-        try {
-            dispatch(loadProfileStart())
-            const response = await api.users.getMyProfile()
-            dispatch(loadProfileSuccess(response.data))
-        } catch (e: any) {
-            console.error(e.message)
-            dispatch(loadProfileFailure(e.message))
-        }
+  }
+}
+
+export const refreshToken = () => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const response = await api.auth.refreshToken()
+      const accessToken = response.data.access_token
+      localStorage.setItem("token", accessToken)
+    } catch (err) {
+      dispatch(authActions.setIsAuth(false))
     }
-// export const getAccessToken = () =>
-//     async (dispatch: Dispatch): Promise<string | null> => {
-//         try {
-//             const accessToken = store.getState().auth.authData.accessToken
-//             return accessToken
-//         } catch (e: any) {
-//             console.error(e.message)
-//             return null
-//         }
-//     }
-export const refreshToken = () =>
-    async (dispatch: Dispatch<any>): Promise<void> => {
-        try {
-            dispatch(authStart())
-            const response = await api.auth.refreshToken()
-            localStorage.setItem('token', response.data.access_token)
-            dispatch(getMyProfile())
-            dispatch(authSuccess(response.data.access_token))
-        } catch (e: any) {
-            console.error(e.message)
-            dispatch(authFailure(e.message))
-        }
+  }
+}
+
+export const authenticateUser = () => {
+  return async (dispatch: Dispatch) => {
+    try {
+      const response = await api.users.getMyProfile()
+      const user = response.data
+
+      dispatch(authActions.setIsAuth(true))
+      dispatch(authActions.setUser(user))
+    } catch (err) {
+      dispatch(authActions.setIsAuth(false))
+      dispatch(authActions.setUser(null))
     }
-export const registerUser = (data: IRegisterRequest) =>
-    async (dispatch: Dispatch<any>): Promise<void> => {
-        try {
-            dispatch(authStart())
-            const response = await api.auth.register(data)
-            localStorage.setItem('token', response.data.access_token)
-            dispatch(getMyProfile())
-            dispatch(authSuccess(response.data.access_token))
-        } catch (e: any) {
-            console.log(e.message)
-            dispatch(authFailure(e.response.data.message))
-        }
-    }
+  }
+}
+
+export const logoutUser = () => {
+  return async (dispatch: Dispatch) => {
+    await api.auth.logout()
+    localStorage.removeItem("token")
+
+    dispatch(authActions.setIsAuth(false))
+    dispatch(authActions.setUser(null))
+  }
+}

@@ -26,9 +26,9 @@ export default function FilmFilters() {
             disablePortal
             id="combo-box-demo"
             options={filters ? filters.genres.map((genre) => genre.name) : []} // потом поместим массив из жанров, который возьмем с бэка
-            onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
-              console.log(event.target.value)
-            }
+            // onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
+            //   console.log(event.target.value)
+            // }
             renderInput={(params) => <TextField {...params} label="Жанр" />}
           />
         </Grid>

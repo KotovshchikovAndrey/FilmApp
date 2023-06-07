@@ -4,6 +4,7 @@ const Endpoints = {
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
     REFRESH_TOKEN: "/auth/refresh-token",
+    REDEEM_CODE: "/auth/redeem-code",
   },
   USERS: {
     MY_PROFILE: "/users/profile/me",
