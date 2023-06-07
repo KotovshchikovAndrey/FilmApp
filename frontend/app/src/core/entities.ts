@@ -65,3 +65,11 @@ export interface IFilmFilters {
   genres: IGenre[]
   countries: ICountry[]
 }
+export interface IFilmFilter {
+  genre: string | null,
+  country: string | null,
+}
+export const InitialFilter: IFilmFilter = {
+  genre: null,
+  country: null,
+}

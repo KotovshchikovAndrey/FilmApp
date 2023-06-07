@@ -4,10 +4,10 @@ import FilmSearchInput from "../components/shared/film/FilmSearchInput"
 import FilmCardList from "../components/shared/film/FilmCardList"
 import FilmFilters from "../components/shared/film/FilmFilters"
 import ProfileHeader from "../components/shared/Header/ProfileHeader"
-import { useFilms } from "../hooks/films"
+import { useFilms } from "../hooks/useFilms"
+import FilmCollection from "../components/FilmCollection";
 
 export default function Home() {
-  const { films, loading, err } = useFilms()
 
   return (
     <React.Fragment>
@@ -22,14 +22,7 @@ export default function Home() {
         <Typography variant="h5" component="h2">
           Коллекция
         </Typography>
-        <FilmFilters />
-        {loading ? (
-          <Box mt={10} display="flex" justifyContent="center">
-            <CircularProgress size={100} />
-          </Box>
-        ) : (
-          <FilmCardList films={films} />
-        )}
+        <FilmCollection/>
       </Stack>
     </React.Fragment>
   )

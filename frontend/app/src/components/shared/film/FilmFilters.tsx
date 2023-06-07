@@ -1,14 +1,20 @@
-import { Autocomplete, TextField } from "@mui/material"
-import React from "react"
+import {Autocomplete, TextField} from "@mui/material"
+import React, {useEffect, useState} from "react"
 import Grid from "@mui/material/Unstable_Grid2"
 
 import api from "../../../api"
-import { IFilmFilters } from "../../../core/entities"
+import {IFilmFilter, IFilmFilters, IGenre, InitialFilter} from "../../../core/entities"
 
-export default function FilmFilters() {
-  const [filters, setFilters] = React.useState<IFilmFilters>()
+interface FilmFiltersProps {
+  getFilter: (filter: IFilmFilter) => void;
+}
 
-  React.useEffect(() => {
+
+export default function FilmFilters({getFilter}: FilmFiltersProps) {
+  const [filters, setFilters] = useState<IFilmFilters>()
+  const [filterValue, setFilterValue] = useState<IFilmFilter>(InitialFilter)
+
+  useEffect(() => {
     const fetchFilmFilters = async () => {
       const response = await api.films.getFilmFilters()
       setFilters(response.data)
@@ -17,6 +23,10 @@ export default function FilmFilters() {
     fetchFilmFilters()
   }, [])
 
+  useEffect(()=> {
+    getFilter(filterValue)
+  }, [filterValue])
+
   return (
     <React.Fragment>
       <Grid container spacing={2}>
@@ -24,21 +34,27 @@ export default function FilmFilters() {
           <Autocomplete
             size="small"
             disablePortal
-            id="combo-box-demo"
-            options={filters ? filters.genres.map((genre) => genre.name) : []} // потом поместим массив из жанров, который возьмем с бэка
+            options={filters ? filters.genres.map((genre) => genre.name) : []}
             // onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
             //   console.log(event.target.value)
             // }
-            renderInput={(params) => <TextField {...params} label="Жанр" />}
+            renderInput={(params) => <TextField {...params} label="Жанр"/>}
+            value={filterValue.genre}
+            onChange={(event: any, newValue, reason) => {
+              setFilterValue({...filterValue, genre: newValue});
+            }}
           />
         </Grid>
         <Grid xs={12} md>
           <Autocomplete
             size="small"
             disablePortal
-            id="combo-box-demo"
-            options={filters ? filters.countries.map((country) => country.name) : []} // потом поместим массив из стран, который возьмем с бэка
-            renderInput={(params) => <TextField {...params} label="Страна" />}
+            options={filters ? filters.countries.map((country) => country.name) : []}
+            renderInput={(params) => <TextField {...params} label="Страна"/>}
+            value={filterValue.country}
+            onChange={(event: any, newValue, reason) => {
+              setFilterValue({...filterValue, country: newValue});
+            }}
           />
         </Grid>
       </Grid>

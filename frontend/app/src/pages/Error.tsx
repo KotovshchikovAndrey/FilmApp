@@ -16,6 +16,7 @@ export default function Error() {
             <Typography variant="h1">
                 {`${error.status } ${error.statusText || error.message}`}
             </Typography>
+            {/*TODO link to the home page*/}
         </Container>
     );
 }
