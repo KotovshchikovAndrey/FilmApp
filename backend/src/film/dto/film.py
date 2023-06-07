@@ -64,7 +64,7 @@ class FilmDTO(FilmBase):
 class GetFilmsDTO(BaseModel):
     limit: int
     offset: int = 0
-    genre: tp.Optional[str] = None
+    genre: tp.Optional[int] = None
     country: tp.Optional[str] = None
 
 

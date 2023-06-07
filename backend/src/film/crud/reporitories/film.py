@@ -21,7 +21,7 @@ class IFilmReporitory(ABC):
         self,
         limit: int,
         offset: int,
-        genre: tp.Optional[str] = None,
+        genre: tp.Optional[int] = None,
         country: tp.Optional[str] = None,
     ) -> FilmsDTO:
         ...
@@ -84,7 +84,7 @@ class FilmPostgresRepository(IFilmReporitory):
         self,
         limit: int,
         offset: int,
-        genre: tp.Optional[str] = None,
+        genre: tp.Optional[int] = None,
         country: tp.Optional[str] = None,
     ):
         params = {"limit": limit, "offset": offset}
@@ -93,13 +93,13 @@ class FilmPostgresRepository(IFilmReporitory):
             conditions = []
             query = queries.FILTER_FILMS_BY_CONDITIONS
             if genre is not None:
-                conditions.append(" genre ->> 'name' = :genre ")
-                params["genre"] = genre
+                conditions.append(" genre -> 'id' = :genre ")
+                params["genre"] = str(genre)
             if country is not None:
                 conditions.append(" country ->> 'iso_3166_1' = :country ")
                 params["country"] = country
 
-            query += "AND".join(conditions) + "OFFSET :offset LIMIT :limit;"
+            query += "AND".join(conditions) + "ORDER BY RANDOM() OFFSET :offset LIMIT :limit;"
 
         films = await db_connection.fetch_all(query, **params)
         return FilmsDTO(films=films)
