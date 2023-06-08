@@ -1,5 +1,6 @@
 backend/venv
 backend/.env
+backend/logs.log
 backend/test.py
 backend/src/app/media
 backend/alembic.ini
