@@ -4,6 +4,7 @@ import { IUser } from "../core/entities"
 export interface AuthState {
   user: IUser | null
   isAuth: boolean
+  status: string | null
   loading: boolean
   errorMessage: string | null
 }
@@ -11,6 +12,7 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   isAuth: false,
+  status: null,
   loading: false,
   errorMessage: null,
 }
@@ -25,6 +27,10 @@ export const authSlice = createSlice({
 
     setIsAuth: (state, action: PayloadAction<boolean>) => {
       state.isAuth = action.payload
+    },
+
+    setStatus: (state, action: PayloadAction<string | null>) => {
+      state.status = action.payload
     },
 
     setLoading: (state, action: PayloadAction<boolean>) => {

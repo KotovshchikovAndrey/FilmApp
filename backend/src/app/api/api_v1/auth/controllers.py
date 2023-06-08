@@ -51,7 +51,7 @@ class Registration(HTTPEndpoint):
         response.set_cookie(
             key="status",
             value="not_verified",
-            httponly=True,
+            httponly=False,
             samesite="none",
             secure=True,
         )
@@ -93,7 +93,7 @@ class RedeemCode(HTTPEndpoint):
         response.set_cookie(
             key="status",
             value=user.status,
-            httponly=True,
+            httponly=False,
             samesite="none",
             secure=True,
         )
@@ -119,7 +119,7 @@ class Login(HTTPEndpoint):
         response.set_cookie(
             key="status",
             value=user_status,
-            httponly=True,
+            httponly=False,
             samesite="none",
             secure=True,
         )
@@ -154,7 +154,7 @@ class TokenRefresh(HTTPEndpoint):
         response.set_cookie(
             key="status",
             value=user.status,
-            httponly=True,
+            httponly=False,
             samesite="none",
             secure=True,
         )
@@ -238,7 +238,7 @@ class ResetPassword(HTTPEndpoint):
         response.set_cookie(
             key="status",
             value=user_status,
-            httponly=True,
+            httponly=False,
             samesite="none",
             secure=True,
         )

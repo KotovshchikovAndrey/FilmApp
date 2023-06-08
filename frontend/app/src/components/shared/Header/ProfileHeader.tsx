@@ -12,8 +12,6 @@ export default function ProfileHeader() {
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
   const user = useAppSelector((state) => state.auth.user)
-  // const isLoggedIn = useAppSelector(state => !!state.auth.authData.accessToken)
-  // const userName = useAppSelector(state => state.auth.profileData.profile?.name)
 
   return (
     <React.Fragment>

@@ -11,7 +11,12 @@ export const axiosInstance = axios.create({
   baseURL: API_URL,
 })
 
-const urlsAuth = [Endpoints.AUTH.LOGOUT, Endpoints.USERS.MY_PROFILE, Endpoints.AUTH.REDEEM_CODE]
+const urlsAuth = [
+  Endpoints.AUTH.LOGOUT,
+  Endpoints.USERS.MY_PROFILE,
+  Endpoints.AUTH.REDEEM_CODE,
+  Endpoints.USERS.MY_FAVORITE,
+]
 
 interface ITokenPayload {
   id: number

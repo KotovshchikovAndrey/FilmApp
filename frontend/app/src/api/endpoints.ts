@@ -8,6 +8,7 @@ const Endpoints = {
   },
   USERS: {
     MY_PROFILE: "/users/profile/me",
+    MY_FAVORITE: "/users/favorite/me",
   },
   FILMS: {
     GET_FILMS: "/films",

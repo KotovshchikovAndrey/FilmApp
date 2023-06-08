@@ -4,10 +4,9 @@ import FilmSearchInput from "../components/shared/film/FilmSearchInput"
 import FilmCardList from "../components/shared/film/FilmCardList"
 import FilmFilters from "../components/shared/film/FilmFilters"
 import ProfileHeader from "../components/shared/Header/ProfileHeader"
-import FilmCollection from "../components/FilmCollection";
+import FilmCollection from "../components/FilmCollection"
 
 export default function Home() {
-
   return (
     <React.Fragment>
       <ProfileHeader />
@@ -21,7 +20,7 @@ export default function Home() {
         <Typography variant="h5" component="h2">
           Коллекция
         </Typography>
-        <FilmCollection/>
+        <FilmCollection />
       </Stack>
     </React.Fragment>
   )

@@ -2,15 +2,22 @@ import * as React from "react"
 import { Button, Skeleton, Stack, Typography } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../store"
 import { Navigate } from "react-router-dom"
-import { logoutUser } from "../store/actionCreators"
+import { fetchUserFavoriteFilms, logoutUser } from "../store/actionCreators"
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
 import ProfileDataField from "../components/shared/Profile/ProfileDataField"
+import FilmCardList from "../components/shared/film/FilmCardList"
 
 export default function Profile() {
   const dispatch = useAppDispatch()
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
   const user = useAppSelector((state) => state.auth.user)
+
+  const favoriteFilms = useAppSelector((state) => state.film.favoriteFilms)
+
+  React.useEffect(() => {
+    dispatch(fetchUserFavoriteFilms())
+  }, [])
 
   const renderProfile = () => (
     <React.Fragment>
@@ -38,6 +45,7 @@ export default function Profile() {
               </Button>
             </Stack>
             <Typography variant="h4">Favorite films</Typography>
+            <FilmCardList films={favoriteFilms} key={100} />
           </>
         )}
       </Stack>

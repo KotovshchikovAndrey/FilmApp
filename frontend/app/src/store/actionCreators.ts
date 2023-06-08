@@ -1,12 +1,14 @@
-import {AxiosError} from "axios"
+import { AxiosError } from "axios"
 import api from "../api"
-import {IFilm, ILoginRequest, IRegisterRequest} from "../core/entities"
-import {authActions} from "./authReducer"
-import {Dispatch} from "@reduxjs/toolkit"
-import {IGetFilmsParams} from "../api/films";
-import {filmActions} from "./filmReducer";
-import {API_URL} from "../core/config";
-import Endpoints from "../api/endpoints";
+import { IFilm, ILoginRequest, IRegisterRequest } from "../core/entities"
+import { authActions } from "./authReducer"
+import { Dispatch } from "@reduxjs/toolkit"
+import { IGetFilmsParams } from "../api/films"
+import { filmActions } from "./filmReducer"
+import { API_URL } from "../core/config"
+import Endpoints from "../api/endpoints"
+import Cookies from "js-cookie"
+import { useNavigate } from "react-router-dom"
 
 export const registerUser = (data: IRegisterRequest) => {
   return async (dispatch: Dispatch) => {
@@ -81,12 +83,35 @@ export const authenticateUser = () => {
     try {
       const response = await api.users.getMyProfile()
       const user = response.data
+      const userStatus = Cookies.get("status")
 
       dispatch(authActions.setIsAuth(true))
       dispatch(authActions.setUser(user))
+      dispatch(authActions.setStatus(userStatus ?? null))
     } catch (err) {
       dispatch(authActions.setIsAuth(false))
       dispatch(authActions.setUser(null))
+    }
+  }
+}
+
+export const verifyUser = (code: string) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+
+    try {
+      await api.auth.redeemCode(code)
+
+      const userStatus = Cookies.get("status")
+      dispatch(authActions.setStatus(userStatus ?? null))
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        const errorResponse = err.response
+        if (errorResponse) dispatch(authActions.setErrorMessage(errorResponse.data.message))
+        else dispatch(authActions.setErrorMessage("Internal error! Try again later"))
+      }
+    } finally {
+      dispatch(authActions.setLoading(false))
     }
   }
 }
@@ -97,6 +122,7 @@ export const logoutUser = () => {
     localStorage.removeItem("token")
 
     dispatch(authActions.setIsAuth(false))
+    dispatch(authActions.setStatus(null))
     dispatch(authActions.setUser(null))
   }
 }
@@ -112,21 +138,46 @@ export const fetchFilms = (data: IGetFilmsParams) => {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        dispatch(filmActions.setErrorMessage(e.response.data));
+        dispatch(filmActions.setErrorMessage(e.response.data))
       } else {
         // Something happened in setting up the request that triggered an Error
-        dispatch(filmActions.setErrorMessage("Unexpected error"));
-        console.log('Unexpected error: ', e.message);
+        dispatch(filmActions.setErrorMessage("Unexpected error"))
+        console.log("Unexpected error: ", e.message)
       }
     } finally {
       dispatch(filmActions.setIsLoading(false))
     }
   }
 }
+
 const setPosters = (films: IFilm[]) => {
-  films.map(film => {
+  films.map((film) => {
     film.posterUrl = `${API_URL}${Endpoints.FILMS.GET_POSTER(film.id)}`
   })
   return films
 }
 
+export const fetchUserFavoriteFilms = () => {
+  return async (dispatch: Dispatch) => {
+    dispatch(filmActions.setIsLoading(true))
+
+    try {
+      const response = await api.users.getMyFavoriteFilms()
+      const films = setPosters(response.data.films)
+
+      dispatch(filmActions.setFavoriteFilms(films))
+    } catch (err) {
+      dispatch(filmActions.setErrorMessage("Failed to download favorite films"))
+    } finally {
+      dispatch(filmActions.setIsLoading(false))
+    }
+  }
+}
+
+export const addFilmToFavorite = (filmId: number) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+    await api.users.addToFavorite(filmId)
+    dispatch(authActions.setLoading(false))
+  }
+}

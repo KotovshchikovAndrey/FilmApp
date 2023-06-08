@@ -1,16 +1,23 @@
 import { verificationSchema, VerificationSchema } from "../helpers/validators"
 import { Controller, useForm, useFormState } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Container, Stack, TextField, Typography } from "@mui/material"
-import { useNavigate } from "react-router-dom"
+import { Alert, Button, Container, Stack, TextField, Typography } from "@mui/material"
+import { Navigate, useNavigate } from "react-router-dom"
 import React from "react"
 
 import api from "../api"
 import { AxiosError } from "axios"
+import { useAppDispatch, useAppSelector } from "../store"
+import { verifyUser } from "../store/actionCreators"
+import { authActions } from "../store/authReducer"
 
 export function VerifyEmail() {
   const navigate = useNavigate()
-  const [apiErrorMessage, setApiErrorMessage] = React.useState("")
+  const dispatch = useAppDispatch()
+
+  const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const userStatus = useAppSelector((state) => state.auth.status)
+  const errorMessage = useAppSelector((state) => state.auth.errorMessage)
 
   const { handleSubmit, control } = useForm<VerificationSchema>({
     resolver: zodResolver(verificationSchema),
@@ -19,19 +26,16 @@ export function VerifyEmail() {
   const { errors } = useFormState({ control })
 
   const onSubmit = async (data: VerificationSchema) => {
-    const code = data.verificationCode
-    try {
-      await api.auth.redeemCode(code)
-      navigate("/")
-    } catch (err) {
-      if (err instanceof AxiosError && err.response) {
-        const apiErrorData = err.response.data
-        setApiErrorMessage(apiErrorData.message)
-      }
-    }
+    dispatch(verifyUser(data.verificationCode))
   }
 
-  return (
+  React.useEffect(() => {
+    if (userStatus === "active") navigate("/")
+
+    dispatch(authActions.setErrorMessage(null))
+  }, [userStatus])
+
+  const renderPage = () => (
     <React.Fragment>
       <Container maxWidth="xs">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -53,11 +57,12 @@ export function VerifyEmail() {
                   name="verificationCode"
                   onChange={(e) => field.onChange(e)}
                   value={field.value}
-                  error={!!errors.verificationCode?.message || !!apiErrorMessage}
-                  helperText={errors.verificationCode?.message ?? apiErrorMessage}
+                  error={!!errors.verificationCode?.message}
+                  helperText={errors.verificationCode?.message}
                 />
               )}
             />
+            {errorMessage !== null && <Alert severity="error">{errorMessage}</Alert>}
             <Button type="submit" variant="contained">
               Verify
             </Button>
@@ -66,4 +71,6 @@ export function VerifyEmail() {
       </Container>
     </React.Fragment>
   )
+
+  return isAuth ? renderPage() : <Navigate to="/" />
 }
