@@ -16,6 +16,7 @@ const urlsAuth = [
   Endpoints.USERS.MY_PROFILE,
   Endpoints.AUTH.REDEEM_CODE,
   Endpoints.USERS.MY_FAVORITE,
+  Endpoints.AUTH.REQUEST_CODE,
 ]
 
 interface ITokenPayload {

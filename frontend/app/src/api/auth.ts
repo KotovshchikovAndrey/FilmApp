@@ -53,3 +53,7 @@ export const register = (data: IRegisterRequest): AxiosPromise<IAuthResponse> =>
 export const redeemCode = (code: string): AxiosPromise<void> => {
   return axiosInstance.put(Endpoints.AUTH.REDEEM_CODE, { code })
 }
+
+export const requestCode = (): AxiosPromise<void> => {
+  return axiosInstance.post(Endpoints.AUTH.REQUEST_CODE)
+}

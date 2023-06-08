@@ -5,6 +5,7 @@ const Endpoints = {
     LOGOUT: "/auth/logout",
     REFRESH_TOKEN: "/auth/refresh-token",
     REDEEM_CODE: "/auth/redeem-code",
+    REQUEST_CODE:"/auth/request-code",
   },
   USERS: {
     MY_PROFILE: "/users/profile/me",
