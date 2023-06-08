@@ -1,4 +1,4 @@
-import { IAuthResponse, IFilm, IFilmFilters, ILoginRequest, ITrailer } from "../core/entities"
+import {IAuthResponse, IFilm, IFilmFilterOptions, ILoginRequest, ITrailer} from "../core/entities"
 import { AxiosPromise } from "axios"
 import { axiosInstance } from "./instance"
 import Endpoints from "./endpoints"
@@ -6,8 +6,8 @@ import Endpoints from "./endpoints"
 export interface IGetFilmsParams {
   limit: number
   offset?: number
-  genre?: string | null
-  country?: string | null
+  genreId?: number | null
+  countryIso?: string | null
 }
 
 interface IFilmsResponse {
@@ -19,8 +19,8 @@ export const getFilms = (data: IGetFilmsParams): AxiosPromise<IFilmsResponse> =>
     params: {
       limit: data.limit,
       offset: data.offset,
-      genre: data.genre,
-      country: data.country,
+      genre: data.genreId,
+      country: data.countryIso,
     },
   })
 }
@@ -33,8 +33,8 @@ export const getFilmTrailer = (filmId: number): AxiosPromise<ITrailer> => {
   return axiosInstance.get<ITrailer>(Endpoints.FILMS.GET_FILM_TRAILER(filmId))
 }
 
-export const getFilmFilters = (): AxiosPromise<IFilmFilters> => {
-  return axiosInstance.get<IFilmFilters>(Endpoints.FILMS.GET_FILM_FILTERS)
+export const getFilmFilterOptions = (): AxiosPromise<IFilmFilterOptions> => {
+  return axiosInstance.get<IFilmFilterOptions>(Endpoints.FILMS.GET_FILM_FILTER_OPTIONS)
 }
 
 export const searchFilmSmart = (title: string): AxiosPromise<IFilm> => {

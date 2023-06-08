@@ -1,11 +1,9 @@
 import {useEffect, useState} from "react"
-import {ICountry, IFilm, IFilmFilter, IFilmFilters, IGenre, InitialFilter} from "../core/entities"
+import { IFilm, IFilmFilter, InitialFilter} from "../core/entities"
 import {IGetFilmsParams} from "../api/films"
 import api from "../api"
 import {API_URL} from "../core/config"
 import Endpoints from "../api/endpoints"
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
 
 export const useFilms = () => {
   const [films, setFilms] = useState<IFilm[]>([])
@@ -38,7 +36,7 @@ export const useFilms = () => {
   }
 
   useEffect(() => {
-    fetchFilms({limit: 20, genre: filter.genre, country: filter.country})
+    fetchFilms({limit: 20, genreId: filter.genre?.id, countryIso: filter.country?.iso_3166_1})
   }, [filter])
 
   return {films, isLoading, error, getFilter}

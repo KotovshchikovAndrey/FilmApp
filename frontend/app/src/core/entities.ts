@@ -10,7 +10,7 @@ export interface ICompany {
 
 export interface ICountry {
   name: string
-  iso_3166_1: number
+  iso_3166_1: string
 }
 
 export interface ITrailer {
@@ -61,14 +61,16 @@ export interface IRegisterRequest {
   password: string
 }
 
-export interface IFilmFilters {
+export interface IFilmFilterOptions {
   genres: IGenre[]
   countries: ICountry[]
 }
+
 export interface IFilmFilter {
-  genre: string | null,
-  country: string | null,
+  genre: IGenre | null
+  country: ICountry | null
 }
+
 export const InitialFilter: IFilmFilter = {
   genre: null,
   country: null,
