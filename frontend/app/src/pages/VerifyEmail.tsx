@@ -1,7 +1,7 @@
 import { verificationSchema, VerificationSchema } from "../helpers/validators"
 import { Controller, useForm, useFormState } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Container, Stack, TextField, Typography } from "@mui/material"
+import {Alert, Box, Button, CircularProgress, Container, Stack, TextField, Typography} from "@mui/material"
 import { Navigate, useNavigate } from "react-router-dom"
 import React from "react"
 
@@ -16,6 +16,8 @@ export function VerifyEmail() {
   const dispatch = useAppDispatch()
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const user = useAppSelector((state) => state.auth.user)
+  const isLoading = useAppSelector((state) => state.auth.loading)
   const userStatus = useAppSelector((state) => state.auth.status)
   const errorMessage = useAppSelector((state) => state.auth.errorMessage)
 
@@ -42,7 +44,7 @@ export function VerifyEmail() {
           <Stack spacing={3} mt={10}>
             <Typography variant="h5">Enter verification code</Typography>
             <Typography>
-              A verification code has been sent to {}.<br />
+              A verification code has been sent to {user?.email}.<br />
               Please enter it to verify your email
             </Typography>
             <Controller
@@ -66,6 +68,11 @@ export function VerifyEmail() {
             <Button type="submit" variant="contained">
               Verify
             </Button>
+            {isLoading && (
+                <Box display="flex" justifyContent="center">
+                  <CircularProgress size={60} />
+                </Box>
+            )}
           </Stack>
         </form>
       </Container>
