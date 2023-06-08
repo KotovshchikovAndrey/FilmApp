@@ -1,18 +1,17 @@
 import {Autocomplete, Box, TextField} from "@mui/material"
 import React, {useEffect, useState} from "react"
 import Grid from "@mui/material/Unstable_Grid2"
-
 import api from "../../../api"
 import {ICountry, IFilmFilter, IFilmFilterOptions, IGenre, InitialFilter} from "../../../core/entities"
-
-interface FilmFiltersProps {
-  getFilter: (filter: IFilmFilter) => void;
-}
+import {useAppDispatch, useAppSelector} from "../../../store";
+import {filmActions} from "../../../store/filmReducer";
 
 
-export default function FilmFilters({getFilter}: FilmFiltersProps) {
+export default function FilmFilters() {
+  const dispatch = useAppDispatch()
+  const filterValue = useAppSelector(state => state.film.filter)
   const [filterOptions, setFilterOptions] = useState<IFilmFilterOptions>()
-  const [filterValue, setFilterValue] = useState<IFilmFilter>(InitialFilter)
+  // const [filterValue, setFilterValue] = useState<IFilmFilter>(InitialFilter)
 
   useEffect(() => {
     const fetchFilmFilterOptions = async () => {
@@ -22,10 +21,6 @@ export default function FilmFilters({getFilter}: FilmFiltersProps) {
 
     fetchFilmFilterOptions()
   }, [])
-
-  useEffect(()=> {
-    getFilter(filterValue)
-  }, [filterValue])
 
   return (
     <React.Fragment>
@@ -42,7 +37,7 @@ export default function FilmFilters({getFilter}: FilmFiltersProps) {
             renderInput={(params) => <TextField {...params} label="Жанр"/>}
             value={filterValue.genre}
             onChange={(event: any, newValue, reason) => {
-              setFilterValue({...filterValue, genre: newValue});
+              dispatch(filmActions.setFilter({...filterValue, genre: newValue}))
             }}
           />
         </Grid>
@@ -67,7 +62,7 @@ export default function FilmFilters({getFilter}: FilmFiltersProps) {
             )}
             value={filterValue.country}
             onChange={(event: any, newValue, reason) => {
-              setFilterValue({...filterValue, country: newValue});
+              dispatch(filmActions.setFilter({...filterValue, country: newValue}))
             }}
           />
         </Grid>

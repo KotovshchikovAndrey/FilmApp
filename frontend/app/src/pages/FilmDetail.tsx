@@ -6,7 +6,6 @@ import {Chip} from "@mui/material";
 import {Add} from "@mui/icons-material";
 import AspectRatio from "@mui/joy/AspectRatio";
 import ArrowHeader from "../components/shared/Header/ArrowHeader";
-import {useFilms} from "../hooks/useFilms";
 import {useFilmDetail} from "../hooks/filmDetail";
 import {IGenre} from "../core/entities";
 

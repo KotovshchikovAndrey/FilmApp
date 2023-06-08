@@ -10,7 +10,7 @@ function FilmCardListSkeleton() {
     let content = []
     for (let i = 0; i < 10; i++) {
       content.push(
-        <Grid xs={6} sm={4} md={3}>
+        <Grid xs={6} sm={4} md={3} key={i}>
           <AspectRatio ratio={2 / 3}>
             <Skeleton variant="rectangular"/>
           </AspectRatio>

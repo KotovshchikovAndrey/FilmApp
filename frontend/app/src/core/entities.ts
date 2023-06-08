@@ -30,7 +30,7 @@ export interface IFilm {
   genres: IGenre[] | null
   productionCompanies?: ICompany[] | null
   productionCountries?: ICountry[] | null
-  posterUrl?: string
+  posterUrl: string
   trailerUrl?: string
 }
 

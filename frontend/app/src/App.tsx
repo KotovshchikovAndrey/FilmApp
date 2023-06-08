@@ -2,45 +2,45 @@ import * as React from "react"
 import Home from "./pages/Home"
 import FilmDetail from "./pages/FilmDetail"
 import Login from "./pages/Login"
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import {createBrowserRouter, RouterProvider} from "react-router-dom"
 import Register from "./pages/Register"
-import { VerifyEmail } from "./pages/VerifyEmail"
+import {VerifyEmail} from "./pages/VerifyEmail"
 import Root from "./pages/Root"
 import Error from "./pages/Error"
-import { useAppDispatch, useAppSelector } from "./store"
+import {useAppDispatch, useAppSelector} from "./store"
 import Profile from "./pages/Profile"
-import { useEffect } from "react"
-import { authenticateUser } from "./store/actionCreators"
+import {useEffect} from "react"
+import {authenticateUser, fetchFilms} from "./store/actionCreators"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
-    errorElement: <Error />,
+    element: <Root/>,
+    errorElement: <Error/>,
     children: [
       {
         path: "",
-        element: <Home />,
+        element: <Home/>,
       },
       {
         path: "/film/:id",
-        element: <FilmDetail />,
+        element: <FilmDetail/>,
       },
       {
         path: "/register",
-        element: <Register />,
+        element: <Register/>,
       },
       {
         path: "/login",
-        element: <Login />,
+        element: <Login/>,
       },
       {
         path: "/verify",
-        element: <VerifyEmail />,
+        element: <VerifyEmail/>,
       },
       {
         path: "/profile",
-        element: <Profile />,
+        element: <Profile/>,
       },
     ],
   },
@@ -49,14 +49,19 @@ const router = createBrowserRouter([
 function App() {
   const dispatch = useAppDispatch()
   const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const filter = useAppSelector(state => state.film.filter)
 
   useEffect(() => {
     dispatch(authenticateUser())
   }, [isAuth])
 
+  useEffect(() => {
+    dispatch(fetchFilms({limit: 20, genreId: filter.genre?.id, countryIso: filter.country?.iso_3166_1}))
+  }, [filter])
+
   return (
     <React.Fragment>
-      <RouterProvider router={router} />
+      <RouterProvider router={router}/>
     </React.Fragment>
   )
 }

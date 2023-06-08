@@ -1,8 +1,12 @@
-import { AxiosError } from "axios"
+import {AxiosError} from "axios"
 import api from "../api"
-import { ILoginRequest, IRegisterRequest } from "../core/entities"
-import { authActions } from "./authReducer"
-import { Dispatch } from "@reduxjs/toolkit"
+import {IFilm, ILoginRequest, IRegisterRequest} from "../core/entities"
+import {authActions} from "./authReducer"
+import {Dispatch} from "@reduxjs/toolkit"
+import {IGetFilmsParams} from "../api/films";
+import {filmActions} from "./filmReducer";
+import {API_URL} from "../core/config";
+import Endpoints from "../api/endpoints";
 
 export const registerUser = (data: IRegisterRequest) => {
   return async (dispatch: Dispatch) => {
@@ -96,3 +100,33 @@ export const logoutUser = () => {
     dispatch(authActions.setUser(null))
   }
 }
+
+export const fetchFilms = (data: IGetFilmsParams) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      dispatch(filmActions.setIsLoading(true))
+      const response = await api.films.getFilms(data)
+      const filmsWithPosters = setPosters(response.data.films)
+      dispatch(filmActions.setFilms(filmsWithPosters))
+    } catch (e: any) {
+      if (e.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        dispatch(filmActions.setErrorMessage(e.response.data));
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        dispatch(filmActions.setErrorMessage("Unexpected error"));
+        console.log('Unexpected error: ', e.message);
+      }
+    } finally {
+      dispatch(filmActions.setIsLoading(false))
+    }
+  }
+}
+const setPosters = (films: IFilm[]) => {
+  films.map(film => {
+    film.posterUrl = `${API_URL}${Endpoints.FILMS.GET_POSTER(film.id)}`
+  })
+  return films
+}
+

@@ -4,7 +4,6 @@ import FilmSearchInput from "../components/shared/film/FilmSearchInput"
 import FilmCardList from "../components/shared/film/FilmCardList"
 import FilmFilters from "../components/shared/film/FilmFilters"
 import ProfileHeader from "../components/shared/Header/ProfileHeader"
-import { useFilms } from "../hooks/useFilms"
 import FilmCollection from "../components/FilmCollection";
 
 export default function Home() {
