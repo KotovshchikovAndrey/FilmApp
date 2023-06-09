@@ -37,6 +37,16 @@ class FilmFiltersDTO(BaseModel):
     countries: tp.List[ProductionCountryDTO]
 
 
+class RequestUserFilmInfo(BaseModel):
+    user_id: int
+    film_id: int
+
+
+class UserFilmInfoDTO(RequestUserFilmInfo):
+    is_favorite: bool
+    watch_status: str
+
+
 class FilmDTO(FilmBase):
     description: tp.Optional[str] = None
     imdb_id: tp.Optional[str] = None
@@ -147,7 +157,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-            production_countries, list
+                production_countries, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_countries must be iterable!")
 
@@ -167,7 +177,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-            production_companies, list
+                production_companies, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_companies must be iterable!")
 

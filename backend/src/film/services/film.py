@@ -27,7 +27,7 @@ from film.dto import (
     ResetFilmRaitingDTO,
     AddCommentDTO,
     UpdateCommentDTO,
-    FilmCommentsDTO,
+    FilmCommentsDTO, UserFilmInfoDTO, RequestUserFilmInfo,
 )
 
 
@@ -41,6 +41,10 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def get_film_info(self, film_id: int) -> FilmDTO:
+        ...
+
+    @abstractmethod
+    async def get_users_film_info(self, dto: RequestUserFilmInfo) -> UserFilmInfoDTO:
         ...
 
     @abstractmethod
@@ -69,7 +73,7 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def update_film_info(
-        self, film_id: int, dto: UpdateFilmDTO
+            self, film_id: int, dto: UpdateFilmDTO
     ) -> tp.Optional[int]:
         ...
 
@@ -83,7 +87,7 @@ class IFilmService(ABC):
 
     @abstractmethod
     async def get_user_watch_status_films(
-        self, target_id: int, status: str, order_by: str
+            self, target_id: int, status: str, order_by: str
     ) -> FilmsDTO:
         ...
 
@@ -137,6 +141,10 @@ class FilmService(IFilmService):
             raise ApiError.not_found(message="Film not found!")
 
         return film
+
+    async def get_users_film_info(self, dto: RequestUserFilmInfo) -> UserFilmInfoDTO:
+        collection_info = await self.__repository.get_users_film_info(dto.user_id, dto.film_id)
+        return collection_info
 
     async def get_film_filters(self) -> FilmFiltersDTO:
         film_genres = await self.__repository.get_all_genres()
@@ -205,7 +213,7 @@ class FilmService(IFilmService):
         return films
 
     async def get_user_watch_status_films(
-        self, target_id: int, status: str, order_by: str
+            self, target_id: int, status: str, order_by: str
     ):
         films = await self.__repository.get_watch_status_films(
             target_id, status, order_by
