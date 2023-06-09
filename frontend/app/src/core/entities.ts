@@ -21,7 +21,7 @@ export interface ITrailer {
 export interface IFilm {
   id: number
   title: string
-  isAdult: boolean
+  is_adult: boolean
   description?: string
   language?: string
   budget: number
@@ -32,6 +32,8 @@ export interface IFilm {
   productionCountries?: ICountry[] | null
   posterUrl: string
   trailerUrl?: string
+  is_favorite?: boolean
+  watch_status?: string
 }
 
 export interface IUser {

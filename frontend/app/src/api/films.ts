@@ -1,4 +1,4 @@
-import {IAuthResponse, IFilm, IFilmFilterOptions, ILoginRequest, ITrailer} from "../core/entities"
+import { IAuthResponse, IFilm, IFilmFilterOptions, ILoginRequest, ITrailer } from "../core/entities"
 import { AxiosPromise } from "axios"
 import { axiosInstance } from "./instance"
 import Endpoints from "./endpoints"
@@ -25,8 +25,10 @@ export const getFilms = (data: IGetFilmsParams): AxiosPromise<IFilmsResponse> =>
   })
 }
 
-export const getFilmDetail = (filmId: number): AxiosPromise<IFilm> => {
-  return axiosInstance.get<IFilm>(Endpoints.FILMS.GET_FILM_DETAIL(filmId))
+export const getFilmDetail = (filmId: number, accessToken?: string): AxiosPromise<IFilm> => {
+  return axiosInstance.get<IFilm>(Endpoints.FILMS.GET_FILM_DETAIL(filmId), {
+    headers: { Authorization: accessToken },
+  })
 }
 
 export const getFilmTrailer = (filmId: number): AxiosPromise<ITrailer> => {

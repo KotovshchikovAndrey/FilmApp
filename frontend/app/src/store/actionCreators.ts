@@ -9,6 +9,7 @@ import { API_URL } from "../core/config"
 import Endpoints from "../api/endpoints"
 import Cookies from "js-cookie"
 import { useNavigate } from "react-router-dom"
+import { OrderByFavoriteFilm } from "../api/queryEnums"
 
 export const registerUser = (data: IRegisterRequest) => {
   return async (dispatch: Dispatch) => {
@@ -162,7 +163,7 @@ export const fetchUserFavoriteFilms = () => {
     dispatch(filmActions.setIsLoading(true))
 
     try {
-      const response = await api.users.getMyFavoriteFilms()
+      const response = await api.users.getMyFavoriteFilms(OrderByFavoriteFilm.date)
       const films = setPosters(response.data.films)
 
       dispatch(filmActions.setFavoriteFilms(films))
@@ -178,6 +179,14 @@ export const addFilmToFavorite = (filmId: number) => {
   return async (dispatch: Dispatch) => {
     dispatch(authActions.setLoading(true))
     await api.users.addToFavorite(filmId)
+    dispatch(authActions.setLoading(false))
+  }
+}
+
+export const removeFilmFromFavorite = (filmId: number) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+    await api.users.removeFromFavorite(filmId)
     dispatch(authActions.setLoading(false))
   }
 }

@@ -3,17 +3,21 @@ import * as React from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import Grid from "@mui/material/Unstable_Grid2"
 import { Chip } from "@mui/material"
-import { Add } from "@mui/icons-material"
+import { Add, Remove } from "@mui/icons-material"
 import AspectRatio from "@mui/joy/AspectRatio"
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
 import { useFilmDetail } from "../hooks/filmDetail"
 import { IGenre } from "../core/entities"
 import { useAppDispatch, useAppSelector } from "../store"
-import { addFilmToFavorite } from "../store/actionCreators"
-import { authActions } from "../store/authReducer"
+import { addFilmToFavorite, removeFilmFromFavorite } from "../store/actionCreators"
+import { IFilm } from "../core/entities"
+import api from "../api"
+import { API_URL, POSTER_URL } from "../core/config"
+import Endpoints from "../api/endpoints"
 
+let renderCount = 0
 export default function FilmDetail() {
-  const navigate = useNavigate()
+  renderCount += 1
   const dispatch = useAppDispatch()
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
@@ -23,8 +27,39 @@ export default function FilmDetail() {
   const { id } = useParams()
   const filmId = parseInt(id!)
 
-  // TODO разделить фетч фильма и трейлера на 2 useFetching
-  const { film, loading, err } = useFilmDetail(filmId)
+  const [film, setFilm] = React.useState<IFilm>({} as IFilm)
+  const [isFilmFavorite, setIsFilmFavorite] = React.useState<boolean>(false)
+  const [loading, setLoading] = React.useState(false)
+
+  const token = localStorage.getItem("token") || undefined
+  const fetchFilmDetail = async (filmId: number) => {
+    setLoading(true)
+
+    const responseFilmDetail = await api.films.getFilmDetail(filmId, token)
+    const responseTrailer = await api.films.getFilmTrailer(filmId)
+
+    const filmData = responseFilmDetail.data
+    filmData.posterUrl = `${API_URL}${Endpoints.FILMS.GET_POSTER(filmId)}`
+    filmData.trailerUrl = `${POSTER_URL}${responseTrailer.data.key}`
+
+    setFilm(filmData)
+    setIsFilmFavorite(filmData.is_favorite ?? false)
+    setLoading(false)
+  }
+
+  React.useEffect(() => {
+    fetchFilmDetail(filmId)
+  }, [])
+
+  const addFilmHandler = () => {
+    dispatch(addFilmToFavorite(film.id))
+    setIsFilmFavorite(true)
+  }
+
+  const removeFilmHandler = () => {
+    dispatch(removeFilmFromFavorite(film.id))
+    setIsFilmFavorite(false)
+  }
 
   return (
     <React.Fragment>
@@ -42,25 +77,36 @@ export default function FilmDetail() {
           <Grid xs={12} sm={6}>
             <Stack spacing={2}>
               <Typography variant="h4" component="h1">
-                {film.title}
+                {film.title} {renderCount}
               </Typography>
               <Typography variant="subtitle1">
-                {film.release_date}, {film.time} мин, {film.isAdult ? "18+" : "0+"}
+                {film.release_date}, {film.time} мин, {film.is_adult ? "18+" : "0+"}
               </Typography>
               <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                 {film.genres?.map((genre: IGenre) => (
                   <Chip label={genre.name} />
                 ))}
               </Stack>
-              {isAuth && userStatus === "active" && (
-                <Button
-                  variant="outlined"
-                  startIcon={isLoading ? <CircularProgress size={20} /> : <Add />}
-                  onClick={() => dispatch(addFilmToFavorite(filmId))}
-                >
-                  Add to collection
-                </Button>
-              )}
+              {isAuth &&
+                userStatus === "active" &&
+                (isFilmFavorite ? (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={isLoading ? <CircularProgress size={20} /> : <Remove />}
+                    onClick={() => removeFilmHandler()}
+                  >
+                    Remove from collection
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    startIcon={isLoading ? <CircularProgress size={20} /> : <Add />}
+                    onClick={() => addFilmHandler()}
+                  >
+                    Add to collection
+                  </Button>
+                ))}
               <Typography variant="h5">Description</Typography>
               <Typography>{film.description}</Typography>
               <Typography variant="h5">Trailer</Typography>
