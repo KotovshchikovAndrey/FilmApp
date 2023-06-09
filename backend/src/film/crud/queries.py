@@ -26,6 +26,19 @@ production_companies,
 production_countries
 FROM "film" WHERE id = :id;"""
 
+GET_USER_FILM_INFO = """SELECT
+    u.user_id,
+    u.film_id,
+    CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS is_favorite,
+    COALESCE(w.status, 'not_watching') AS watch_status
+FROM
+    (SELECT CAST(:user_id AS INTEGER) AS user_id, CAST(:film_id AS INTEGER) AS film_id) AS u
+LEFT JOIN
+    favorite_user_film f ON f.user_id = u.user_id AND f.film_id = u.film_id
+LEFT JOIN
+    watchstatus_user_film w ON w.user_id = u.user_id AND w.film_id = u.film_id;
+"""
+
 GET_ALL_PRODUCTION_COUNTRIES = """SELECT DISTINCT
     (jsonb_array_elements(production_countries)->>'name') AS name,
     (jsonb_array_elements(production_countries)->>'iso_3166_1') AS iso_3166_1

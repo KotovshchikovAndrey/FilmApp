@@ -17,7 +17,7 @@ from film.dto import (
     UpdateFilmDTO,
     ResetFilmRaitingDTO,
     AddCommentDTO,
-    UpdateCommentDTO,
+    UpdateCommentDTO, RequestUserFilmInfo,
 )
 
 IFilmService = film_services.IFilmService
@@ -37,7 +37,7 @@ class Film(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
-    # @requires("admin", status_code=403)
+    @requires("admin", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
         dto = CreateFilmDTO(**data)
@@ -52,13 +52,22 @@ class FilmDetail(HTTPEndpoint):
     async def get(self, request: Request):
         film_id = request.path_params["film_id"]
         film = await self.__service.get_film_info(film_id)
+        output = film.dict(exclude={"imdb_id"})
+        if "authenticated" in request.scope["auth"].scopes:
+            user_info = await self.__service.get_users_film_info(
+                RequestUserFilmInfo(
+                    user_id=request.user.instance.id,
+                    film_id=film_id,
+                )
+            )
+            output |= user_info.dict(exclude={"film_id"})
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=film.dict(exclude={"imdb_id"}),
+            content=output,
         )
 
-    # @requires("admin", status_code=403)
+    @requires("admin", status_code=403)
     async def patch(self, request: Request):
         film_id = request.path_params["film_id"]
         data = await request.json()

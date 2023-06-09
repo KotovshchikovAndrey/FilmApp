@@ -11,23 +11,27 @@ from film.dto import (
     FilmsDTO,
     GenreDTO,
     ProductionCountryDTO,
-    UpdateFilmDTO,
+    UpdateFilmDTO, UserFilmInfoDTO,
 )
 
 
 class IFilmReporitory(ABC):
     @abstractmethod
     async def get_many(
-        self,
-        limit: int,
-        offset: int,
-        genre: tp.Optional[int] = None,
-        country: tp.Optional[str] = None,
+            self,
+            limit: int,
+            offset: int,
+            genre: tp.Optional[int] = None,
+            country: tp.Optional[str] = None,
     ) -> FilmsDTO:
         ...
 
     @abstractmethod
     async def find_by_id(self, film_id: int) -> tp.Optional[FilmDTO]:
+        ...
+
+    @abstractmethod
+    async def get_users_film_info(self, user_id: int, film_id: int) -> UserFilmInfoDTO:
         ...
 
     @abstractmethod
@@ -48,7 +52,7 @@ class IFilmReporitory(ABC):
 
     @abstractmethod
     async def update(
-        self, film_id: int, film_update: UpdateFilmDTO
+            self, film_id: int, film_update: UpdateFilmDTO
     ) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
@@ -62,7 +66,7 @@ class IFilmReporitory(ABC):
 
     @abstractmethod
     async def get_watch_status_films(
-        self, target_id: int, status: str, order_by: str
+            self, target_id: int, status: str, order_by: str
     ) -> FilmsDTO:
         ...
 
@@ -81,11 +85,11 @@ class IFilmReporitory(ABC):
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
-        self,
-        limit: int,
-        offset: int,
-        genre: tp.Optional[int] = None,
-        country: tp.Optional[str] = None,
+            self,
+            limit: int,
+            offset: int,
+            genre: tp.Optional[int] = None,
+            country: tp.Optional[str] = None,
     ):
         params = {"limit": limit, "offset": offset}
         query = queries.GET_MANY_FILMS
@@ -108,6 +112,14 @@ class FilmPostgresRepository(IFilmReporitory):
         film = await db_connection.fetch_one(queries.GET_FILM_BY_ID, id=film_id)
         if film is not None:
             return FilmDTO(**film)
+
+    async def get_users_film_info(self, user_id: int, film_id: int):
+        info = await db_connection.fetch_one(
+            queries.GET_USER_FILM_INFO,
+            user_id=user_id,
+            film_id=film_id,
+        )
+        return UserFilmInfoDTO(**info)
 
     async def find_by_title(self, title: str):
         films = await db_connection.fetch_all(
