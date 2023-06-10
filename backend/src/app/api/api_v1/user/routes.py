@@ -1,5 +1,7 @@
-from starlette.routing import Route
+from starlette.routing import Route, Mount
+from starlette.staticfiles import StaticFiles
 
+from app.core import config
 from app.api.api_v1.user import controllers
 
 routes = [
@@ -14,5 +16,10 @@ routes = [
     Route("/{user_id:int}/ban", controllers.BanUser),
     Route("/{user_id:int}/unban", controllers.UnbanUser),
     Route("/change-password", controllers.ChangePassword),
-    Route("/change-email", controllers.ChangeEmail)
+    Route("/change-email", controllers.ChangeEmail),
+    Mount(
+        "/media",
+        app=StaticFiles(directory=config.UPLOAD_DIR + "/avatars"),
+        name="static",
+    ),
 ]

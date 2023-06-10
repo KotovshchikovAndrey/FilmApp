@@ -28,7 +28,7 @@ middlewares = [
         AuthenticationMiddleware,
         backend=JwtAuthBackend(),
     ),
-    #TODO: раскомментировать при деплое
+    # TODO: раскомментировать при деплое
     # Middleware(IPFilterMiddleware)
 ]
 

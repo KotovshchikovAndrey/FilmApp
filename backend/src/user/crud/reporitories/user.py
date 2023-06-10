@@ -48,7 +48,7 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def update_profile_fields(
-            self, user_id: int, profile_update: UpdateProfileDTO
+        self, user_id: int, profile_update: UpdateProfileDTO
     ) -> None:
         ...
 
@@ -61,7 +61,9 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def toggle_profile_visibility(self, user_id: int, current_visible: bool) -> None:
+    async def toggle_profile_visibility(
+        self, user_id: int, current_visible: bool
+    ) -> None:
         ...
 
     @abstractmethod
@@ -102,7 +104,7 @@ class IUserRepository(ABC):
 
     @abstractmethod
     async def replace_refresh_token(
-            self, target_id: int, old_token: str, new_token: str
+        self, target_id: int, old_token: str, new_token: str
     ):
         ...
 
@@ -128,9 +130,11 @@ class UserPostgresRepository(IUserRepository):
             email=dto.email,
             password=get_password_hash(dto.password),
         )
+
         user = await db_connection.fetch_one(
             queries.FIND_USER_BY_EMAIL, email=dto.email
         )
+
         return user
 
     async def find_by_email(self, email: str):
@@ -141,6 +145,7 @@ class UserPostgresRepository(IUserRepository):
         user = await db_connection.fetch_one(
             queries.FIND_USER_WITH_CODE, email=email, code=code
         )
+
         return user
 
     async def find_by_id(self, target_id: int):
@@ -165,6 +170,7 @@ class UserPostgresRepository(IUserRepository):
             email=dto.email,
             password=get_password_hash(dto.password),
         )
+
         return user
 
     async def add_verification_code(self, code_info: dict):
@@ -177,7 +183,7 @@ class UserPostgresRepository(IUserRepository):
         )
 
     async def update_profile_fields(
-            self, user_id: int, profile_update: UpdateProfileDTO
+        self, user_id: int, profile_update: UpdateProfileDTO
     ):
         return await db_connection.execute_query(
             queries.UPDATE_PROFILE_FIELDS,
@@ -193,11 +199,11 @@ class UserPostgresRepository(IUserRepository):
         )
 
     async def set_avatar(self, user_id: int, avatar: str):
-        avatar_url = await db_connection.fetch_one(
-            queries.SET_AVATAR_FOR_USER, user_id=user_id, avatar=avatar
+        user_avatar = await db_connection.fetch_one(
+            queries.SET_AVATAR_FOR_USER, user_id=user_id, avatar=f"/{avatar}"
         )
 
-        return UserAvatarDTO(**avatar_url)
+        return UserAvatarDTO(**user_avatar)
 
     async def toggle_profile_visibility(self, user_id: int, current_visible: bool):
         await db_connection.execute_query(
@@ -215,6 +221,7 @@ class UserPostgresRepository(IUserRepository):
             status="banned",
             id=target_id,
         )
+
         await db_connection.execute_query(
             queries.DELETE_ALL_REFRESH_TOKENS,
             id=target_id,
@@ -270,7 +277,7 @@ class UserPostgresRepository(IUserRepository):
         )
 
     async def replace_refresh_token(
-            self, target_id: int, old_token: str, new_token: str
+        self, target_id: int, old_token: str, new_token: str
     ):
         await db_connection.execute_query(
             queries.UPDATE_REFRESH_TOKEN,
@@ -293,6 +300,7 @@ class UserPostgresRepository(IUserRepository):
             id=target_id,
             password=get_password_hash(password),
         )
+
         return user is not None
 
     async def change_password(self, target_id: int, password: str):

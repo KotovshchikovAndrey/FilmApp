@@ -25,6 +25,12 @@ export const authSlice = createSlice({
       state.user = action.payload
     },
 
+    setUserAvatar: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.avatar = action.payload
+      }
+    },
+
     setIsAuth: (state, action: PayloadAction<boolean>) => {
       state.isAuth = action.payload
     },

@@ -30,6 +30,11 @@ class FileManager:
             content = await file.read()
             return content
 
+    def remove(self, filename: str) -> None:
+        path = pathlib.Path(self.__upload_dir) / filename
+        if path.is_file():
+            path.unlink()
+
     def __check_file_exists(self, filename: str) -> bool:
         path = pathlib.Path(self.__upload_dir) / filename
         return path.exists()

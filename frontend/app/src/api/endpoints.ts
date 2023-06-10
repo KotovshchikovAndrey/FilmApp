@@ -5,11 +5,12 @@ const Endpoints = {
     LOGOUT: "/auth/logout",
     REFRESH_TOKEN: "/auth/refresh-token",
     REDEEM_CODE: "/auth/redeem-code",
-    REQUEST_CODE:"/auth/request-code",
+    REQUEST_CODE: "/auth/request-code",
   },
   USERS: {
     MY_PROFILE: "/users/profile/me",
     MY_FAVORITE: "/users/favorite/me",
+    PROFILE_AVATAR: "/users/profile/me/avatar",
   },
   FILMS: {
     GET_FILMS: "/films",

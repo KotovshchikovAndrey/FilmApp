@@ -42,8 +42,8 @@ export interface IUser {
   surname: string
   email: string
   status: string
+  avatar?: string
   role: string
-  films: IFilm[]
 }
 
 export interface ILoginRequest {

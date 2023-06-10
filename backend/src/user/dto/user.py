@@ -42,7 +42,9 @@ class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
     timestamp: int = int(datetime.datetime.now().timestamp())
-    reason: tp.Literal["complete-register", "change-email", "reset-password"] = "UNKNOWN REASON"
+    reason: tp.Literal[
+        "complete-register", "change-email", "reset-password"
+    ] = "UNKNOWN REASON"
 
 
 class UserChangingEmailDTO(UserRequestCodeDTO):
@@ -67,7 +69,7 @@ class GetUserWatchStatusFilmsDTO(BaseModel):
         "scheduled",
         "watched",
         "postponed",
-        "abandoned"
+        "abandoned",
     ] = "watching"
     order_by: OrderUserFilmsEnum = OrderUserFilmsEnum.date
 
@@ -82,7 +84,7 @@ class ManageWatchStatusFilmDTO(BaseModel):
         "scheduled",
         "watched",
         "postponed",
-        "abandoned"
+        "abandoned",
     ]
 
 
@@ -114,10 +116,6 @@ class FileDTO(BaseModel):
 
 class UserAvatarDTO(BaseModel):
     avatar_url: str
-
-    @validator("avatar_url", pre=True)
-    def validate_avatar_url(cls, value: str):
-        return f"/{value}"
 
 
 class UpdateProfileDTO(BaseModel):

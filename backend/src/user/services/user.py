@@ -121,12 +121,14 @@ class UserService(IUserService):
         user = await self.__repository.find_by_id(target_id=id)
         if user is None:
             raise ApiError.not_found(message="User not found")
+
         return UserBase(**user)
 
     async def find_user_by_email(self, email: str):
         user = await self.__repository.find_by_email(email=email)
         if user is None:
             raise ApiError.not_found(message="User not found")
+
         return UserBase(**user)
 
     async def find_user_by_id(self, target_id: int):
@@ -144,8 +146,10 @@ class UserService(IUserService):
         is_user_exist = await self.check_user_exists(email=dto.email)
         if is_user_exist:
             raise ApiError.conflict("User with this email already exists")
+
         if not email_validate(dto.email):
             raise ApiError.bad_request("Invalid email address")
+
         user = await self.__repository.create(dto)
         return UserBase(**user)
 
@@ -158,14 +162,17 @@ class UserService(IUserService):
         is_email_assigned = await self.check_user_exists(dto.new_email)
         if is_email_assigned:
             raise ApiError.conflict("User with this email already exists")
+
         if not email_validate(dto.new_email):
             raise ApiError.bad_request("Invalid email address")
+
         code_info = {
             "code": generate_code(),
             "email": dto.new_email,
             "reason": "change-email",
             "timestamp": generate_expired_in(),
         }
+
         await self.__repository.add_verification_code(code_info)
         # await self.mail_server.send_code(code_info["code"], dto.new_email)
 
@@ -173,18 +180,24 @@ class UserService(IUserService):
         is_old_password_correct = await self.__repository.check_password(
             dto.user.id, dto.old_password
         )
+
         if not is_old_password_correct:
             raise ApiError.unauthorized("Wrong old password")
+
         if not 8 <= len(dto.new_password) <= 100:
             raise ApiError.bad_request(
                 message="Password length must be between 8 and 100 characters"
             )
+
         await self.__repository.change_password(dto.user.id, dto.new_password)
 
     async def set_user_avatar(self, user: UserBase, dto: FileDTO):
         file_manager = FileManager(upload_dir=config.UPLOAD_DIR + "/avatars")
-        avatar = await file_manager.upload(filename=dto.filename, file=dto.content)
+        if user.avatar is not None:
+            filename = user.avatar[1:]  # first symbol is /
+            file_manager.remove(filename)
 
+        avatar = await file_manager.upload(filename=dto.filename, file=dto.content)
         return await self.__repository.set_avatar(user_id=user.id, avatar=avatar)
 
     async def toggle_profile_visibility(self, user: UserBase):
@@ -232,10 +245,12 @@ class UserService(IUserService):
         user = await self.find_user_by_id(target_id)
         if user.role == "admin":
             raise ApiError.conflict(message="You can't ban admin")
+
         await self.__repository.ban_user(target_id)
 
     async def unban_user(self, target_id: int):
         user = await self.find_user_by_id(target_id)
         if user.role == "admin":
             raise ApiError.conflict(message="You can't unban admin")
+
         await self.__repository.unban_user(target_id)

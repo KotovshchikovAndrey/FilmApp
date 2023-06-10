@@ -16,7 +16,10 @@ from user.dto import (
     UserChangePassword,
     UserChangeEmail,
     ManageWatchStatusFilmDTO,
-    GetUserWatchStatusFilmsDTO, UserBase, UserPublicDTO,
+    GetUserWatchStatusFilmsDTO,
+    UserBase,
+    UserPublicDTO,
+    UserAvatarDTO,
 )
 
 IFilmService = film_services.IFilmService
@@ -203,7 +206,7 @@ class ProfileAvatar(HTTPEndpoint):
         user_avatar = await self.__service.set_user_avatar(user=user, dto=avatar)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content=user_avatar.dict(),
+            content=user_avatar.avatar_url,
         )
 
 
@@ -214,10 +217,7 @@ class MyProfileVisibility(HTTPEndpoint):
     async def put(self, request: Request):
         user = request.user.instance
         new_visibility = await self.__service.toggle_profile_visibility(user)
-        return JSONResponse(
-            status_code=200,
-            content={"is_public": new_visibility}
-        )
+        return JSONResponse(status_code=200, content={"is_public": new_visibility})
 
 
 class ProfileVisibility(HTTPEndpoint):
@@ -229,10 +229,7 @@ class ProfileVisibility(HTTPEndpoint):
         user_id = request.path_params["user_id"]
         user = await self.__service.find_user_by_id(user_id)
         new_visibility = await self.__service.toggle_profile_visibility(user)
-        return JSONResponse(
-            status_code=200,
-            content={"is_public": new_visibility}
-        )
+        return JSONResponse(status_code=200, content={"is_public": new_visibility})
 
 
 class ChangeEmail(HTTPEndpoint):
@@ -279,4 +276,6 @@ class UnbanUser(HTTPEndpoint):
 
 def check_is_full_profile_info_available(user: UserBase, request: Request) -> bool:
     scopes = request.scope["auth"].scopes
-    return "admin" in scopes or ("authenticated" in scopes and request.user.instance.id == user.id)
+    return "admin" in scopes or (
+        "authenticated" in scopes and request.user.instance.id == user.id
+    )

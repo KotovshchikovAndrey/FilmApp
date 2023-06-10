@@ -190,3 +190,15 @@ export const removeFilmFromFavorite = (filmId: number) => {
     dispatch(authActions.setLoading(false))
   }
 }
+
+export const setUserAvatar = (data: FormData) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(authActions.setLoading(true))
+
+    const response = await api.users.setUserAvatar(data)
+    const avatar = response.data
+
+    dispatch(authActions.setUserAvatar(avatar))
+    dispatch(authActions.setLoading(false))
+  }
+}

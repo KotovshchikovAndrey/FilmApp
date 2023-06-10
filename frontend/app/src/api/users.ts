@@ -23,3 +23,11 @@ export const addToFavorite = (filmId: number): AxiosPromise<void> => {
 export const removeFromFavorite = (filmId: number): AxiosPromise<void> => {
   return axiosInstance.delete(Endpoints.USERS.MY_FAVORITE, { data: { film_id: filmId } })
 }
+
+export const setUserAvatar = (data: FormData): AxiosPromise<string> => {
+  return axiosInstance.put(Endpoints.USERS.PROFILE_AVATAR, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
+}

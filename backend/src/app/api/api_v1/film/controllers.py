@@ -17,7 +17,8 @@ from film.dto import (
     UpdateFilmDTO,
     ResetFilmRaitingDTO,
     AddCommentDTO,
-    UpdateCommentDTO, RequestUserFilmInfo,
+    UpdateCommentDTO,
+    RequestUserFilmInfo,
 )
 
 IFilmService = film_services.IFilmService
@@ -124,6 +125,7 @@ class Poster(HTTPEndpoint):
         response = Response(content=poster, media_type="image/jpeg")
         if is_found:
             response.headers["Cache-Control"] = "public, max-age=86400"
+
         return response
 
 
