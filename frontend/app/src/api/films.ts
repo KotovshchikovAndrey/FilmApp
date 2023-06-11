@@ -1,4 +1,11 @@
-import { IAuthResponse, IFilm, IFilmFilterOptions, ILoginRequest, ITrailer } from "../core/entities"
+import {
+  IAuthResponse,
+  IComment,
+  IFilm,
+  IFilmFilterOptions,
+  ILoginRequest,
+  ITrailer,
+} from "../core/entities"
 import { AxiosPromise } from "axios"
 import { axiosInstance } from "./instance"
 import Endpoints from "./endpoints"
@@ -41,4 +48,25 @@ export const getFilmFilterOptions = (): AxiosPromise<IFilmFilterOptions> => {
 
 export const searchFilmSmart = (title: string): AxiosPromise<IFilm> => {
   return axiosInstance.post<IFilm>(Endpoints.FILMS.SEARCH_FILM_SMART, { title })
+}
+
+export const getFilmComments = (filmId: number): AxiosPromise<{ comments: IComment[] }> => {
+  return axiosInstance.get(Endpoints.FILMS.FILM_COMMENTS(filmId))
+}
+
+export const addFilmComment = (
+  filmId: number,
+  text: string,
+  accessToken: string,
+  parentComment?: number
+): AxiosPromise<number> => {
+  return axiosInstance.post(
+    Endpoints.FILMS.FILM_COMMENTS(filmId),
+    { text, parent_comment: parentComment },
+    {
+      headers: {
+        Authorization: accessToken,
+      },
+    }
+  )
 }

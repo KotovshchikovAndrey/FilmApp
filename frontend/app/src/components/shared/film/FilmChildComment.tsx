@@ -1,14 +1,15 @@
 import React from "react"
 import { Typography, Stack, Avatar, Button, Box } from "@mui/material"
-import { IChildComment } from "../../../core/entities"
+import { IChildComment, ICommentAuthor } from "../../../core/entities"
 
 interface FilmChildCommentProps {
+  parentCommentId: number
   comment: IChildComment
-  onAddAnswer: (author: string, parentCommentId: number) => void
+  onAddAnswer: (author: ICommentAuthor, parentCommentId: number) => void
 }
 
 export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChildCommentProps) => {
-  const { comment, onAddAnswer } = props
+  const { parentCommentId, comment, onAddAnswer } = props
 
   return (
     <React.Fragment>
@@ -21,14 +22,12 @@ export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChi
           />
           <Stack>
             <Typography fontWeight="bold" marginBottom="7px">
-              {comment.author}
+              {comment.author.name} {comment.author.surname}
             </Typography>
             <Typography>{comment.text}</Typography>
           </Stack>
         </Stack>
-        <Button onClick={() => onAddAnswer(comment.author, comment.parentCommentId)}>
-          Add answer
-        </Button>
+        <Button onClick={() => onAddAnswer(comment.author, parentCommentId)}>Add answer</Button>
       </Stack>
     </React.Fragment>
   )

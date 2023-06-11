@@ -1,12 +1,12 @@
 import React from "react"
 import { Typography, Stack, Avatar, Button, Box } from "@mui/material"
 import { useAppSelector } from "../../../store"
-import { IComment } from "../../../core/entities"
+import { IComment, ICommentAuthor } from "../../../core/entities"
 import { FilmChildComment } from "./FilmChildComment"
 
 interface FilmCommentProps {
   comment: IComment
-  onAddAnswer: (author: string, parentCommentId: number) => void
+  onAddAnswer: (author: ICommentAuthor, parentCommentId: number) => void
 }
 
 export const FilmComment: React.FC<FilmCommentProps> = (props: FilmCommentProps) => {
@@ -23,15 +23,20 @@ export const FilmComment: React.FC<FilmCommentProps> = (props: FilmCommentProps)
           />
           <Stack>
             <Typography fontWeight="bold" marginBottom="7px">
-              {comment.author} {comment.id}
+              {comment.author.name} {comment.author.surname} {comment.comment_id}
             </Typography>
             <Typography>{comment.text}</Typography>
           </Stack>
         </Stack>
-        <Button onClick={() => onAddAnswer(comment.author, comment.id)}>Add answer</Button>
+        <Button onClick={() => onAddAnswer(comment.author, comment.comment_id)}>Add answer</Button>
       </Stack>
-      {comment.child_comments.map((childComment, index) => (
-        <FilmChildComment key={index} comment={childComment} onAddAnswer={onAddAnswer} />
+      {comment.child_comments.map((childComment) => (
+        <FilmChildComment
+          key={childComment.comment_id}
+          parentCommentId={comment.comment_id}
+          comment={childComment}
+          onAddAnswer={onAddAnswer}
+        />
       ))}
 
       {/* <Stack alignItems="flex-end" marginBottom={3}>

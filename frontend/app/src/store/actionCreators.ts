@@ -1,6 +1,6 @@
 import { AxiosError } from "axios"
 import api from "../api"
-import { IFilm, ILoginRequest, IRegisterRequest } from "../core/entities"
+import { IChildComment, IComment, IFilm, ILoginRequest, IRegisterRequest } from "../core/entities"
 import { authActions } from "./authReducer"
 import { Dispatch } from "@reduxjs/toolkit"
 import { IGetFilmsParams } from "../api/films"
@@ -200,5 +200,74 @@ export const setUserAvatar = (data: FormData) => {
 
     dispatch(authActions.setUserAvatar(avatar))
     dispatch(authActions.setLoading(false))
+  }
+}
+
+export const getFilmComments = (filmId: number) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(filmActions.setIsLoading(true))
+
+    const response = await api.films.getFilmComments(filmId)
+    const comments = response.data.comments
+
+    dispatch(filmActions.setComments(comments))
+    dispatch(filmActions.setIsLoading(false))
+  }
+}
+
+export const addFilmComment = (
+  filmId: number,
+  comment: Omit<IComment, "comment_id" | "child_comments">
+) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(filmActions.setIsLoading(true))
+    const accessToken = localStorage.getItem("token") as string
+
+    try {
+      const response = await api.films.addFilmComment(filmId, comment.text, accessToken)
+      const addedCommentId = response.data
+      const newComment: IComment = {
+        comment_id: addedCommentId,
+        child_comments: [],
+        ...comment,
+      }
+
+      dispatch(filmActions.addComment(newComment))
+    } catch (err) {
+    } finally {
+      dispatch(filmActions.setIsLoading(false))
+    }
+  }
+}
+
+export const addChildFilmComment = (
+  filmId: number,
+  comment: Omit<IChildComment, "comment_id">,
+  parentCommentId: number
+) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(filmActions.setIsLoading(true))
+    const accessToken = localStorage.getItem("token") as string
+
+    try {
+      const response = await api.films.addFilmComment(
+        filmId,
+        comment.text,
+        accessToken,
+        parentCommentId
+      )
+
+      const addedCommentId = response.data
+      const newChildComment = {
+        comment_id: addedCommentId,
+        parentCommentId,
+        ...comment,
+      }
+
+      dispatch(filmActions.addChildComment(newChildComment))
+    } catch (err) {
+    } finally {
+      dispatch(filmActions.setIsLoading(false))
+    }
   }
 }

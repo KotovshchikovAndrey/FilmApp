@@ -120,7 +120,7 @@ export default function FilmDetail() {
               </AspectRatio>
             </Stack>
           </Grid>
-          <FilmCommentsList />
+          <FilmCommentsList key={filmId} filmId={filmId} />
         </Grid>
       )}
     </React.Fragment>

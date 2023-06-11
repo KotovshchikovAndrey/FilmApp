@@ -1,60 +1,64 @@
 import React from "react"
 import { FilmComment } from "./FilmComment"
 import { useAppSelector, useAppDispatch } from "../../../store"
-import { IChildComment, IComment } from "../../../core/entities"
-import { filmActions } from "../../../store/filmReducer"
-import { Avatar, Button, Stack, TextField } from "@mui/material"
+import { ICommentAuthor } from "../../../core/entities"
+import { Avatar, Box, Button, CircularProgress, Stack, TextField } from "@mui/material"
+import { addChildFilmComment, addFilmComment, getFilmComments } from "../../../store/actionCreators"
 
-let id = -1
+interface IFilmCommentsListProps {
+  filmId: number
+}
 
-export const FilmCommentsList: React.FC = () => {
+export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
+  props: IFilmCommentsListProps
+) => {
   const dispatch = useAppDispatch()
+
   const comments = useAppSelector((state) => state.film.comments)
+  const isLoading = useAppSelector((state) => state.film.isLoading)
+  const errorMessage = useAppSelector((state) => state.film.errorMessage)
 
   const [answerCommentId, setAnswerCommentId] = React.useState<number | null>(null)
   const [commentText, setCommentText] = React.useState<string | null>(null)
-  const [isScroll, setIsScroll] = React.useState(false)
 
-  const addCommentAnswerHandler = (author: string, parentCommentId: number) => {
-    console.log(parentCommentId)
+  const addCommentAnswerHandler = (author: ICommentAuthor, parentCommentId: number) => {
     setAnswerCommentId(parentCommentId)
-    setCommentText(`${author}, `)
+    setCommentText(`${author.name} ${author.surname}, `)
   }
 
   const addCommentHandler = () => {
     if (commentText) {
-      const commentInputData = {
-        author: "Test User 1",
+      const commentData = {
+        author: {
+          name: "User",
+          surname: "Test",
+          avatar: null,
+        },
         text: commentText,
       }
-      id += 1
-      if (!answerCommentId) {
-        const comment: IComment = {
-          id: id,
-          child_comments: [],
-          ...commentInputData,
-        }
 
-        dispatch(filmActions.addComment(comment))
+      if (answerCommentId === null) {
+        dispatch(addFilmComment(props.filmId, commentData))
       } else {
-        const childComment: IChildComment = {
-          parentCommentId: answerCommentId,
-          ...commentInputData,
-        }
-
-        dispatch(filmActions.addChildComment(childComment))
+        dispatch(addChildFilmComment(props.filmId, commentData, answerCommentId))
       }
-
-      setIsScroll(!isScroll)
     }
   }
 
-  React.useEffect(() => window.scrollTo(0, document.body.scrollHeight), [isScroll])
+  React.useEffect(() => {
+    dispatch(getFilmComments(props.filmId))
+  }, [])
+
+  React.useEffect(() => window.scrollTo(0, document.body.scrollHeight), [isLoading])
 
   return (
     <React.Fragment>
-      {comments.map((comment, index) => (
-        <FilmComment key={index} comment={comment} onAddAnswer={addCommentAnswerHandler} />
+      {comments.map((comment) => (
+        <FilmComment
+          key={comment.comment_id}
+          comment={comment}
+          onAddAnswer={addCommentAnswerHandler}
+        />
       ))}
 
       <Stack alignItems="flex-end">
@@ -78,9 +82,15 @@ export const FilmCommentsList: React.FC = () => {
             onChange={(event) => setCommentText(event.target.value)}
           />
         </Stack>
-        <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
-          Add
-        </Button>
+        {isLoading ? (
+          <Box display="flex" justifyContent="center">
+            <CircularProgress size={60} />
+          </Box>
+        ) : (
+          <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
+            Add
+          </Button>
+        )}
       </Stack>
     </React.Fragment>
   )

@@ -43,13 +43,20 @@ export const filmSlice = createSlice({
       state.errorMessage = action.payload
     },
 
+    setComments: (state, action: PayloadAction<IComment[]>) => {
+      state.comments = action.payload
+    },
+
     addComment: (state, action: PayloadAction<IComment>) => {
       state.comments.push(action.payload)
     },
 
-    addChildComment: (state, action: PayloadAction<IChildComment>) => {
+    addChildComment: (
+      state,
+      action: PayloadAction<IChildComment & { parentCommentId: number }>
+    ) => {
       const parentComment = state.comments.find(
-        (comment) => comment.id === action.payload.parentCommentId
+        (comment) => comment.comment_id === action.payload.parentCommentId
       )
 
       if (parentComment) parentComment.child_comments.push(action.payload)
