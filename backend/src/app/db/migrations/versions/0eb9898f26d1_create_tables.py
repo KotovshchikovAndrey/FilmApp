@@ -151,12 +151,13 @@ def create_comment_table() -> None:
             nullable=True,
         ),
         sa.Column("text", sa.TEXT(), nullable=False),
+        sa.Column("added_date", sa.TIMESTAMP(), nullable=False),
     )
 
 
-def create_trigger_on_watchstatus_user_film_table() -> None:
+def create_set_updated_date_function() -> None:
     op.execute(
-        """
+        f"""
     CREATE FUNCTION set_updated_date()
 RETURNS trigger AS $$
 BEGIN
@@ -166,19 +167,13 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER set_updated_date
-BEFORE UPDATE
-ON watchstatus_user_film
-FOR EACH ROW
-EXECUTE PROCEDURE set_updated_date();"""
+$$ LANGUAGE plpgsql;"""
     )
 
 
-def create_trigger_on_favorite_user_film_table() -> None:
+def create_set_added_date_function() -> None:
     op.execute(
-        """
+        f"""
     CREATE FUNCTION set_added_date()
 RETURNS trigger AS $$
 BEGIN
@@ -188,13 +183,27 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;"""
+    )
 
-CREATE TRIGGER set_added_date
+
+def create_set_added_date_trigger_for_table(table: str):
+    op.execute(
+        f"""CREATE TRIGGER set_added_date
 BEFORE INSERT
-ON favorite_user_film
+ON {table}
 FOR EACH ROW
 EXECUTE PROCEDURE set_added_date();"""
+    )
+
+
+def create_set_updated_date_trigger_for_table(table: str):
+    op.execute(
+        f"""CREATE TRIGGER set_updated_date
+BEFORE UPDATE
+ON {table}
+FOR EACH ROW
+EXECUTE PROCEDURE set_updated_date();"""
     )
 
 
@@ -285,10 +294,15 @@ def upgrade() -> None:
     create_film_table()
     create_comment_table()
     create_favorite_user_film_table()
-    create_trigger_on_favorite_user_film_table()
     create_rating_table()
     create_watchstatus_user_film_table()
-    create_trigger_on_watchstatus_user_film_table()
+
+    create_set_added_date_function()
+    create_set_updated_date_function()
+
+    create_set_added_date_trigger_for_table("favorite_user_film")
+    create_set_added_date_trigger_for_table("comment")
+    create_set_updated_date_trigger_for_table("watchstatus_user_film")
 
     load_csv_data()
     create_custom_types()

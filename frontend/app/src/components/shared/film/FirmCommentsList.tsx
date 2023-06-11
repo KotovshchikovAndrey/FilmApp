@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from "../../../store"
 import { ICommentAuthor } from "../../../core/entities"
 import { Avatar, Box, Button, CircularProgress, Stack, TextField } from "@mui/material"
 import { addChildFilmComment, addFilmComment, getFilmComments } from "../../../store/actionCreators"
+import { API_URL } from "../../../core/config"
 
 interface IFilmCommentsListProps {
   filmId: number
@@ -14,9 +15,11 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
 ) => {
   const dispatch = useAppDispatch()
 
+  const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const user = useAppSelector((state) => state.auth.user)
+
   const comments = useAppSelector((state) => state.film.comments)
   const isLoading = useAppSelector((state) => state.film.isLoading)
-  const errorMessage = useAppSelector((state) => state.film.errorMessage)
 
   const [answerCommentId, setAnswerCommentId] = React.useState<number | null>(null)
   const [commentText, setCommentText] = React.useState<string | null>(null)
@@ -61,37 +64,43 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
         />
       ))}
 
-      <Stack alignItems="flex-end">
-        <Stack
-          flexDirection="row"
-          alignItems="flex-end"
-          width="100%"
-          maxWidth="1200px"
-          marginBottom="10px"
-        >
-          <Avatar
-            alt="Remy Sharp"
-            src={"https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"}
-            sx={{ width: 100, height: 100, marginRight: 3 }}
-          />
-          <TextField
-            placeholder="Your comment"
-            multiline
-            sx={{ width: 500 }}
-            value={commentText}
-            onChange={(event) => setCommentText(event.target.value)}
-          />
+      {isAuth && user && (
+        <Stack alignItems="flex-end">
+          <Stack
+            flexDirection="row"
+            alignItems="flex-end"
+            width="100%"
+            maxWidth="1200px"
+            marginBottom="10px"
+          >
+            <Avatar
+              alt="Remy Sharp"
+              src={
+                user.avatar
+                  ? `${API_URL}/users/media` + user.avatar
+                  : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
+              }
+              sx={{ width: 100, height: 100, marginRight: 3 }}
+            />
+            <TextField
+              placeholder="Your comment"
+              multiline
+              sx={{ width: 500 }}
+              value={commentText}
+              onChange={(event) => setCommentText(event.target.value)}
+            />
+          </Stack>
+          {isLoading ? (
+            <Box display="flex" justifyContent="center">
+              <CircularProgress size={60} />
+            </Box>
+          ) : (
+            <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
+              Add
+            </Button>
+          )}
         </Stack>
-        {isLoading ? (
-          <Box display="flex" justifyContent="center">
-            <CircularProgress size={60} />
-          </Box>
-        ) : (
-          <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
-            Add
-          </Button>
-        )}
-      </Stack>
+      )}
     </React.Fragment>
   )
 }

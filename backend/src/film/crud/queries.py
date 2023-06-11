@@ -152,7 +152,7 @@ GET_ALL_PARENT_COMMENTS_FOR_FILM = """SELECT
 "user".surname as surname
 FROM "comment" 
 JOIN "user" ON "user".id = "comment".user_id
-WHERE film_id = :film_id AND parent_comment IS NULL;"""
+WHERE film_id = :film_id AND parent_comment IS NULL ORDER BY added_date;"""
 
 GET_ALL_CHILD_COMMENTS_FOR_COMMENT = """SELECT
 "comment".id as comment_id,
@@ -162,7 +162,7 @@ GET_ALL_CHILD_COMMENTS_FOR_COMMENT = """SELECT
 "user".surname as surname
 FROM "comment" 
 JOIN "user" ON "user".id = "comment".user_id
-WHERE parent_comment = :comment_id;"""
+WHERE parent_comment = :comment_id ORDER BY added_date;"""
 
 CREATE_FILM_COMMENT = """INSERT INTO "comment" (user_id, film_id, text, parent_comment)
 VALUES (:user_id, :film_id, :text, :parent_comment) RETURNING "comment".id as comment_id;"""

@@ -8,7 +8,7 @@ import AspectRatio from "@mui/joy/AspectRatio"
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
 import { IGenre } from "../core/entities"
 import { useAppDispatch, useAppSelector } from "../store"
-import { addFilmToFavorite, removeFilmFromFavorite } from "../store/actionCreators"
+import { addFilmToFavorite, refreshToken, removeFilmFromFavorite } from "../store/actionCreators"
 import { FilmCommentsList } from "../components/shared/film/FirmCommentsList"
 import { IFilm } from "../core/entities"
 import api from "../api"
@@ -35,10 +35,17 @@ export default function FilmDetail() {
   const fetchFilmDetail = async (filmId: number) => {
     setLoading(true)
 
-    const responseFilmDetail = await api.films.getFilmDetail(filmId, token)
-    const responseTrailer = await api.films.getFilmTrailer(filmId)
+    let responseFilmDetail
+    try {
+      responseFilmDetail = await api.films.getFilmDetail(filmId, token)
+    } catch (err) {
+      responseFilmDetail = await api.films.getFilmDetail(filmId)
+      dispatch(refreshToken())
+    }
 
+    const responseTrailer = await api.films.getFilmTrailer(filmId)
     const filmData = responseFilmDetail.data
+
     filmData.posterUrl = `${API_URL}${Endpoints.FILMS.GET_POSTER(filmId)}`
     filmData.trailerUrl = `${POSTER_URL}${responseTrailer.data.key}`
 

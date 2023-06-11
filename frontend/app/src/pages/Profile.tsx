@@ -48,8 +48,9 @@ export default function Profile() {
               <Avatar
                 alt="Remy Sharp"
                 src={
-                  `${API_URL}/users/media` + user.avatar ??
-                  "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
+                  user.avatar
+                    ? `${API_URL}/users/media` + user.avatar
+                    : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
                 }
                 sx={{ width: 100, height: 100 }}
               />
