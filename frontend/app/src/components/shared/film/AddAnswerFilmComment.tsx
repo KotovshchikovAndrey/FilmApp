@@ -1,41 +1,34 @@
 import React from "react"
 import { FilmComment } from "./FilmComment"
 import { useAppSelector, useAppDispatch } from "../../../store"
-import { ICommentAuthor } from "../../../core/entities"
+import { ICommentAuthor, IUser } from "../../../core/entities"
 import { Avatar, Box, Button, CircularProgress, Stack, TextField } from "@mui/material"
 import { addChildFilmComment, addFilmComment, getFilmComments } from "../../../store/actionCreators"
 import { API_URL } from "../../../core/config"
-import { AddAnswerFilmComment } from "./AddAnswerFilmComment"
 
-interface IFilmCommentsListProps {
+interface IAddAnswerFilmCommentProps {
   filmId: number
+  parentComment: {
+    id: number
+    author: ICommentAuthor
+  }
 }
 
-export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
-  props: IFilmCommentsListProps
+export const AddAnswerFilmComment: React.FC<IAddAnswerFilmCommentProps> = (
+  props: IAddAnswerFilmCommentProps
 ) => {
   const dispatch = useAppDispatch()
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
   const user = useAppSelector((state) => state.auth.user)
-
-  const comments = useAppSelector((state) => state.film.comments)
   const isLoading = useAppSelector((state) => state.film.isLoading)
 
-  const [commentText, setCommentText] = React.useState<string | null>(null)
-  const [parentComment, setParentComment] = React.useState<{
-    id: number
-    author: ICommentAuthor
-  } | null>(null)
+  const { filmId, parentComment } = props
+  const [commentText, setCommentText] = React.useState<string>(
+    `${parentComment.author.name} ${parentComment.author.surname}, `
+  )
 
-  const addCommentAnswerHandler = (
-    parentCommentAuthor: ICommentAuthor,
-    parentCommentId: number
-  ) => {
-    setParentComment({ id: parentCommentId, author: parentCommentAuthor })
-  }
-
-  const addCommentHandler = () => {
+  const addAnswerCommentHandler = () => {
     if (commentText && user) {
       const commentData = {
         author: {
@@ -46,42 +39,21 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
         text: commentText,
       }
 
-      dispatch(addFilmComment(props.filmId, commentData))
+      dispatch(addChildFilmComment(filmId, commentData, parentComment.id))
     }
   }
 
-  React.useEffect(() => {
-    dispatch(getFilmComments(props.filmId))
-  }, [])
-
   return (
     <React.Fragment>
-      {comments.map((comment) => (
-        <>
-          <FilmComment
-            key={comment.comment_id}
-            comment={comment}
-            onAddAnswer={addCommentAnswerHandler}
-          />
-          {parentComment?.id === comment.comment_id && (
-            <AddAnswerFilmComment
-              key={comment.comment_id}
-              filmId={props.filmId}
-              parentComment={parentComment}
-            />
-          )}
-        </>
-      ))}
-
       {isAuth && user && (
-        <Stack alignItems="flex-end">
-          <Stack
-            flexDirection="row"
-            alignItems="flex-end"
-            width="100%"
-            maxWidth="1200px"
-            marginBottom="10px"
-          >
+        <Stack
+          width="100%"
+          maxWidth="1200px"
+          alignItems="flex-end"
+          marginRight={7}
+          marginBottom={5}
+        >
+          <Stack flexDirection="row" alignItems="flex-end" marginBottom="10px">
             <Avatar
               alt="Remy Sharp"
               src={
@@ -104,7 +76,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
               <CircularProgress size={60} />
             </Box>
           ) : (
-            <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
+            <Button variant="outlined" sx={{ width: 100 }} onClick={addAnswerCommentHandler}>
               Add
             </Button>
           )}
