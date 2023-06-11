@@ -77,3 +77,18 @@ export const InitialFilter: IFilmFilter = {
   genre: null,
   country: null,
 }
+
+export interface IChildComment {
+  parentCommentId: number
+  author: string
+  avatarUrl?: string
+  text: string
+}
+
+export interface IComment {
+  id: number
+  author: string
+  avatarUrl?: string
+  text: string
+  child_comments: IChildComment[]
+}

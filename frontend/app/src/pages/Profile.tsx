@@ -6,7 +6,6 @@ import { fetchUserFavoriteFilms, logoutUser, setUserAvatar } from "../store/acti
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
 import ProfileDataField from "../components/shared/Profile/ProfileDataField"
 import FilmCardList from "../components/shared/film/FilmCardList"
-
 import { API_URL } from "../core/config"
 
 export default function Profile() {

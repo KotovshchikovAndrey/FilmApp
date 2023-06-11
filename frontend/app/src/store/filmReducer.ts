@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { IFilm, IFilmFilter } from "../core/entities"
+import { IFilm, IFilmFilter, IComment, IChildComment } from "../core/entities"
 
 export interface FilmsState {
   films: IFilm[]
@@ -7,6 +7,7 @@ export interface FilmsState {
   isLoading: boolean
   errorMessage: string
   filter: IFilmFilter
+  comments: IComment[]
 }
 
 const initialState: FilmsState = {
@@ -15,6 +16,7 @@ const initialState: FilmsState = {
   isLoading: false,
   errorMessage: "",
   filter: { genre: null, country: null },
+  comments: [],
 }
 
 export const filmSlice = createSlice({
@@ -39,6 +41,18 @@ export const filmSlice = createSlice({
 
     setErrorMessage: (state, action: PayloadAction<string>) => {
       state.errorMessage = action.payload
+    },
+
+    addComment: (state, action: PayloadAction<IComment>) => {
+      state.comments.push(action.payload)
+    },
+
+    addChildComment: (state, action: PayloadAction<IChildComment>) => {
+      const parentComment = state.comments.find(
+        (comment) => comment.id === action.payload.parentCommentId
+      )
+
+      if (parentComment) parentComment.child_comments.push(action.payload)
     },
   },
 })

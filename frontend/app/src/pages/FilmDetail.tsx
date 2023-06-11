@@ -6,10 +6,10 @@ import { Chip } from "@mui/material"
 import { Add, Remove } from "@mui/icons-material"
 import AspectRatio from "@mui/joy/AspectRatio"
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
-import { useFilmDetail } from "../hooks/filmDetail"
 import { IGenre } from "../core/entities"
 import { useAppDispatch, useAppSelector } from "../store"
 import { addFilmToFavorite, removeFilmFromFavorite } from "../store/actionCreators"
+import { FilmCommentsList } from "../components/shared/film/FirmCommentsList"
 import { IFilm } from "../core/entities"
 import api from "../api"
 import { API_URL, POSTER_URL } from "../core/config"
@@ -120,6 +120,7 @@ export default function FilmDetail() {
               </AspectRatio>
             </Stack>
           </Grid>
+          <FilmCommentsList />
         </Grid>
       )}
     </React.Fragment>
