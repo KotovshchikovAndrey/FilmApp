@@ -107,6 +107,7 @@ class FilmSearch(HTTPEndpoint):
 class FilmGigaSearch(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
+    @requires("authenticated", status_code=401)
     async def post(self, request: Request):
         data = await request.json()
         dto = SearchFilmDTO(**data)

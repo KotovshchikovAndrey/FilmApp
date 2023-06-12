@@ -11,18 +11,19 @@ from film.dto import (
     FilmsDTO,
     GenreDTO,
     ProductionCountryDTO,
-    UpdateFilmDTO, UserFilmInfoDTO,
+    UpdateFilmDTO,
+    UserFilmInfoDTO,
 )
 
 
 class IFilmReporitory(ABC):
     @abstractmethod
     async def get_many(
-            self,
-            limit: int,
-            offset: int,
-            genre: tp.Optional[int] = None,
-            country: tp.Optional[str] = None,
+        self,
+        limit: int,
+        offset: int,
+        genre: tp.Optional[int] = None,
+        country: tp.Optional[str] = None,
     ) -> FilmsDTO:
         ...
 
@@ -35,7 +36,7 @@ class IFilmReporitory(ABC):
         ...
 
     @abstractmethod
-    async def find_by_title(self, title: str) -> FilmsDTO:
+    async def find_by_title(self, title: str, limit: int) -> FilmsDTO:
         ...
 
     @abstractmethod
@@ -52,7 +53,7 @@ class IFilmReporitory(ABC):
 
     @abstractmethod
     async def update(
-            self, film_id: int, film_update: UpdateFilmDTO
+        self, film_id: int, film_update: UpdateFilmDTO
     ) -> tp.Optional[FilmPrimaryKeyDTO]:
         ...
 
@@ -66,7 +67,7 @@ class IFilmReporitory(ABC):
 
     @abstractmethod
     async def get_watch_status_films(
-            self, target_id: int, status: str, order_by: str
+        self, target_id: int, status: str, order_by: str
     ) -> FilmsDTO:
         ...
 
@@ -85,11 +86,11 @@ class IFilmReporitory(ABC):
 
 class FilmPostgresRepository(IFilmReporitory):
     async def get_many(
-            self,
-            limit: int,
-            offset: int,
-            genre: tp.Optional[int] = None,
-            country: tp.Optional[str] = None,
+        self,
+        limit: int,
+        offset: int,
+        genre: tp.Optional[int] = None,
+        country: tp.Optional[str] = None,
     ):
         params = {"limit": limit, "offset": offset}
         query = queries.GET_MANY_FILMS
@@ -103,7 +104,10 @@ class FilmPostgresRepository(IFilmReporitory):
                 conditions.append(" country ->> 'iso_3166_1' = :country ")
                 params["country"] = country
 
-            query += "AND".join(conditions) + "ORDER BY RANDOM() OFFSET :offset LIMIT :limit;"
+            query += (
+                "AND".join(conditions)
+                + "ORDER BY RANDOM() OFFSET :offset LIMIT :limit;"
+            )
 
         films = await db_connection.fetch_all(query, **params)
         return FilmsDTO(films=films)
@@ -121,9 +125,11 @@ class FilmPostgresRepository(IFilmReporitory):
         )
         return UserFilmInfoDTO(**info)
 
-    async def find_by_title(self, title: str):
+    async def find_by_title(self, title: str, limit: int):
         films = await db_connection.fetch_all(
-            queries.SEARCH_FILMS_BY_TITLE, title=f"%{title.lower()}%"
+            queries.SEARCH_FILMS_BY_TITLE,
+            title=f"%{title.lower()}%",
+            limit=limit,
         )
 
         return FilmsDTO(films=films)

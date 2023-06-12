@@ -12,7 +12,7 @@ export default function Home() {
       <ProfileHeader />
       <Stack spacing={5} mb={10} mt={20}>
         <Typography variant="h4" component="h1">
-          Опиши фильм, а мы подберем что-то подходящее :)
+          Find your favorite film now!
         </Typography>
         <FilmSearchInput />
       </Stack>

@@ -103,6 +103,7 @@ class GetPosterDTO(BaseModel):
 
 class SearchFilmDTO(BaseModel):
     title: str
+    limit: int
 
 
 class FilmTrailerDTO(BaseModel):
@@ -157,7 +158,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-                production_countries, list
+            production_countries, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_countries must be iterable!")
 
@@ -177,7 +178,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-                production_companies, list
+            production_companies, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_companies must be iterable!")
 

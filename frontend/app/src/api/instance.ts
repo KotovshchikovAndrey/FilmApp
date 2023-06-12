@@ -12,6 +12,7 @@ export const axiosInstance = axios.create({
 })
 
 const urlsAuth = [
+  Endpoints.FILMS.SEARCH_FILM_SMART,
   Endpoints.AUTH.LOGOUT,
   Endpoints.USERS.MY_PROFILE,
   Endpoints.AUTH.REDEEM_CODE,

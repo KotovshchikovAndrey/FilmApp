@@ -18,6 +18,7 @@ const Endpoints = {
     GET_FILM_DETAIL: (filmId: number) => `/films/${filmId}`,
     GET_FILM_TRAILER: (filmId: number) => `/films/${filmId}/trailer`,
     GET_FILM_FILTER_OPTIONS: "/films/filters",
+    SEARCH_FILM: "films/search",
     SEARCH_FILM_SMART: "/films/gigasearch",
     FILM_COMMENTS: (filmId: number) => `/films/${filmId}/comments`,
   },

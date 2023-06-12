@@ -73,7 +73,7 @@ export default function Profile() {
                   <input
                     id="upload-image"
                     hidden
-                    accept="image/*"
+                    accept=".jpg,.png,.gif"
                     type="file"
                     onChange={UploadAvatarHandler}
                   />

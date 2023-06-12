@@ -271,3 +271,16 @@ export const addChildFilmComment = (
     }
   }
 }
+
+export const searchFilm = (title: string, useSmartSearch: boolean) => {
+  return async (dispatch: Dispatch) => {
+    dispatch(filmActions.setIsLoading(true))
+    const response = useSmartSearch
+      ? await api.films.searchFilmSmart(title)
+      : await api.films.searchFilm(title)
+
+    const filmsWithPosters = setPosters(response.data.films)
+    dispatch(filmActions.setFilms(filmsWithPosters))
+    dispatch(filmActions.setIsLoading(false))
+  }
+}

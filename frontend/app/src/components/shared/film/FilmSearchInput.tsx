@@ -1,34 +1,44 @@
 import React from "react"
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition"
-import { TextField, Box, InputAdornment } from "@mui/material"
+import { TextField, Box, InputAdornment, Button } from "@mui/material"
 import MicIcon from "@mui/icons-material/Mic"
 import SearchIcon from "@mui/icons-material/Search"
-
-import { IFilm } from "../../../core/entities"
-import api from "../../../api"
-import { title } from "process"
+import { useAppDispatch, useAppSelector } from "../../../store"
+import { searchFilm } from "../../../store/actionCreators"
 
 export default function FilmSearchInput() {
-  const [searchResult, setSearchResult] = React.useState<IFilm | null>(null)
+  const dispatch = useAppDispatch()
 
-  const [inputValue, setInputValue] = React.useState<string>("")
+  const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const userStatus = useAppSelector((state) => state.auth.status)
+
+  const [inputValue, setInputValue] = React.useState<string | null>(null)
+  const [useSmartSearch, setUseSmartSearch] = React.useState<boolean>(false)
+
   const { listening, browserSupportsSpeechRecognition, finalTranscript } = useSpeechRecognition({
     clearTranscriptOnListen: true,
   })
+
+  React.useEffect(() => {
+    if (!isAuth || userStatus !== "active") setUseSmartSearch(false)
+  }, [isAuth])
 
   React.useEffect(() => setInputValue(finalTranscript), [finalTranscript])
 
   const fetchSearchFilm = async () => {
     if (inputValue) {
-      const response = await api.films.searchFilmSmart(inputValue)
-      setSearchResult(response.data)
+      dispatch(searchFilm(inputValue.trim(), useSmartSearch))
     }
   }
 
   return (
     <React.Fragment>
       <TextField
-        helperText="Введите ваше описание. Например: криминальная драма с Домеником Торрето"
+        helperText={
+          useSmartSearch
+            ? "Введите ваше описание. Например: криминальная драма с Домеником Торрето"
+            : "Введите название фильма. Например: Форсаж 50: Самый последний заезд"
+        }
         multiline
         fullWidth
         value={inputValue}
@@ -65,6 +75,11 @@ export default function FilmSearchInput() {
           ),
         }}
       />
+      {isAuth && userStatus === "active" && (
+        <Button onClick={() => setUseSmartSearch(!useSmartSearch)}>
+          {useSmartSearch ? "Disable smart search" : "Enable smart search"}
+        </Button>
+      )}
     </React.Fragment>
   )
 }

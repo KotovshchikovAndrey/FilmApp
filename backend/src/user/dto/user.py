@@ -107,9 +107,22 @@ class FileDTO(BaseModel):
     content: bytes
 
     @validator("filename", "content")
-    def validate_filename(cls, value: str):
+    def validate_file(cls, value: str):
         if not value:
             raise ValueError("Avatar file was not sent!")
+
+        return value
+
+    @validator("filename")
+    def validate_filename(cls, value: str):
+        allowed_ext = {"png", "jpg", "jpeg", "gif"}
+        ext = value.split(".")[-1]
+
+        if ext not in allowed_ext:
+            print(ext)
+            raise ValueError(
+                f"Недопустимое расширение файла! Допустимые форматы {allowed_ext}"
+            )
 
         return value
 

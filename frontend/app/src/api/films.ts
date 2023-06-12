@@ -46,8 +46,20 @@ export const getFilmFilterOptions = (): AxiosPromise<IFilmFilterOptions> => {
   return axiosInstance.get<IFilmFilterOptions>(Endpoints.FILMS.GET_FILM_FILTER_OPTIONS)
 }
 
-export const searchFilmSmart = (title: string): AxiosPromise<IFilm> => {
-  return axiosInstance.post<IFilm>(Endpoints.FILMS.SEARCH_FILM_SMART, { title })
+export const searchFilm = (title: string, limit: number = 20): AxiosPromise<{ films: IFilm[] }> => {
+  return axiosInstance.get(Endpoints.FILMS.SEARCH_FILM, {
+    params: {
+      title,
+      limit,
+    },
+  })
+}
+
+export const searchFilmSmart = (
+  title: string,
+  limit: number = 20
+): AxiosPromise<{ films: IFilm[] }> => {
+  return axiosInstance.post(Endpoints.FILMS.SEARCH_FILM_SMART, { title, limit })
 }
 
 export const getFilmComments = (filmId: number): AxiosPromise<{ comments: IComment[] }> => {

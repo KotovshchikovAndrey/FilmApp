@@ -1,6 +1,6 @@
-import { Alert, Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 import * as React from "react"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import Grid from "@mui/material/Unstable_Grid2"
 import { Chip } from "@mui/material"
 import { Add, Remove } from "@mui/icons-material"
@@ -15,9 +15,7 @@ import api from "../api"
 import { API_URL, POSTER_URL } from "../core/config"
 import Endpoints from "../api/endpoints"
 
-let renderCount = 0
 export default function FilmDetail() {
-  renderCount += 1
   const dispatch = useAppDispatch()
 
   const isAuth = useAppSelector((state) => state.auth.isAuth)
@@ -84,7 +82,7 @@ export default function FilmDetail() {
           <Grid xs={12} sm={6}>
             <Stack spacing={2}>
               <Typography variant="h4" component="h1">
-                {film.title} {renderCount}
+                {film.title}
               </Typography>
               <Typography variant="subtitle1">
                 {film.release_date}, {film.time} мин, {film.is_adult ? "18+" : "0+"}

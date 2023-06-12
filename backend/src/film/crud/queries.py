@@ -51,9 +51,7 @@ FROM film ORDER BY name ASC;"""
 
 GET_IMDB_ID = """SELECT imdb_id FROM "film" WHERE id = :film_id;"""
 
-SEARCH_FILMS_BY_TITLE = (
-    """SELECT id, title, is_adult, tagline FROM "film" WHERE LOWER(title) LIKE :title"""
-)
+SEARCH_FILMS_BY_TITLE = """SELECT id, title, is_adult, tagline FROM "film" WHERE LOWER(title) LIKE :title LIMIT :limit;"""
 
 UPDATE_POSTER_URL = (
     """UPDATE "film" SET poster_url = :poster_url WHERE id = :film_id;"""
