@@ -42,8 +42,9 @@ class RequestUserFilmInfo(BaseModel):
     film_id: int
 
 
-class UserFilmInfoDTO(RequestUserFilmInfo):
+class UserFilmInfoDTO(BaseModel):
     is_favorite: bool
+    rating: float
     watch_status: str
 
 
@@ -226,12 +227,15 @@ class UpdateFilmDTO(CreateFilmDTO):
 class SetFilmRatingDTO(BaseModel):
     user: UserBase
     film_id: int
-    value: int
+    value: float
 
     @validator("value")
-    def validate_value(cls, value: int):
-        if not (0 <= value <= 9):
-            raise ValueError("Rating value must be between 0 and 9!")
+    def validate_value(cls, value: float):
+        if not (0 <= value <= 5):
+            raise ValueError("Rating value must be between 0 and 5!")
+
+        if str(value).split(".")[-1] not in {"0", "5"}:
+            raise ValueError("Rating precision must be between .0 or .5!")
 
         return value
 

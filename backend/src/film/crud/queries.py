@@ -26,17 +26,29 @@ production_companies,
 production_countries
 FROM "film" WHERE id = :id;"""
 
-GET_USER_FILM_INFO = """SELECT
-    u.user_id,
-    u.film_id,
-    CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS is_favorite,
-    COALESCE(w.status, 'not_watching') AS watch_status
-FROM
-    (SELECT CAST(:user_id AS INTEGER) AS user_id, CAST(:film_id AS INTEGER) AS film_id) AS u
-LEFT JOIN
-    favorite_user_film f ON f.user_id = u.user_id AND f.film_id = u.film_id
-LEFT JOIN
-    watchstatus_user_film w ON w.user_id = u.user_id AND w.film_id = u.film_id;
+# GET_USER_FILM_INFO = """SELECT
+#     u.user_id,
+#     u.film_id,
+#     CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS is_favorite,
+#     COALESCE(w.status, 'not_watching') AS watch_status
+# FROM
+#     (SELECT CAST(:user_id AS INTEGER) AS user_id, CAST(:film_id AS INTEGER) AS film_id) AS u
+# LEFT JOIN
+#     favorite_user_film f ON f.user_id = u.user_id AND f.film_id = u.film_id
+# LEFT JOIN
+#     watchstatus_user_film w ON w.user_id = u.user_id AND w.film_id = u.film_id;
+# """
+
+GET_USER_FILM_INFO = """
+SELECT
+	f.user_id IS NOT NULL AS is_favorite,
+	COALESCE(r.value, 0) AS rating,
+	COALESCE(w.status, 'not_watching') AS watch_status
+FROM "film"
+	LEFT JOIN "favorite_user_film" as f ON "film".id = f.film_id AND f.user_id = :user_id
+	LEFT JOIN "watchstatus_user_film" as w ON "film".id = w.film_id AND w.user_id = :user_id
+	LEFT JOIN "rating" as r ON "film".id = r.film_id AND r.user_id = :user_id
+WHERE "film".id = :film_id;
 """
 
 GET_ALL_PRODUCTION_COUNTRIES = """SELECT DISTINCT

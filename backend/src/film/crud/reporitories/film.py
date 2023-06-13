@@ -123,6 +123,7 @@ class FilmPostgresRepository(IFilmReporitory):
             user_id=user_id,
             film_id=film_id,
         )
+
         return UserFilmInfoDTO(**info)
 
     async def find_by_title(self, title: str, limit: int):

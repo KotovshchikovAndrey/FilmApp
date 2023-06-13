@@ -14,6 +14,7 @@ import { IFilm } from "../core/entities"
 import api from "../api"
 import { API_URL, POSTER_URL } from "../core/config"
 import Endpoints from "../api/endpoints"
+import { FilmStarRating } from "../components/shared/film/FilmStarRating"
 
 export default function FilmDetail() {
   const dispatch = useAppDispatch()
@@ -27,6 +28,7 @@ export default function FilmDetail() {
 
   const [film, setFilm] = React.useState<IFilm>({} as IFilm)
   const [isFilmFavorite, setIsFilmFavorite] = React.useState<boolean>(false)
+  const [userRating, setUserRating] = React.useState<number>(0)
   const [loading, setLoading] = React.useState(false)
 
   const token = localStorage.getItem("token") || undefined
@@ -49,6 +51,7 @@ export default function FilmDetail() {
 
     setFilm(filmData)
     setIsFilmFavorite(filmData.is_favorite ?? false)
+    setUserRating(filmData.rating ?? 0)
     setLoading(false)
   }
 
@@ -84,6 +87,11 @@ export default function FilmDetail() {
               <Typography variant="h4" component="h1">
                 {film.title}
               </Typography>
+
+              {isAuth && userStatus === "active" && (
+                <FilmStarRating key={filmId} filmId={filmId} userRating={userRating} />
+              )}
+
               <Typography variant="subtitle1">
                 {film.release_date}, {film.time} мин, {film.is_adult ? "18+" : "0+"}
               </Typography>

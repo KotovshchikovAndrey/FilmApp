@@ -3,6 +3,7 @@ import {
   IComment,
   IFilm,
   IFilmFilterOptions,
+  IFilmRating,
   ILoginRequest,
   ITrailer,
 } from "../core/entities"
@@ -75,6 +76,26 @@ export const addFilmComment = (
   return axiosInstance.post(
     Endpoints.FILMS.FILM_COMMENTS(filmId),
     { text, parent_comment: parentComment },
+    {
+      headers: {
+        Authorization: accessToken,
+      },
+    }
+  )
+}
+
+export const getFilmRating = (filmId: number): AxiosPromise<IFilmRating> => {
+  return axiosInstance.get(Endpoints.FILMS.FILM_RATING(filmId))
+}
+
+export const setFilmRating = (
+  filmId: number,
+  ratingValue: number,
+  accessToken: string
+): AxiosPromise<void> => {
+  return axiosInstance.put(
+    Endpoints.FILMS.FILM_RATING(filmId),
+    { value: ratingValue },
     {
       headers: {
         Authorization: accessToken,

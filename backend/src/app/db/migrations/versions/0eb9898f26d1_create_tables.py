@@ -62,7 +62,7 @@ def create_rating_table() -> None:
     op.create_table(
         "rating",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("value", sa.NUMERIC(1, 0), nullable=False, server_default="0"),
+        sa.Column("value", sa.NUMERIC(2, 1), nullable=False, server_default="0"),
         sa.Column(
             "user_id",
             sa.Integer(),

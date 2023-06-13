@@ -30,10 +30,11 @@ export interface IFilm {
   genres: IGenre[] | null
   productionCompanies?: ICompany[] | null
   productionCountries?: ICountry[] | null
+  is_favorite?: boolean
+  rating?: number
+  watch_status?: string
   posterUrl: string
   trailerUrl?: string
-  is_favorite?: boolean
-  watch_status?: string
 }
 
 export interface IUser {
@@ -71,6 +72,11 @@ export interface IFilmFilterOptions {
 export interface IFilmFilter {
   genre: IGenre | null
   country: ICountry | null
+}
+
+export interface IFilmRating {
+  film_id: number
+  rating: number
 }
 
 export const InitialFilter: IFilmFilter = {

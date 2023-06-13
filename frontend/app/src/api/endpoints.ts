@@ -21,6 +21,7 @@ const Endpoints = {
     SEARCH_FILM: "films/search",
     SEARCH_FILM_SMART: "/films/gigasearch",
     FILM_COMMENTS: (filmId: number) => `/films/${filmId}/comments`,
+    FILM_RATING: (filmId: number) => `/films/${filmId}/rating`,
   },
 }
 
