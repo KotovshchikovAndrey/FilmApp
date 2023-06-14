@@ -46,7 +46,6 @@ export default function Profile() {
               </Box>
             ) : (
               <Avatar
-                alt="Remy Sharp"
                 src={
                   user.avatar
                     ? `${API_URL}/users/media` + user.avatar

@@ -1,4 +1,4 @@
-import { AppBar, Button, Stack, Toolbar } from "@mui/material"
+import {AppBar, Avatar, Button, Icon, IconButton, Stack, Toolbar} from "@mui/material"
 import LoginIcon from "@mui/icons-material/Login"
 import { Logout } from "@mui/icons-material"
 import { Link } from "react-router-dom"
@@ -6,6 +6,7 @@ import { AccountCircle } from "@mui/icons-material"
 import { useAppSelector, useAppDispatch } from "../../../store"
 import { logoutUser } from "../../../store/actionCreators"
 import React from "react"
+import {API_URL} from "../../../core/config";
 
 export default function ProfileHeader() {
   const dispatch = useAppDispatch()
@@ -17,21 +18,28 @@ export default function ProfileHeader() {
     <React.Fragment>
       <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar disableGutters>
-          <Stack direction="row" spacing={4} sx={{ ml: "auto" }}>
+          <Stack direction="row" spacing={4} ml="auto" mt={3}>
             {isAuth && user ? (
               <>
                 <Link to="/profile">
-                  <Button variant="text" startIcon={<AccountCircle />}>
-                    {`${user.name} ${user.surname}`}
-                  </Button>
+                  <IconButton>
+                    <Avatar
+                      src={
+                        user.avatar
+                          ? `${API_URL}/users/media` + user.avatar
+                          : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
+                      }
+                      sx={{ width: 48, height: 48 }}
+                    />
+                  </IconButton>
                 </Link>
-                <Button
-                  variant="text"
-                  startIcon={<Logout />}
-                  onClick={() => dispatch(logoutUser())}
-                >
-                  Logout
-                </Button>
+                {/*<Button*/}
+                {/*  variant="text"*/}
+                {/*  startIcon={<Logout />}*/}
+                {/*  onClick={() => dispatch(logoutUser())}*/}
+                {/*>*/}
+                {/*  Logout*/}
+                {/*</Button>*/}
               </>
             ) : (
               <>
