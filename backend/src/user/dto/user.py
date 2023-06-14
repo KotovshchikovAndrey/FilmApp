@@ -42,7 +42,7 @@ class UserRegisterDTO(BaseModel):
 class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
-    timestamp = int(datetime.datetime.now().timestamp())
+    timestamp: int = int(datetime.datetime.now().timestamp())
     reason: tp.Literal[
         "complete-register", "change-email", "reset-password"
     ] = "UNKNOWN REASON"

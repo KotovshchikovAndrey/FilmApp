@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 from app.exceptions.api import ApiError
-from app.utils.OtherUtils import email_validate, generate_code
+from app.utils.OtherUtils import email_validate, generate_code, generate_expired_in
 from user.crud.reporitories.user import get_user_repository
 from user.dto import (
     UserBase,
@@ -105,6 +105,7 @@ class JwtAuthService(IAuthService):
             UserRequestCodeDTO(
                 code=generate_code(),
                 email=email,
+                timestamp=generate_expired_in(),
                 reason=reason,
             )
         )
