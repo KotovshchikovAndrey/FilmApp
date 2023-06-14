@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from "./store"
 import Profile from "./pages/Profile"
 import { useEffect } from "react"
 import { authenticateUser, fetchFilms } from "./store/actionCreators"
-import Cookies from "js-cookie"
 
 const router = createBrowserRouter([
   {
@@ -51,7 +50,6 @@ function App() {
   const dispatch = useAppDispatch()
   const isAuth = useAppSelector((state) => state.auth.isAuth)
   const user = useAppSelector((state) => state.auth.user)
-  const filter = useAppSelector((state) => state.film.filter)
 
   useEffect(() => {
     if (user) return
@@ -61,10 +59,8 @@ function App() {
   }, [isAuth])
 
   useEffect(() => {
-    dispatch(
-      fetchFilms({ limit: 20, genreId: filter.genre?.id, countryIso: filter.country?.iso_3166_1 })
-    )
-  }, [filter])
+    dispatch(fetchFilms({ limit: 20 }))
+  }, [])
 
   return (
     <React.Fragment>

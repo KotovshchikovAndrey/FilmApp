@@ -28,6 +28,7 @@ export default function FilmSearchInput() {
   const fetchSearchFilm = async () => {
     if (inputValue) {
       dispatch(searchFilm(inputValue.trim(), useSmartSearch))
+      setInputValue("")
     }
   }
 

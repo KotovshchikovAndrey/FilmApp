@@ -40,6 +40,7 @@ export const AddAnswerFilmComment: React.FC<IAddAnswerFilmCommentProps> = (
       }
 
       dispatch(addChildFilmComment(filmId, commentData, parentComment.id))
+      setCommentText(`${parentComment.author.name} ${parentComment.author.surname}, `)
     }
   }
 

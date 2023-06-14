@@ -130,6 +130,8 @@ export const logoutUser = () => {
 
 export const fetchFilms = (data: IGetFilmsParams) => {
   return async (dispatch: Dispatch) => {
+    if (data.filter) dispatch(filmActions.setFilter(data.filter))
+
     try {
       dispatch(filmActions.setIsLoading(true))
       const response = await api.films.getFilms(data)
@@ -274,7 +276,9 @@ export const addChildFilmComment = (
 
 export const searchFilm = (title: string, useSmartSearch: boolean) => {
   return async (dispatch: Dispatch) => {
+    dispatch(filmActions.clearFilters())
     dispatch(filmActions.setIsLoading(true))
+
     const response = useSmartSearch
       ? await api.films.searchFilmSmart(title)
       : await api.films.searchFilm(title)

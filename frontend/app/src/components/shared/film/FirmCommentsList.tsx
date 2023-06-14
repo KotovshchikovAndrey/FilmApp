@@ -22,7 +22,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
   const comments = useAppSelector((state) => state.film.comments)
   const isLoading = useAppSelector((state) => state.film.isLoading)
 
-  const [commentText, setCommentText] = React.useState<string | null>(null)
+  const [commentText, setCommentText] = React.useState<string>("")
   const [parentComment, setParentComment] = React.useState<{
     id: number
     author: ICommentAuthor
@@ -47,6 +47,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
       }
 
       dispatch(addFilmComment(props.filmId, commentData))
+      setCommentText("")
     }
   }
 

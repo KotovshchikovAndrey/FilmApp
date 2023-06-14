@@ -2,6 +2,7 @@ import {
   IAuthResponse,
   IComment,
   IFilm,
+  IFilmFilter,
   IFilmFilterOptions,
   IFilmRating,
   ILoginRequest,
@@ -11,11 +12,16 @@ import { AxiosPromise } from "axios"
 import { axiosInstance } from "./instance"
 import Endpoints from "./endpoints"
 
+// export interface IGetFilmsParams {
+//   limit: number
+//   offset?: number
+//   genreId?: number | null
+//   countryIso?: string | null
+// }
 export interface IGetFilmsParams {
   limit: number
   offset?: number
-  genreId?: number | null
-  countryIso?: string | null
+  filter?: IFilmFilter
 }
 
 interface IFilmsResponse {
@@ -23,13 +29,21 @@ interface IFilmsResponse {
 }
 //TODO значения параметров по умолчанию
 export const getFilms = (data: IGetFilmsParams): AxiosPromise<IFilmsResponse> => {
+  let params: any = {
+    limit: data.limit,
+    offset: data.offset,
+  }
+
+  if (data.filter) {
+    params = {
+      ...params,
+      genre: data.filter.genre?.id,
+      country: data.filter.country?.iso_3166_1,
+    }
+  }
+
   return axiosInstance.get<IFilmsResponse>(Endpoints.FILMS.GET_FILMS, {
-    params: {
-      limit: data.limit,
-      offset: data.offset,
-      genre: data.genreId,
-      country: data.countryIso,
-    },
+    params,
   })
 }
 

@@ -1,15 +1,15 @@
-import {Autocomplete, Box, TextField} from "@mui/material"
-import React, {useEffect, useState} from "react"
+import { Autocomplete, Box, TextField } from "@mui/material"
+import React, { useEffect, useState } from "react"
 import Grid from "@mui/material/Unstable_Grid2"
 import api from "../../../api"
-import {ICountry, IFilmFilter, IFilmFilterOptions, IGenre, InitialFilter} from "../../../core/entities"
-import {useAppDispatch, useAppSelector} from "../../../store";
-import {filmActions} from "../../../store/filmReducer";
-
+import { ICountry, IFilmFilter, IFilmFilterOptions, IGenre } from "../../../core/entities"
+import { useAppDispatch, useAppSelector } from "../../../store"
+import { filmActions } from "../../../store/filmReducer"
+import { fetchFilms } from "../../../store/actionCreators"
 
 export default function FilmFilters() {
   const dispatch = useAppDispatch()
-  const filterValue = useAppSelector(state => state.film.filter)
+  const filterValue = useAppSelector((state) => state.film.filter)
   const [filterOptions, setFilterOptions] = useState<IFilmFilterOptions>()
   // const [filterValue, setFilterValue] = useState<IFilmFilter>(InitialFilter)
 
@@ -22,6 +22,10 @@ export default function FilmFilters() {
     fetchFilmFilterOptions()
   }, [])
 
+  const changeFilterHandler = (filter: IFilmFilter) => {
+    dispatch(fetchFilms({ limit: 20, filter }))
+  }
+
   return (
     <React.Fragment>
       <Grid container spacing={2}>
@@ -30,15 +34,18 @@ export default function FilmFilters() {
             size="small"
             disablePortal
             options={filterOptions ? filterOptions.genres : []}
-            getOptionLabel={(option: IGenre)=>option.name}
+            getOptionLabel={(option: IGenre) => option.name}
             // onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
             //   console.log(event.target.value)
             // }
-            renderInput={(params) => <TextField {...params} label="Жанр"/>}
+            renderInput={(params) => <TextField {...params} label="Жанр" />}
             value={filterValue.genre}
-            onChange={(event: any, newValue, reason) => {
-              dispatch(filmActions.setFilter({...filterValue, genre: newValue}))
-            }}
+            // onChange={(event: any, newValue, reason) => {
+            //   dispatch(filmActions.setFilter({ ...filterValue, genre: newValue }))
+            // }}
+            onChange={(event: any, newValue, reason) =>
+              changeFilterHandler({ ...filterValue, genre: newValue })
+            }
           />
         </Grid>
         <Grid xs={12} md>
@@ -46,10 +53,10 @@ export default function FilmFilters() {
             size="small"
             disablePortal
             options={filterOptions ? filterOptions.countries : []}
-            getOptionLabel={(option: ICountry)=>option.name}
-            renderInput={(params) => <TextField {...params} label="Страна"/>}
+            getOptionLabel={(option: ICountry) => option.name}
+            renderInput={(params) => <TextField {...params} label="Страна" />}
             renderOption={(props, option: ICountry) => (
-              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+              <Box component="li" sx={{ "& > img": { mr: 2, flexShrink: 0 } }} {...props}>
                 <img
                   loading="lazy"
                   width="40"
@@ -61,8 +68,11 @@ export default function FilmFilters() {
               </Box>
             )}
             value={filterValue.country}
+            // onChange={(event: any, newValue, reason) => {
+            //   dispatch(filmActions.setFilter({ ...filterValue, country: newValue }))
+            // }}
             onChange={(event: any, newValue, reason) => {
-              dispatch(filmActions.setFilter({...filterValue, country: newValue}))
+              changeFilterHandler({ ...filterValue, country: newValue })
             }}
           />
         </Grid>

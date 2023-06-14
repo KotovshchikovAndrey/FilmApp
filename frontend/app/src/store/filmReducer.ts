@@ -35,6 +35,10 @@ export const filmSlice = createSlice({
       state.filter = action.payload
     },
 
+    clearFilters: (state, action: PayloadAction<void>) => {
+      state.filter = initialState.filter
+    },
+
     setIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload
     },
