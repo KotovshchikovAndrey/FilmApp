@@ -3,6 +3,7 @@ import { Typography, Stack, Avatar, Button } from "@mui/material"
 import { IComment, ICommentAuthor } from "../../../core/entities"
 import { FilmChildComment } from "./FilmChildComment"
 import { API_URL } from "../../../core/config"
+import { useAppSelector } from "../../../store"
 
 interface FilmCommentProps {
   comment: IComment
@@ -11,6 +12,9 @@ interface FilmCommentProps {
 
 export const FilmComment: React.FC<FilmCommentProps> = (props: FilmCommentProps) => {
   const { comment, onAddAnswer } = props
+
+  const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const user = useAppSelector((state) => state.auth.user)
 
   return (
     <React.Fragment>
@@ -32,7 +36,11 @@ export const FilmComment: React.FC<FilmCommentProps> = (props: FilmCommentProps)
             <Typography>{comment.text}</Typography>
           </Stack>
         </Stack>
-        <Button onClick={() => onAddAnswer(comment.author, comment.comment_id)}>Add answer</Button>
+        {isAuth && user && user.status === "active" && (
+          <Button onClick={() => onAddAnswer(comment.author, comment.comment_id)}>
+            Add answer
+          </Button>
+        )}
       </Stack>
       {comment.child_comments.map((childComment) => (
         <FilmChildComment

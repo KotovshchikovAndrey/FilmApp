@@ -46,7 +46,7 @@ export const AddAnswerFilmComment: React.FC<IAddAnswerFilmCommentProps> = (
 
   return (
     <React.Fragment>
-      {isAuth && user && (
+      {isAuth && user && user.status === "active" && (
         <Stack
           width="100%"
           maxWidth="1200px"

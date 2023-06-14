@@ -2,6 +2,7 @@ import React from "react"
 import { Typography, Stack, Avatar, Button, Box } from "@mui/material"
 import { IChildComment, ICommentAuthor } from "../../../core/entities"
 import { API_URL } from "../../../core/config"
+import { useAppSelector } from "../../../store"
 
 interface FilmChildCommentProps {
   parentCommentId: number
@@ -11,6 +12,9 @@ interface FilmChildCommentProps {
 
 export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChildCommentProps) => {
   const { parentCommentId, comment, onAddAnswer } = props
+
+  const isAuth = useAppSelector((state) => state.auth.isAuth)
+  const user = useAppSelector((state) => state.auth.user)
 
   return (
     <React.Fragment>
@@ -32,7 +36,9 @@ export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChi
             <Typography>{comment.text}</Typography>
           </Stack>
         </Stack>
-        <Button onClick={() => onAddAnswer(comment.author, parentCommentId)}>Add answer</Button>
+        {isAuth && user && user.status === "active" && (
+          <Button onClick={() => onAddAnswer(comment.author, parentCommentId)}>Add answer</Button>
+        )}
       </Stack>
     </React.Fragment>
   )

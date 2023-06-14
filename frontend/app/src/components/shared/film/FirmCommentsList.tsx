@@ -74,7 +74,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
         </>
       ))}
 
-      {isAuth && user && (
+      {isAuth && user && user.status === "active" && (
         <Stack alignItems="flex-end">
           <Stack
             flexDirection="row"
