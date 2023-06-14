@@ -193,7 +193,7 @@ class FilmService(IFilmService):
     async def giga_search_film(self, dto: GigaSearchFilmDTO):
         with ThreadPoolExecutor(max_workers=4) as pool:
             event_loop = asyncio.get_running_loop()
-        #     film_id = await event_loop.run_in_executor(pool, search_films, dto.query)
+        #     film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
 
         # film = await self.__repository.find_by_id(film_id)
         # return FilmsDTO(films=[film])

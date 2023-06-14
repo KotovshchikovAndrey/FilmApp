@@ -108,9 +108,9 @@ class SearchFilmDTO(BaseModel):
 
 
 class GigaSearchFilmDTO(BaseModel):
-    query: str
+    title: str
 
-    @validator("query")
+    @validator("title")
     def validate_query(cls, value: str):
         if len(value.split()) > 256:
             raise ValueError("The description must have a maximum of 256 words.")
