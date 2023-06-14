@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse, Response
 from app.api.middlewares.auth_backend import parse_token
 from app.core.ioc import container, user_services
 from app.exceptions.api import ApiError
-from app.utils.OtherUtils import generate_code, generate_expired_in
+from app.utils.OtherUtils import generate_code
 from user.dto import (
     UserLoginDTO,
     UserLogoutDTO,
@@ -35,7 +35,6 @@ class Registration(HTTPEndpoint):
             UserRequestCodeDTO(
                 code=generate_code(),
                 email=reg_data.email,
-                timestamp=generate_expired_in(),
                 reason="complete-register",
             )
         )
@@ -200,7 +199,6 @@ class ResetPassword(HTTPEndpoint):
             code=generate_code(),
             reason="reset-password",
             email=data.email,
-            timestamp=generate_expired_in(),
         )
         await self.__auth_service.request_reset_password(dto)
 

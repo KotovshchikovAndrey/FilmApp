@@ -29,7 +29,7 @@ from film.dto import (
     UpdateCommentDTO,
     FilmCommentsDTO,
     UserFilmInfoDTO,
-    RequestUserFilmInfo,
+    RequestUserFilmInfo, GigaSearchFilmDTO,
 )
 
 
@@ -54,7 +54,7 @@ class IFilmService(ABC):
         ...
 
     @abstractmethod
-    async def giga_search_film(self, dto: SearchFilmDTO) -> FilmsDTO:
+    async def giga_search_film(self, dto: GigaSearchFilmDTO) -> FilmsDTO:
         ...
 
     @abstractmethod
@@ -190,10 +190,10 @@ class FilmService(IFilmService):
         films = await self.__repository.find_by_title(title=dto.title, limit=dto.limit)
         return films
 
-    async def giga_search_film(self, dto: SearchFilmDTO):
+    async def giga_search_film(self, dto: GigaSearchFilmDTO):
         with ThreadPoolExecutor(max_workers=4) as pool:
             event_loop = asyncio.get_running_loop()
-        #     film_id = await event_loop.run_in_executor(pool, search_films, dto.title)
+        #     film_id = await event_loop.run_in_executor(pool, search_films, dto.query)
 
         # film = await self.__repository.find_by_id(film_id)
         # return FilmsDTO(films=[film])

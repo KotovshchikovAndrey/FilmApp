@@ -40,3 +40,7 @@ class ApiError(Exception):
     @classmethod
     def bad_gateway(cls, message: str, details: tp.List[str] = []) -> ApiError:
         return cls(status=502, message=message, details=details)
+
+    @classmethod
+    def file_too_large(cls, message: str, details: tp.List[str] = []) -> ApiError:
+        return cls(status=413, message=message, details=details)

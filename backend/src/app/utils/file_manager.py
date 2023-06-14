@@ -14,9 +14,11 @@ class FileManager:
 
     async def upload(self, filename: str, file: bytes) -> str:
         """Загружает файл и возвращает его название"""
-        is_exists = self.__check_file_exists(filename)
-        if is_exists:
+        while True:
             filename = self.__generate_unique_filename(filename)
+            is_exists = self.__check_file_exists(filename)
+            if not is_exists:
+                break
 
         path = pathlib.Path(self.__upload_dir) / filename
         async with aiofiles.open(path, mode="wb") as _file:

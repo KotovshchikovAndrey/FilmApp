@@ -104,7 +104,18 @@ class GetPosterDTO(BaseModel):
 
 class SearchFilmDTO(BaseModel):
     title: str
-    limit: int
+    limit: int = 20
+
+
+class GigaSearchFilmDTO(BaseModel):
+    query: str
+
+    @validator("query")
+    def validate_query(cls, value: str):
+        if len(value.split()) > 256:
+            raise ValueError("The description must have a maximum of 256 words.")
+
+        return value
 
 
 class FilmTrailerDTO(BaseModel):
@@ -159,7 +170,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-            production_countries, list
+                production_countries, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_countries must be iterable!")
 
@@ -179,7 +190,7 @@ class CreateFilmDTO(BaseModel):
             return
 
         if not isinstance(
-            production_companies, list
+                production_companies, list
         ):  # проверяем, что нам пришел именно список
             raise ValueError(f"Field production_companies must be iterable!")
 

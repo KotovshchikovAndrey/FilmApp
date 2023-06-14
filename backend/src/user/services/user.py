@@ -1,7 +1,5 @@
-import json
 import typing as tp
 from abc import ABC, abstractmethod
-from datetime import datetime
 
 from app.core import config
 from app.exceptions.api import ApiError

@@ -18,15 +18,10 @@ from film.dto import (
     ResetFilmRaitingDTO,
     AddCommentDTO,
     UpdateCommentDTO,
-    RequestUserFilmInfo,
+    RequestUserFilmInfo, GigaSearchFilmDTO,
 )
 
 IFilmService = film_services.IFilmService
-
-
-class Test(HTTPEndpoint):
-    async def get(self, request: Request):
-        ...
 
 
 class Film(HTTPEndpoint):
@@ -38,6 +33,7 @@ class Film(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=films.dict())
 
+    @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def post(self, request: Request):
         data = await request.json()
@@ -68,6 +64,7 @@ class FilmDetail(HTTPEndpoint):
             content=output,
         )
 
+    @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def patch(self, request: Request):
         film_id = request.path_params["film_id"]
@@ -78,6 +75,7 @@ class FilmDetail(HTTPEndpoint):
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=updated_film)
 
+    @requires("authenticated", status_code=401)
     @requires("admin", status_code=403)
     async def delete(self, request: Request):
         film_id = request.path_params["film_id"]
@@ -110,7 +108,7 @@ class FilmGigaSearch(HTTPEndpoint):
     @requires("authenticated", status_code=401)
     async def post(self, request: Request):
         data = await request.json()
-        dto = SearchFilmDTO(**data)
+        dto = GigaSearchFilmDTO(**data)
         film = await self.__service.giga_search_film(dto)
 
         return JSONResponse(status_code=status.HTTP_200_OK, content=film.dict())
@@ -195,6 +193,7 @@ class FilmComment(HTTPEndpoint):
         )
 
     @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
     async def post(self, request: Request):
         user = request.user.instance
         film_id = request.path_params["film_id"]
@@ -214,6 +213,7 @@ class FilmCommentDetail(HTTPEndpoint):
     __service: IFilmService = container.resolve(IFilmService)
 
     @requires("authenticated", status_code=401)
+    @requires("active", status_code=403)
     async def patch(self, request: Request):
         user = request.user.instance
         comment_id = request.path_params["comment_id"]

@@ -162,7 +162,7 @@ class MyProfile(HTTPEndpoint):
 class Profile(HTTPEndpoint):
     __service: IUserService = container.resolve(IUserService)
 
-    # @requires("authenticated", status_code=401)
+    # @requires("authenticated", status_code=401) # Реализованы публичные профили
     # @requires("admin", status_code=403)
     async def get(self, request: Request):
         user_id = request.path_params["user_id"]
@@ -199,9 +199,8 @@ class ProfileAvatar(HTTPEndpoint):
             if avatar is None:
                 raise ApiError.bad_request(message="Avatar file was not sent!")
 
-            avatar_filename = avatar.filename
             avatar_file = await avatar.read()
-            avatar = FileDTO(filename=avatar_filename, content=avatar_file)
+            avatar = FileDTO(filename=avatar.filename, content=avatar_file)
 
         user_avatar = await self.__service.set_user_avatar(user=user, dto=avatar)
         return JSONResponse(

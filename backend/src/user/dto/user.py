@@ -4,6 +4,7 @@ import typing as tp
 
 from pydantic import BaseModel, Json, validator
 
+from app.exceptions.api import ApiError
 from app.utils.OtherUtils import email_validate
 
 
@@ -41,7 +42,7 @@ class UserRegisterDTO(BaseModel):
 class UserRequestCodeDTO(BaseModel):
     code: str
     email: str
-    timestamp: int = int(datetime.datetime.now().timestamp())
+    timestamp = int(datetime.datetime.now().timestamp())
     reason: tp.Literal[
         "complete-register", "change-email", "reset-password"
     ] = "UNKNOWN REASON"
@@ -121,9 +122,17 @@ class FileDTO(BaseModel):
         if ext not in allowed_ext:
             print(ext)
             raise ValueError(
-                f"Недопустимое расширение файла! Допустимые форматы {allowed_ext}"
+                f"Unsupported extension! Available: {allowed_ext}"
             )
 
+        return value
+
+    @validator("content")
+    def validate_filesize(cls, value: bytes):
+        if len(value) > 10485760:
+            raise ApiError.file_too_large(
+                message="The file size should not exceed 10MB."
+            )
         return value
 
 
