@@ -38,10 +38,10 @@ export function WarnHeader() {
 
     return (
         <React.Fragment>
-            <AppBar position="static" style={{ backgroundColor: orange[500] }}>
+            <AppBar position="static" style={{ backgroundColor: orange[500]}} elevation={0}>
                 <Toolbar>
-                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Typography variant="h6" color="inherit" sx={{ textAlign: 'center' }}>
+                    <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                        <Typography variant="body1" color="inherit" sx={{ textAlign: 'center' }}>
                             {msg}
                         </Typography>
                         {need_button && <Button variant="outlined" color="inherit" onClick={handleButtonClick} sx={{ ml: 2 }}>

@@ -31,9 +31,9 @@ export default function FilmSearchInput() {
     clearTranscriptOnListen: true,
   })
 
-  React.useEffect(() => {
-    if (!isAuth || userStatus !== "active") setIsUsingSmartSearch(false)
-  }, [isAuth])
+  // React.useEffect(() => {
+  //   if (!isAuth || userStatus !== "active") setIsUsingSmartSearch(false)
+  // }, [isAuth])
 
   React.useEffect(() => setInputValue(finalTranscript), [finalTranscript])
 

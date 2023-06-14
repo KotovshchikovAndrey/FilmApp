@@ -40,8 +40,8 @@ export function VerifyEmail() {
 
   const renderPage = () => (
     <React.Fragment>
+      <ArrowHeader />
       <Container maxWidth="xs">
-        <ArrowHeader />
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={3} mt={10}>
             <Typography variant="h5">Enter verification code</Typography>
