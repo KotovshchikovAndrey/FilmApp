@@ -17,7 +17,7 @@ export default function Home() {
         <FilmSearchInput />
       </Stack>
       <Stack spacing={3} mb={10} useFlexGap>
-        <Typography variant="h5" component="h2">
+        <Typography variant="h4" component="h2">
           Film collection
         </Typography>
         <FilmCollection />

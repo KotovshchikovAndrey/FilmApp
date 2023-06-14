@@ -68,7 +68,7 @@ export default function FilmSearchInput() {
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         <Grid xs={12} md={10}>
           <TextField
             multiline
