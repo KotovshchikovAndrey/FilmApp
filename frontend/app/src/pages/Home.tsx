@@ -10,15 +10,15 @@ export default function Home() {
   return (
     <React.Fragment>
       <ProfileHeader />
-      <Stack spacing={5} mb={10} mt={20}>
-        <Typography variant="h4" component="h1">
-          Find your favorite film now!
+      <Stack spacing={5} mb={10} mt={20} alignContent="center">
+        <Typography variant="h2" component="h1" textAlign="center">
+          Find your favorite film!
         </Typography>
         <FilmSearchInput />
       </Stack>
       <Stack spacing={3} mb={10} useFlexGap>
         <Typography variant="h5" component="h2">
-          Коллекция
+          Film collection
         </Typography>
         <FilmCollection />
       </Stack>

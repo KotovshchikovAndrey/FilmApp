@@ -38,7 +38,7 @@ export default function FilmFilters() {
             // onSelect={(event: React.ChangeEvent<HTMLInputElement>) =>
             //   console.log(event.target.value)
             // }
-            renderInput={(params) => <TextField {...params} label="Жанр" />}
+            renderInput={(params) => <TextField {...params} label="Genre" />}
             value={filterValue.genre}
             // onChange={(event: any, newValue, reason) => {
             //   dispatch(filmActions.setFilter({ ...filterValue, genre: newValue }))
@@ -54,7 +54,7 @@ export default function FilmFilters() {
             disablePortal
             options={filterOptions ? filterOptions.countries : []}
             getOptionLabel={(option: ICountry) => option.name}
-            renderInput={(params) => <TextField {...params} label="Страна" />}
+            renderInput={(params) => <TextField {...params} label="Country" />}
             renderOption={(props, option: ICountry) => (
               <Box component="li" sx={{ "& > img": { mr: 2, flexShrink: 0 } }} {...props}>
                 <img

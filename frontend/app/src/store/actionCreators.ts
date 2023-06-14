@@ -144,7 +144,7 @@ export const fetchFilms = (data: IGetFilmsParams) => {
         dispatch(filmActions.setErrorMessage(e.response.data))
       } else {
         // Something happened in setting up the request that triggered an Error
-        dispatch(filmActions.setErrorMessage("Unexpected error"))
+        dispatch(filmActions.setErrorMessage("Internal error! Try again later"))
         console.log("Unexpected error: ", e.message)
       }
     } finally {

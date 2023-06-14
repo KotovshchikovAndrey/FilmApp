@@ -10,6 +10,7 @@ import { AxiosError } from "axios"
 import { useAppDispatch, useAppSelector } from "../store"
 import { verifyUser } from "../store/actionCreators"
 import { authActions } from "../store/authReducer"
+import ArrowHeader from "../components/shared/Header/ArrowHeader";
 
 export function VerifyEmail() {
   const navigate = useNavigate()
@@ -40,6 +41,7 @@ export function VerifyEmail() {
   const renderPage = () => (
     <React.Fragment>
       <Container maxWidth="xs">
+        <ArrowHeader />
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={3} mt={10}>
             <Typography variant="h5">Enter verification code</Typography>
