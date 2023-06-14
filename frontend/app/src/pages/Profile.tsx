@@ -1,12 +1,16 @@
 import * as React from "react"
-import { Avatar, Box, Button, CircularProgress, Skeleton, Stack, Typography } from "@mui/material"
-import { useAppDispatch, useAppSelector } from "../store"
-import { Navigate } from "react-router-dom"
-import { fetchUserFavoriteFilms, logoutUser, setUserAvatar } from "../store/actionCreators"
+import {Avatar, Box, Button, CircularProgress, Skeleton, Stack, TextField, Typography} from "@mui/material"
+import {useAppDispatch, useAppSelector} from "../store"
+import {Navigate} from "react-router-dom"
+import {fetchUserFavoriteFilms, logoutUser, setUserAvatar} from "../store/actionCreators"
 import ArrowHeader from "../components/shared/Header/ArrowHeader"
 import ProfileDataField from "../components/shared/Profile/ProfileDataField"
 import FilmCardList from "../components/shared/film/FilmCardList"
-import { API_URL } from "../core/config"
+import {API_URL} from "../core/config"
+import Grid from "@mui/material/Unstable_Grid2";
+import EditIcon from '@mui/icons-material/Edit';
+import LogoutIcon from '@mui/icons-material/Logout';
+import UploadIcon from '@mui/icons-material/Upload';
 
 export default function Profile() {
   const dispatch = useAppDispatch()
@@ -36,64 +40,105 @@ export default function Profile() {
 
   const renderProfile = () => (
     <React.Fragment>
-      <ArrowHeader />
-      <Stack spacing={3} mt={5} useFlexGap>
+      <ArrowHeader/>
+      <Stack spacing={3} useFlexGap>
+        <Button
+          sx={{maxWidth: 150, alignSelf: "end"}}
+          startIcon={<LogoutIcon/>}
+          variant="outlined"
+          onClick={() => dispatch(logoutUser())}
+        >
+          Log out
+        </Button>
         {user !== null && (
           <>
-            {isLoading ? (
-              <Box display="flex">
-                <CircularProgress size={100} />
-              </Box>
-            ) : (
-              <Avatar
-                src={
-                  user.avatar
-                    ? `${API_URL}/users/media` + user.avatar
-                    : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
-                }
-                sx={{ width: 100, height: 100 }}
-              />
-            )}
+            <Grid container spacing={2}>
+              <Grid xs={12} md={4}>
+                <Box maxWidth={200} mx="auto">
+                  <Avatar
+                    src={
+                      user.avatar
+                        ? `${API_URL}/users/media` + user.avatar
+                        : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
+                    }
+                    sx={{width: 200, height: 200}}
+                  />
+                </Box>
 
-            <Typography variant="h3">Welcome {user.name}</Typography>
+              </Grid>
+              <Grid xs={6} md={4}>
+                <Stack spacing={2}>
+                  {/*<Typography variant="h4">{user.name} {user.surname}</Typography>*/}
+                  {/*<Typography variant="body1">{user.name} {user.surname}</Typography>*/}
+                  <TextField
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    label="Name"
+                    defaultValue={user.name}
+                  />
+                  <TextField
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    label="Email"
+                    defaultValue={user.email}
+                  />
+                  <label htmlFor="upload-image">
+                    <Button variant="text" startIcon={<UploadIcon/>} component="span">
+                      Upload avatar</Button>
+                    <input
+                      id="upload-image"
+                      hidden
+                      accept=".jpg,.png,.gif"
+                      type="file"
+                      onChange={UploadAvatarHandler}
+                    />
+
+                  </label>
+
+                </Stack>
+              </Grid>
+              <Grid xs={6} md={4}>
+                <Stack spacing={2}>
+                  <TextField
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    label="Surname"
+                    defaultValue={user.surname}
+                  />
+                  <TextField
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    label="Password"
+                    defaultValue="●●●●●●●●●●●●"
+                  />
+                  <Button disabled sx={{maxWidth: 100, alignSelf: "end"}} variant="outlined"
+                          startIcon={<EditIcon/>}>Edit</Button>
+                </Stack>
+
+              </Grid>
+            </Grid>
+
+
             <Stack spacing={3} my={5} maxWidth={600} useFlexGap>
-              <ProfileDataField userDataName="Name" userDataValue={user.name} />
-              <ProfileDataField userDataName="Surname" userDataValue={user.surname} />
-              <ProfileDataField userDataName="Email" userDataValue={user.email} />
-              <ProfileDataField userDataName="Password" userDataValue="●●●●●●●●●●●●" />
 
               <Stack
-                sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}
+                sx={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}
               >
-                <label htmlFor="upload-image">
-                  <Button sx={{ width: 150 }} variant="contained" component="span">
-                    Select avatar
-                  </Button>
-                  <input
-                    id="upload-image"
-                    hidden
-                    accept=".jpg,.png,.gif"
-                    type="file"
-                    onChange={UploadAvatarHandler}
-                  />
-                </label>
 
-                <Button
-                  sx={{ width: 150 }}
-                  variant="outlined"
-                  onClick={() => dispatch(logoutUser())}
-                >
-                  Log out
-                </Button>
+
               </Stack>
             </Stack>
             <Typography variant="h4">Favorite films</Typography>
-            <FilmCardList films={favoriteFilms} key={100} />
+            <FilmCardList films={favoriteFilms} key={100}/>
           </>
-        )}
+          )}
       </Stack>
     </React.Fragment>
-  )
+)
 
-  return <React.Fragment>{isAuth && user ? renderProfile() : <Navigate to="/" />}</React.Fragment>
+return <React.Fragment>{isAuth && user ? renderProfile() : <Navigate to="/"/>}</React.Fragment>
 }
