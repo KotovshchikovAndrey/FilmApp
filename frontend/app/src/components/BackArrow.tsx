@@ -6,9 +6,9 @@ import {IconButton} from "@mui/material";
 export default function BackArrow() {
     return (
         <React.Fragment>
-            <Link to={".."} style={{marginTop: 10}}>
-                <IconButton aria-label="back arrow">
-                    <ArrowBackIcon/>
+            <Link to={".."}>
+                <IconButton aria-label="back arrow" size="large">
+                    <ArrowBackIcon fontSize="inherit"/>
                 </IconButton>
             </Link>
         </React.Fragment>
