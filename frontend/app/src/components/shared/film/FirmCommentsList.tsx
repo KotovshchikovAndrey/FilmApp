@@ -84,7 +84,6 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
             marginBottom="10px"
           >
             <Avatar
-              alt="Remy Sharp"
               src={
                 user.avatar
                   ? `${API_URL}/users/media` + user.avatar

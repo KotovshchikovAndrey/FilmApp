@@ -1,5 +1,5 @@
 import React from "react"
-import { Stack, Rating, Typography } from "@mui/material"
+import {Stack, Rating, Typography} from "@mui/material"
 import api from "../../../api"
 
 interface FilmStarRatingProps {
@@ -28,15 +28,22 @@ export const FilmStarRating: React.FC<FilmStarRatingProps> = (props: FilmStarRat
 
   return (
     <React.Fragment>
-      <Stack spacing={1}>
-        <Typography>AVG rating: {rating}</Typography>
-        <Rating
-          name="size-large"
-          size="large"
-          defaultValue={props.userRating}
-          precision={0.5}
-          onChange={(event, newValue) => setRatingHandler(newValue)}
-        />
+      <Stack spacing={3} direction="row" alignItems="center">
+        <Stack alignItems="center">
+          <Typography sx={{fontSize: 35, fontWeight: 900}}>{rating}/5</Typography>
+          <Typography variant="subtitle2">Users rating</Typography>
+        </Stack>
+        <Stack>
+          <Typography variant="h6">Rate</Typography>
+          <Rating
+            name="size-large"
+            size="large"
+            defaultValue={props.userRating}
+            precision={0.5}
+            onChange={(event, newValue) => setRatingHandler(newValue)}
+          />
+
+        </Stack>
       </Stack>
     </React.Fragment>
   )

@@ -28,8 +28,8 @@ export interface IFilm {
   release_date?: string
   time?: number
   genres: IGenre[] | null
-  productionCompanies?: ICompany[] | null
-  productionCountries?: ICountry[] | null
+  production_companies?: ICompany[] | null
+  production_countries?: ICountry[] | null
   is_favorite?: boolean
   rating?: number
   watch_status?: string
