@@ -1,6 +1,8 @@
-from starlette.routing import Route
+from starlette.routing import Route, Mount
+from starlette.staticfiles import StaticFiles
 
 from app.api.api_v1.film import controllers
+from app.core import config
 
 routes = [
     Route("/", controllers.Film),
@@ -13,4 +15,9 @@ routes = [
     Route("/filters", controllers.FilmFilter),
     Route("/search", controllers.FilmSearch),
     Route("/gigasearch", controllers.FilmGigaSearch),
+    Mount(
+        "/media",
+        app=StaticFiles(directory=config.UPLOAD_DIR + "/posters"),
+        name="static",
+    ),
 ]
