@@ -29,7 +29,8 @@ from film.dto import (
     UpdateCommentDTO,
     FilmCommentsDTO,
     UserFilmInfoDTO,
-    RequestUserFilmInfo, GigaSearchFilmDTO,
+    RequestUserFilmInfo,
+    GigaSearchFilmDTO,
 )
 
 
@@ -227,6 +228,8 @@ class FilmService(IFilmService):
     async def calculate_film_rating(self, film_id: int):
         film_rating = await self.__repository.aggregate_rating(film_id)
         if film_rating is not None:
+            rating = film_rating.rating
+            film_rating.rating = round(rating, 2)
             return film_rating
 
         return FilmRatingDTO(rating=0, film_id=film_id)
