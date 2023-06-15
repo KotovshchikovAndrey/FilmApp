@@ -5,6 +5,7 @@ import {Link} from "react-router-dom"
 import {CardActionArea, Skeleton} from "@mui/material"
 import AspectRatio from "@mui/joy/AspectRatio"
 import Tilt from "react-parallax-tilt"
+import {API_URL} from "../../../core/config";
 
 interface FilmCardItemProps {
   id: number
