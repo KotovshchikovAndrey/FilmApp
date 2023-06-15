@@ -48,7 +48,9 @@ export default function FilmSearchInput() {
     event: React.MouseEvent<HTMLElement>,
     newToggle: boolean,
   ) => {
-    setIsUsingSmartSearch(newToggle)
+    if (newToggle !== null) {
+      setIsUsingSmartSearch(newToggle);
+    }
   }
 
 
