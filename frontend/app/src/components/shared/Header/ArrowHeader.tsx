@@ -5,7 +5,7 @@ import BackArrow from "../../BackArrow";
 function ArrowHeader() {
     return (
         <React.Fragment>
-            <AppBar position="static" color="transparent" elevation={0} sx={{my: 3}}>
+            <AppBar position="sticky" color="inherit" elevation={0} sx={{my: 3}}>
                 <Toolbar disableGutters>
                     <BackArrow/>
                 </Toolbar>
