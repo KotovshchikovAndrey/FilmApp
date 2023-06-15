@@ -76,6 +76,7 @@ export default function FilmSearchInput() {
         <Grid xs={12} sm={10}>
           <TextField
             fullWidth
+            multiline
             value={inputValue}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setInputValue(event.target.value)

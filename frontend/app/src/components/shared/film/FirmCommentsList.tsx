@@ -91,6 +91,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
               sx={{flexGrow: 1}}
               placeholder="Add a comment..."
               fullWidth
+              multiline
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
             />

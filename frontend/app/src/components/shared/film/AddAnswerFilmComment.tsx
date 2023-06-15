@@ -61,6 +61,7 @@ export const AddAnswerFilmComment: React.FC<IAddAnswerFilmCommentProps> = (
               sx={{flexGrow: 1}}
               placeholder="Add a reply..."
               fullWidth
+              multiline
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
             />
