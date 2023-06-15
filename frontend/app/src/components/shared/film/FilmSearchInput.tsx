@@ -80,6 +80,11 @@ export default function FilmSearchInput() {
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setInputValue(event.target.value)
             }}
+            helperText={
+              isUsingSmartSearch
+                ? "Write some description of the film and we will try to find it"
+                : "Search film by title"
+            }
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
