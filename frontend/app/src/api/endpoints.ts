@@ -13,7 +13,7 @@ const Endpoints = {
     PROFILE_AVATAR: "/users/profile/me/avatar",
   },
   FILMS: {
-    GET_FILMS: "/films",
+    GET_FILMS: "/films/",
     GET_POSTER: (filmId: number) => `/films/${filmId}/poster`,
     GET_FILM_DETAIL: (filmId: number) => `/films/${filmId}`,
     GET_FILM_TRAILER: (filmId: number) => `/films/${filmId}/trailer`,
