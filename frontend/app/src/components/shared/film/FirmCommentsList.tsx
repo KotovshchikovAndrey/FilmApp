@@ -1,11 +1,21 @@
 import React from "react"
-import { FilmComment } from "./FilmComment"
-import { useAppSelector, useAppDispatch } from "../../../store"
-import { ICommentAuthor } from "../../../core/entities"
-import { Avatar, Box, Button, CircularProgress, Stack, TextField } from "@mui/material"
-import { addChildFilmComment, addFilmComment, getFilmComments } from "../../../store/actionCreators"
-import { API_URL } from "../../../core/config"
-import { AddAnswerFilmComment } from "./AddAnswerFilmComment"
+import {FilmComment} from "./FilmComment"
+import {useAppSelector, useAppDispatch} from "../../../store"
+import {ICommentAuthor} from "../../../core/entities"
+import {
+  Avatar,
+  Box,
+  Button,
+  CircularProgress, Grid, List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Stack,
+  TextField, Typography
+} from "@mui/material"
+import {addChildFilmComment, addFilmComment, getFilmComments} from "../../../store/actionCreators"
+import {API_URL} from "../../../core/config"
+import {AddAnswerFilmComment} from "./AddAnswerFilmComment"
 
 interface IFilmCommentsListProps {
   filmId: number
@@ -32,7 +42,7 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
     parentCommentAuthor: ICommentAuthor,
     parentCommentId: number
   ) => {
-    setParentComment({ id: parentCommentId, author: parentCommentAuthor })
+    setParentComment({id: parentCommentId, author: parentCommentAuthor})
   }
 
   const addCommentHandler = () => {
@@ -57,59 +67,59 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
 
   return (
     <React.Fragment>
-      {comments.map((comment) => (
-        <>
-          <FilmComment
-            key={comment.comment_id}
-            comment={comment}
-            onAddAnswer={addCommentAnswerHandler}
-          />
-          {parentComment?.id === comment.comment_id && (
-            <AddAnswerFilmComment
-              key={comment.comment_id}
-              filmId={props.filmId}
-              parentComment={parentComment}
-            />
-          )}
-        </>
-      ))}
-
+      <Typography variant="h5">{comments.length} comments</Typography>
       {isAuth && user && user.status === "active" && (
-        <Stack alignItems="flex-end">
-          <Stack
-            flexDirection="row"
-            alignItems="flex-end"
-            width="100%"
-            maxWidth="1200px"
-            marginBottom="10px"
-          >
+        <Box display="flex" alignItems="flex-start" gap={3}>
             <Avatar
               src={
                 user.avatar
                   ? `${API_URL}/users/media` + user.avatar
                   : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
               }
-              sx={{ width: 100, height: 100, marginRight: 3 }}
+              sx={{width: 40, height: 40}}
             />
             <TextField
-              placeholder="Your comment"
+              variant="standard"
+              sx={{flexGrow: 1}}
+              placeholder="Add a comment..."
               multiline
-              sx={{ width: 500 }}
+              fullWidth
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}
             />
-          </Stack>
-          {isLoading ? (
-            <Box display="flex" justifyContent="center">
-              <CircularProgress size={60} />
-            </Box>
-          ) : (
-            <Button variant="outlined" sx={{ width: 100 }} onClick={addCommentHandler}>
-              Add
-            </Button>
-          )}
-        </Stack>
+            {isLoading ? (
+              <Box display="flex" justifyContent="center">
+                <CircularProgress size={60}/>
+              </Box>
+            ) : (
+              <Button variant="outlined" sx={{width: 100}} onClick={addCommentHandler}>
+                Comment
+              </Button>
+            )}
+
+        </Box>
       )}
+
+      <Stack>
+        {comments.map((comment) => (
+          <>
+            <FilmComment
+              key={comment.comment_id}
+              comment={comment}
+              onAddAnswer={addCommentAnswerHandler}
+            />
+            {
+              parentComment?.id === comment.comment_id && (
+                <AddAnswerFilmComment
+                  key={comment.comment_id}
+                  filmId={props.filmId}
+                  parentComment={parentComment}
+                />
+              )
+            }
+          </>
+        ))}
+      </Stack>
     </React.Fragment>
   )
 }

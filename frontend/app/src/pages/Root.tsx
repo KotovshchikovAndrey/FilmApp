@@ -7,7 +7,7 @@ export default function Root() {
     return (
         <React.Fragment>
             <WarnHeader />
-            <Container>
+            <Container sx={{mb: 10}}>
                 <Outlet/>
             </Container>
         </React.Fragment>

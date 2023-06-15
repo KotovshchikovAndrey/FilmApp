@@ -90,92 +90,94 @@ export default function FilmDetail() {
       {/*    <CircularProgress size={100}/>*/}
       {/*  </Box>*/}
       {/*) : (*/}
-      <Grid container spacing={5}>
-        <Grid xs={12} sm={6}>
-          <AspectRatio ratio={2 / 3}>
-            {loading ? <Skeleton variant="rectangular" width="100%" height="100%"/> :
-              <img style={{width: "100%", height: "100%"}} src={film?.posterUrl} alt={film?.title}/>}
-          </AspectRatio>
-        </Grid>
-        <Grid xs={12} sm={6}>
-          <Stack spacing={2}>
-
-            <Typography variant="h3">
-              {loading ? <Skeleton height={100}/> : film.title}
-            </Typography>
-            <Stack direction="row" spacing={5} justifyContent="space-between">
-
-              {loading ? <Skeleton variant="rectangular" width={260} height={75}/> :
-                (isAuth && userStatus === "active" &&
-                    <FilmStarRating key={filmId} filmId={filmId} userRating={userRating}/>)}
-              {loading ? <Skeleton variant="circular" width={75} height={75}/> :
-                (isAuth &&
-                  userStatus === "active" &&
-                  (isFilmFavorite ? (
-                    <IconButton sx={{width: 75, height: 75}} color="error" onClick={() => removeFilmHandler()}>
-                      {isLoading ? <CircularProgress size={40}/> : <FavoriteIcon sx={{fontSize: 40}}/>}
-
-                    </IconButton>
-                  ) : (
-                    <IconButton sx={{width: 75, height: 75}} onClick={() => addFilmHandler()}>
-                      {isLoading ? <CircularProgress size={40}/> : <FavoriteIcon sx={{fontSize: 40}}/>}
-                    </IconButton>
-                  )))
-              }
-            </Stack>
-
-            <TableContainer component={Paper} elevation={0}>
-              {loading ? <Skeleton variant="rectangular" height={380}/> :
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Release year</TableCell>
-                      <TableCell>{film.release_date ? film.release_date.split("-")[0] : "—"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Countries</TableCell>
-                      <TableCell>{film.production_countries ? film.production_countries.map(country => country.name).join(", ") : "—"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Genres</TableCell>
-                      <TableCell>{film.genres ? film.genres.map(genre => genre.name).join(", ") : "—"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Production companies</TableCell>
-                      <TableCell>{film.production_companies ? film.production_companies.map(company => company.name).join(", ") : "—"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Running time</TableCell>
-                      <TableCell>{film.time ? `${film.time} minutes` : "—"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Age Rating</TableCell>
-                      <TableCell>{film.is_adult ? "18+" : "0+"}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Budget</TableCell>
-                      <TableCell>{film.budget ? `$${film.budget}` : "—"}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>}
-            </TableContainer>
-
-            <Typography variant="h5">{loading ? <Skeleton height={50}/> : "Description"}</Typography>
-            <Typography>{loading ? <Skeleton height={200}/> : film.description}</Typography>
-            <Typography variant="h5">{loading ? <Skeleton height={50}/> : "Trailer"}</Typography>
-            <AspectRatio>
-              {loading ? <Skeleton variant="rectangular"/> :
-                <iframe
-                  src={film.trailerUrl}
-                  title={film.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />}
+      <Stack spacing={5} >
+        <Grid container spacing={5}>
+          <Grid xs={12} sm={6}>
+            <AspectRatio ratio={2 / 3}>
+              {loading ? <Skeleton variant="rectangular" width="100%" height="100%"/> :
+                <img style={{width: "100%", height: "100%"}} src={film?.posterUrl} alt={film?.title}/>}
             </AspectRatio>
-          </Stack>
+          </Grid>
+          <Grid xs={12} sm={6}>
+            <Stack spacing={2}>
+
+              <Typography variant="h3">
+                {loading ? <Skeleton height={100}/> : film.title}
+              </Typography>
+              <Stack direction="row" spacing={5} justifyContent="space-between">
+
+                {loading ? <Skeleton variant="rectangular" width={260} height={75}/> :
+                  (isAuth && userStatus === "active" &&
+                      <FilmStarRating key={filmId} filmId={filmId} userRating={userRating}/>)}
+                {loading ? <Skeleton variant="circular" width={75} height={75}/> :
+                  (isAuth &&
+                    userStatus === "active" &&
+                    (isFilmFavorite ? (
+                      <IconButton sx={{width: 75, height: 75}} color="error" onClick={() => removeFilmHandler()}>
+                        {isLoading ? <CircularProgress size={40}/> : <FavoriteIcon sx={{fontSize: 40}}/>}
+
+                      </IconButton>
+                    ) : (
+                      <IconButton sx={{width: 75, height: 75}} onClick={() => addFilmHandler()}>
+                        {isLoading ? <CircularProgress size={40}/> : <FavoriteIcon sx={{fontSize: 40}}/>}
+                      </IconButton>
+                    )))
+                }
+              </Stack>
+
+              <TableContainer component={Paper} elevation={0}>
+                {loading ? <Skeleton variant="rectangular" height={380}/> :
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Release year</TableCell>
+                        <TableCell>{film.release_date ? film.release_date.split("-")[0] : "—"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Countries</TableCell>
+                        <TableCell>{film.production_countries ? film.production_countries.map(country => country.name).join(", ") : "—"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Genres</TableCell>
+                        <TableCell>{film.genres ? film.genres.map(genre => genre.name).join(", ") : "—"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Production companies</TableCell>
+                        <TableCell>{film.production_companies ? film.production_companies.map(company => company.name).join(", ") : "—"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Running time</TableCell>
+                        <TableCell>{film.time ? `${film.time} minutes` : "—"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Age Rating</TableCell>
+                        <TableCell>{film.is_adult ? "18+" : "0+"}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Budget</TableCell>
+                        <TableCell>{film.budget ? `$${film.budget}` : "—"}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>}
+              </TableContainer>
+
+              <Typography variant="h5">{loading ? <Skeleton height={50}/> : "Description"}</Typography>
+              <Typography>{loading ? <Skeleton height={200}/> : film.description}</Typography>
+              <Typography variant="h5">{loading ? <Skeleton height={50}/> : "Trailer"}</Typography>
+              <AspectRatio>
+                {loading ? <Skeleton variant="rectangular"/> :
+                  <iframe
+                    src={film.trailerUrl}
+                    title={film.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />}
+              </AspectRatio>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
-      <FilmCommentsList key={filmId} filmId={filmId}/>
+        <FilmCommentsList key={filmId} filmId={filmId}/>
+      </Stack>
     </React.Fragment>
   )
 }

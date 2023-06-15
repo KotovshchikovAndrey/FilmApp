@@ -18,26 +18,25 @@ export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChi
 
   return (
     <React.Fragment>
-      <Stack alignItems="flex-end" marginBottom={3} width="93%" maxWidth="1200px">
-        <Stack flexDirection="row" alignItems="flex-end" width="93%">
+      <Stack alignItems="flex-end" marginBottom={3} maxWidth="1200px" pl={8}>
+        <Stack flexDirection="row" alignItems="flex-start">
           <Avatar
-            alt="Remy Sharp"
             src={
               comment.author.avatar
                 ? `${API_URL}/users/media` + comment.author.avatar
                 : "https://d2yht872mhrlra.cloudfront.net/user/138550/user_138550.jpg"
             }
-            sx={{ width: 100, height: 100, marginRight: 3 }}
+            sx={{ width: 40, height: 40, marginRight: 3 }}
           />
           <Stack>
-            <Typography fontWeight="bold" marginBottom="7px">
+            <Typography  variant="subtitle1" fontWeight="bold" marginBottom="7px">
               {comment.author.name} {comment.author.surname}
             </Typography>
-            <Typography>{comment.text}</Typography>
+            <Typography variant="body1">{comment.text}</Typography>
           </Stack>
         </Stack>
         {isAuth && user && user.status === "active" && (
-          <Button onClick={() => onAddAnswer(comment.author, parentCommentId)}>Add answer</Button>
+          <Button onClick={() => onAddAnswer(comment.author, parentCommentId)}>Reply</Button>
         )}
       </Stack>
     </React.Fragment>
