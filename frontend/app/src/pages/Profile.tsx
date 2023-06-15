@@ -48,7 +48,7 @@ export default function Profile() {
           variant="outlined"
           onClick={() => dispatch(logoutUser())}
         >
-          Log out
+          Logout
         </Button>
         {user !== null && (
           <>
