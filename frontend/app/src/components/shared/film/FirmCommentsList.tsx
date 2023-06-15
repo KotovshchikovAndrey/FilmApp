@@ -1,7 +1,7 @@
 import React from "react"
 import {FilmComment} from "./FilmComment"
 import {useAppSelector, useAppDispatch} from "../../../store"
-import {ICommentAuthor} from "../../../core/entities"
+import {IComment, ICommentAuthor} from "../../../core/entities"
 import {
   Avatar,
   Box,
@@ -65,9 +65,17 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
     dispatch(getFilmComments(props.filmId))
   }, [])
 
+  const countComments = (comments: IComment[]): number => {
+    let count = 0
+    for (let comment of comments) {
+      count += comment.child_comments.length + 1
+    }
+    return count
+  }
+
   return (
     <React.Fragment>
-      <Typography variant="h5">{comments.length} comments</Typography>
+      <Typography variant="h5">{countComments(comments)} comments</Typography>
       {isAuth && user && user.status === "active" && (
         <Box display="flex" alignItems="flex-start" gap={3}>
             <Avatar
@@ -82,7 +90,6 @@ export const FilmCommentsList: React.FC<IFilmCommentsListProps> = (
               variant="standard"
               sx={{flexGrow: 1}}
               placeholder="Add a comment..."
-              multiline
               fullWidth
               value={commentText}
               onChange={(event) => setCommentText(event.target.value)}

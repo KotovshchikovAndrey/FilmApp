@@ -18,8 +18,8 @@ export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChi
 
   return (
     <React.Fragment>
-      <Stack alignItems="flex-end" marginBottom={3} maxWidth="1200px" pl={8}>
-        <Stack flexDirection="row" alignItems="flex-start">
+      <Stack alignItems="flex-end" marginBottom={3} maxWidth="1200px" pl={8} width="100%">
+        <Stack flexDirection="row" alignItems="flex-start"  width="100%">
           <Avatar
             src={
               comment.author.avatar
@@ -29,7 +29,7 @@ export const FilmChildComment: React.FC<FilmChildCommentProps> = (props: FilmChi
             sx={{ width: 40, height: 40, marginRight: 3 }}
           />
           <Stack>
-            <Typography  variant="subtitle1" fontWeight="bold" marginBottom="7px">
+            <Typography flexGrow={1} variant="subtitle1" fontWeight="bold" marginBottom="7px">
               {comment.author.name} {comment.author.surname}
             </Typography>
             <Typography variant="body1">{comment.text}</Typography>

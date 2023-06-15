@@ -54,8 +54,9 @@ export default function FilmSearchInput() {
 
   return (
     <React.Fragment>
-      <Box alignSelf="center">
+
         {isAuth && userStatus === "active" && (
+          <Box alignSelf="center">
           <ToggleButtonGroup
             value={isUsingSmartSearch}
             exclusive
@@ -67,48 +68,47 @@ export default function FilmSearchInput() {
             <ToggleButton value={false}>
               Default search
             </ToggleButton>
-          </ToggleButtonGroup>)}
-          </Box>
-        <Grid container spacing={1}>
-          <Grid xs={12} sm={10}>
-            <TextField
-              multiline
-              fullWidth
-              value={inputValue}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setInputValue(event.target.value)
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {browserSupportsSpeechRecognition && (
-                      <Box
-                        onClick={() =>
-                          !listening
-                            ? SpeechRecognition.startListening({language: "en"})
-                            : SpeechRecognition.stopListening()
-                        }
-                      >
-                        <MicIcon
-                          sx={{
-                            color: listening ? "red" : "black",
-                            cursor: "pointer",
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid xs={12} sm={2}>
-            <Button variant="contained" startIcon={<SearchIcon/>} onClick={() => fetchSearchFilm()} size="large"
-                    sx={{width: "100%", height: 56}}>
-              Search
-            </Button>
-          </Grid>
+          </ToggleButtonGroup>
+          </Box>)}
+      <Grid container spacing={1}>
+        <Grid xs={12} sm={10}>
+          <TextField
+            fullWidth
+            value={inputValue}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setInputValue(event.target.value)
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {browserSupportsSpeechRecognition && (
+                    <Box
+                      onClick={() =>
+                        !listening
+                          ? SpeechRecognition.startListening({language: "en"})
+                          : SpeechRecognition.stopListening()
+                      }
+                    >
+                      <MicIcon
+                        sx={{
+                          color: listening ? "red" : "black",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </Box>
+                  )}
+                </InputAdornment>
+              ),
+            }}
+          />
         </Grid>
+        <Grid xs={12} sm={2}>
+          <Button variant="contained" startIcon={<SearchIcon/>} onClick={() => fetchSearchFilm()} size="large"
+                  sx={{width: "100%", height: 56}}>
+            Search
+          </Button>
+        </Grid>
+      </Grid>
 
     </React.Fragment>
   )
